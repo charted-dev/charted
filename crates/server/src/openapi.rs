@@ -123,6 +123,12 @@ use utoipa::{
         )
     ),
     paths(
+        crate::routing::v1::user::avatars::get_self_user_avatar_by_hash,
+        crate::routing::v1::user::avatars::get_user_avatar_by_hash,
+        crate::routing::v1::user::avatars::get_self_user_avatar,
+        crate::routing::v1::user::avatars::upload_user_avatar,
+        crate::routing::v1::user::avatars::get_user_avatar,
+
         crate::routing::v1::user::apikeys::delete,
         crate::routing::v1::user::apikeys::create,
         crate::routing::v1::user::apikeys::patch,

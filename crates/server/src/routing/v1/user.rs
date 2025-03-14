@@ -54,14 +54,18 @@ pub fn create_router(cx: &Context) -> Router<Context> {
         true => Router::new().route("/", routing::get(main)),
     };
 
-    let id_or_name = Router::new().route("/", routing::get(fetch)).route(
-        "/repositories",
-        routing::get(
-            repositories::list_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
-                crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
-            )),
-        ),
-    );
+    let id_or_name = Router::new()
+        .route("/", routing::get(fetch))
+        .route(
+            "/repositories",
+            routing::get(
+                repositories::list_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
+                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
+                )),
+            ),
+        )
+        .route("/avatar", routing::get(avatars::get_user_avatar))
+        .route("/avatars/{hash}", routing::get(avatars::get_user_avatar_by_hash));
 
     let at_me = {
         let mut base = Router::new();
@@ -94,19 +98,37 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             }
         }
 
-        base.nest("/apikeys", apikeys::create_router()).route(
-            "/repositories",
-            routing::get(
-                repositories::list_self_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
-                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
-                )),
+        base.nest("/apikeys", apikeys::create_router())
+            .route(
+                "/repositories",
+                routing::get(
+                    repositories::list_self_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
+                    )),
+                )
+                .put(
+                    repositories::create_user_repository.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoCreate),
+                    )),
+                ),
             )
-            .put(
-                repositories::create_user_repository.layer(AsyncRequireAuthorizationLayer::new(
-                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoCreate),
-                )),
-            ),
-        )
+            .route(
+                "/avatar",
+                routing::get(avatars::get_self_user_avatar.layer(AsyncRequireAuthorizationLayer::new(
+                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                )))
+                .post(avatars::upload_user_avatar.layer(AsyncRequireAuthorizationLayer::new(
+                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAvatarUpdate),
+                ))),
+            )
+            .route(
+                "/avatars/{hash}",
+                routing::get(
+                    avatars::get_self_user_avatar_by_hash.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    )),
+                ),
+            )
     };
 
     router.nest("/@me", at_me).nest("/{idOrName}", id_or_name)

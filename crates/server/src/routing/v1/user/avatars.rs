@@ -13,7 +13,78 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_types::NameOrUlid;
+mod ops;
+
+use crate::{
+    Context,
+    extract::Path,
+    extract_refor_t,
+    middleware::sessions::Session,
+    modify_property,
+    multipart::Multipart,
+    openapi::{ApiErrorResponse, ApiResponse},
+};
+use axum::{Extension, extract::State, response::IntoResponse};
+use azalia::remi::{
+    core::{StorageService, UploadRequest},
+    fs,
+};
+use charted_core::{api, rand_string};
+use charted_database::entities::{UserEntity, user};
+use charted_types::{NameOrUlid, User};
+use reqwest::StatusCode;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
+use serde_json::json;
+use std::{borrow::Borrow, collections::BTreeMap};
+use url::Url;
+use utoipa::{
+    IntoParams, IntoResponses, PartialSchema, ToResponse,
+    openapi::{
+        Content, RefOr, Response,
+        path::{Parameter, ParameterIn},
+    },
+};
+
+struct GetUserAvatarR;
+impl IntoResponses for GetUserAvatarR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "200" => Response::builder()
+                .description("Avatar data as a raw image")
+                .content("image/*", Content::builder().schema(Some(<[u8] as PartialSchema>::schema())).build())
+                .build(),
+
+            "404" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Avatar by hash was not found"));
+
+                response
+            },
+
+            "5XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Internal Server Error"));
+
+                response
+            }
+        }
+    }
+}
+
+struct HashParams;
+impl IntoParams for HashParams {
+    fn into_params(parameter_in_provider: impl Fn() -> Option<ParameterIn>) -> Vec<Parameter> {
+        vec![
+            Parameter::builder()
+                .name("idOrName")
+                .required(utoipa::openapi::Required::True)
+                .parameter_in(parameter_in_provider().unwrap_or_default())
+                .description(Some("The hash that the request will check for"))
+                .schema(Some(String::schema()))
+                .build(),
+        ]
+    }
+}
 
 /// Returns the user's current avatar.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -21,10 +92,51 @@ use charted_types::NameOrUlid;
 #[utoipa::path(
     get,
     path = "/v1/users/{idOrName}/avatar",
-    operation_id = "getUserAvatarByHash",
-    params(NameOrUlid)
+    operation_id = "getCurrentUserAvatar",
+    params(NameOrUlid),
+    responses(GetUserAvatarR)
 )]
-pub async fn get_user_avatar() {}
+pub async fn get_user_avatar(
+    State(cx): State<Context>,
+    Path(id_or_name): Path<NameOrUlid>,
+) -> Result<impl IntoResponse, api::Response> {
+    match id_or_name {
+        NameOrUlid::Name(ref name) => match UserEntity::find()
+            .filter(user::Column::Username.eq(name.to_owned()))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+        {
+            Some(user) => ops::fetch(cx, user).await,
+            None => Err(api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "user with id or name was not found",
+                    json!({"idOrName":id_or_name}),
+                ),
+            )),
+        },
+
+        NameOrUlid::Ulid(id) => match UserEntity::find_by_id(id)
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+        {
+            Some(user) => ops::fetch(cx, user).await,
+            None => Err(api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "user with id or name was not found",
+                    json!({"idOrName":id_or_name}),
+                ),
+            )),
+        },
+    }
+}
 
 /// Returns the user's avatar by their hash.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -33,15 +145,66 @@ pub async fn get_user_avatar() {}
     get,
     path = "/v1/users/{idOrName}/avatars/{hash}",
     operation_id = "getUserAvatar",
-    params(NameOrUlid)
+    params(NameOrUlid, HashParams),
+    responses(GetUserAvatarR)
 )]
-pub async fn get_user_avatar_by_hash() {}
+pub async fn get_user_avatar_by_hash(
+    State(cx): State<Context>,
+    Path((id_or_name, hash)): Path<(NameOrUlid, String)>,
+) -> Result<impl IntoResponse, api::Response> {
+    match id_or_name {
+        NameOrUlid::Name(ref name) => match UserEntity::find()
+            .filter(user::Column::Username.eq(name.to_owned()))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+        {
+            Some(user) => ops::fetch_by_hash(cx, user.id, hash).await,
+            None => Err(api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "user with id or name was not found",
+                    json!({"idOrName":id_or_name}),
+                ),
+            )),
+        },
+
+        NameOrUlid::Ulid(id) => match UserEntity::find_by_id(id)
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+        {
+            Some(user) => ops::fetch_by_hash(cx, user.id, hash).await,
+            None => Err(api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "user with id or name was not found",
+                    json!({"idOrName":id_or_name}),
+                ),
+            )),
+        },
+    }
+}
 
 /// Returns the authenticated user's current avatar.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[instrument(name = "charted.server.ops.fetch[user/self/avatars]", skip_all)]
-#[utoipa::path(get, path = "/v1/users/@me/avatar", operation_id = "getSelfUserAvatar")]
-pub async fn get_self_user_avatar() {}
+#[utoipa::path(
+    get,
+    path = "/v1/users/@me/avatar",
+    operation_id = "getSelfUserAvatar",
+    responses(GetUserAvatarR)
+)]
+pub async fn get_self_user_avatar(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+) -> Result<impl IntoResponse, api::Response> {
+    ops::fetch(cx, user).await
+}
 
 /// Returns the authenticated user's avatar by their hash.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -50,120 +213,78 @@ pub async fn get_self_user_avatar() {}
     get,
     path = "/v1/users/@me/avatars/{hash}",
     operation_id = "getSelfUserAvatarByHash",
-    params(NameOrUlid)
+    responses(GetUserAvatarR)
 )]
-pub async fn get_self_user_avatar_by_hash() {}
+pub async fn get_self_user_avatar_by_hash(
+    State(cx): State<Context>,
+    Path(hash): Path<String>,
+    Extension(Session { user, .. }): Extension<Session>,
+) -> Result<impl IntoResponse, api::Response> {
+    ops::fetch_by_hash(cx, user.id, hash).await
+}
+
+struct UpdateAvatarR;
+impl IntoResponses for UpdateAvatarR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "201" => extract_refor_t!(ApiResponse::<()>::response().1),
+            "5XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Internal Server Failure"));
+
+                response
+            }
+        }
+    }
+}
 
 /// Upload an avatar.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[instrument(name = "charted.server.ops.create[user/avatar]", skip_all)]
-#[utoipa::path(post, path = "/v1/users/@me/avatar", operation_id = "uploadSelfUserAvatar")]
-pub async fn upload_user_avatar() {}
-
-/*
-/// Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST route
-/// to grab an user avatar by a specific hash.
-///
-/// [`GET /users/{idOrName}/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/{idOrName}/avatar/{hash}.png
-#[controller(
-    tags("Users", "Avatars"),
-    pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a `Name` or Snowflake ID"),
-    response(200, "Successful response", ("image/", binary)),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+#[utoipa::path(
+    post,
+    path = "/v1/users/@me/avatar",
+    operation_id = "uploadSelfUserAvatar",
+    request_body(
+        description = "Multipart form of a single field being the avatar data",
+        content = [u8],
+        content_type = "multipart/form-data"
+    ),
+    responses(UpdateAvatarR)
 )]
-pub async fn get_current_user_avatar(
-    State(Instance {
-        controllers,
-        ref storage,
-        ..
-    }): State<Instance>,
-    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    validate(&nos, NameOrSnowflake::validate)?;
-    match controllers.users.get_by(&nos).await {
-        Ok(Some(user)) => fetch_avatar_impl(user, storage).await,
-        Ok(None) => Err::<_, ApiResponse>(err(
-            StatusCode::NOT_FOUND,
-            (
-                ErrorCode::EntityNotFound,
-                "user with id or name was not found",
-                json!({"idOrName":nos}),
-            ),
-        )),
-
-        Err(_) => Err(internal_server_error()),
-    }
-}
-
-/// Return a user avatar by the avatar hash.
-#[controller(
-    tags("Users", "Avatars"),
-    pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a `Name` or Snowflake ID"),
-    pathParameter("hash", string, description = "the hash to lookup for"),
-    response(200, "Successful response", ("", binary)),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn get_user_avatar_by_hash(
-    State(Instance {
-        controllers,
-        ref storage,
-        ..
-    }): State<Instance>,
-    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
-    Path(hash): Path<String>,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    validate(&nos, NameOrSnowflake::validate)?;
-    match controllers.users.get_by(&nos).await {
-        Ok(Some(user)) => fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, storage).await,
-        Ok(None) => Err::<_, ApiResponse>(err(
-            StatusCode::NOT_FOUND,
-            (
-                ErrorCode::EntityNotFound,
-                "user with id or name was not found",
-                json!({"idOrName":nos}),
-            ),
-        )),
-
-        Err(_) => Err(internal_server_error()),
-    }
-}
-
-/// Uploads a user avatar.
-#[controller(
-    method = post,
-    tags("Users", "Avatars"),
-    response(201, "Successful response", ("application/json", response!("EmptyApiResponse"))),
-    response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
-    response(406, "Not Acceptable", ("application/json", response!("ApiErrorResponse"))),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn upload_avatar(
-    State(Instance { pool, ref storage, .. }): State<Instance>,
+pub async fn upload_user_avatar(
+    State(cx): State<Context>,
     Extension(Session { user, .. }): Extension<Session>,
     mut data: Multipart,
-) -> Result<()> {
-    let Some(field) = data.next_field().await.inspect_err(|e| {
-        error!(error = %e, user.id, "unable to fetch next multipart field");
-        sentry::capture_error(&e);
-    })?
+) -> api::Result<Url> {
+    let Some(field) = data
+        .next_field()
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, %user.id, "unable to get next multipart field");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?
     else {
-        return Err(err(
+        return Err(api::err(
             StatusCode::NOT_ACCEPTABLE,
             (
-                ErrorCode::MissingMultipartField,
+                api::ErrorCode::MissingMultipartField,
                 "didn't find the next multipart field, is it empty?",
             ),
         ));
     };
 
-    let data = field.bytes().await.map_err(|e| {
-        error!(error = %e, user.id, "unable to collect inner data from multipart field");
-        sentry::capture_error(&e);
+    let data = field
+        .bytes()
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, %user.id, "unable to collect inner data from multipart field");
+            sentry::capture_error(&e);
+        })
+        .map_err(api::system_failure)?;
 
-        e
-    })?;
-
-    let ct = default_resolver(data.as_ref());
+    let ct = fs::default_resolver(&data);
     let mime = ct
         .parse::<mime::Mime>()
         .inspect_err(|e| {
@@ -171,20 +292,20 @@ pub async fn upload_avatar(
             sentry::capture_error(&e);
         })
         .map_err(|_| {
-            err(
+            api::err(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 (
-                    ErrorCode::InvalidContentType,
+                    api::ErrorCode::InvalidContentType,
                     "received an invalid content type, this is a bug",
                 ),
             )
         })?;
 
     if mime.type_() != mime::IMAGE {
-        return Err(err(
+        return Err(api::err(
             StatusCode::NOT_ACCEPTABLE,
             (
-                ErrorCode::InvalidContentType,
+                api::ErrorCode::InvalidContentType,
                 "expected a image-based content type",
                 json!({"contentType":ct}),
             ),
@@ -197,224 +318,61 @@ pub async fn upload_avatar(
         mime::GIF => "gif",
         mime::SVG => "svg",
         _ => {
-            return Err(err(
+            return Err(api::err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
-                    ErrorCode::InvalidContentType,
+                    api::ErrorCode::InvalidContentType,
                     "expected `png`, `svg`, `jpeg`, or `gif` as subtype",
-                    json!({"contentType":ct, "subType": mime.subtype().to_string()}),
+                    json!({"contentType": ct, "subType": mime.subtype().to_string()}),
                 ),
-            ))
+            ));
         }
     };
 
-    let hash = crate::avatars::upload_user_avatar(storage, user.id.try_into().unwrap(), data)
+    let hash = rand_string(5);
+    let request = UploadRequest::default()
+        .with_content_type(Some(ct.clone()))
+        .with_data(data)
+        .with_metadata(azalia::hashmap! {
+            "charts.noelware.org/user" => user.id.as_str()
+        });
+
+    let ext = match ct.borrow() {
+        "image/png" => "png",
+        "image/jpeg" => "jpg",
+        "image/gif" => "gif",
+        "image/svg" => "svg",
+        _ => unreachable!(),
+    };
+
+    cx.storage
+        .upload(format!("./avatars/users/{}/{hash}.{ext}", user.id), request)
+        .await
+        .map_err(api::system_failure)?;
+
+    let mut model = UserEntity::find_by_id(user.id)
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<user::ActiveModel>::into)
+        .unwrap();
+
+    model.set(user::Column::AvatarHash, Some(format!("{hash}.{ext}")).into());
+    model
+        .update(&cx.pool)
         .await
         .inspect_err(|e| {
-            error!(error = %e, user.id, "unable to upload user avatar");
+            error!(error = %e, "failed to apply user update patch");
+            sentry::capture_error(e);
         })
-        .map_err(|_| internal_server_error())?;
+        .map_err(api::system_failure)?;
 
-    // update it in the database
-    match sqlx::query("update users set avatar_hash = $1 where id = $2")
-        .bind(hash)
-        .bind(user.id)
-        .execute(&pool)
-        .await
-    {
-        Ok(_) => Ok(ok(StatusCode::ACCEPTED, ())),
-        Err(e) => {
-            error!(error = %e, user.id, "unable to update column [avatar_hash] on table [users]");
-            sentry::capture_error(&e);
+    let resource = cx
+        .config
+        .base_url
+        .unwrap()
+        .join(&format!("/users/{}/avatars/{hash}.{ext}", user.id))
+        .map_err(api::system_failure)?;
 
-            Err(internal_server_error())
-        }
-    }
+    Ok(api::ok(StatusCode::ACCEPTED, resource))
 }
-
-/// Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler
-/// to grab by a specific hash.
-///
-/// [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png
-#[controller(
-    tags("Users", "Avatars"),
-    response(200, "Successful response", ("", binary)),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn get_self_user_avatar(
-    State(Instance { ref storage, .. }): State<Instance>,
-    Extension(Session { user, .. }): Extension<Session>,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    fetch_avatar_impl(user, storage).await
-}
-
-/// Returns the current authenticated user's current avatar by the specific hash
-#[controller(
-    tags("Users", "Avatars"),
-    pathParameter("hash", string, description = "avatar hash to look up for"),
-    response(200, "Successful response", ("", binary)),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn get_self_user_avatar_by_hash(
-    State(Instance { ref storage, .. }): State<Instance>,
-    Extension(Session { user, .. }): Extension<Session>,
-    Path(hash): Path<String>,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, storage).await
-}
-
-async fn fetch_avatar_by_hash_impl(
-    id: u64,
-    hash: String,
-    storage: &StorageService,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    match crate::avatars::user(storage, id, Some(&hash)).await {
-        Ok(Some(data)) => {
-            let ct = default_resolver(data.as_ref());
-            let mime = ct.parse::<mime::Mime>().inspect_err(|e| {
-                error!(error = %e, id, user.avatar = hash, "unable to validate `Content-Type` as a valid media type");
-                sentry::capture_error(&e);
-            }).map_err(|_| internal_server_error())?;
-
-            if mime.type_() != mime::IMAGE {
-                return Err(err(
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    (
-                        ErrorCode::UnableToProcess,
-                        "media type for given avatar is invalid for some reason",
-                        json!({"mediaType": mime.to_string()}),
-                    ),
-                ));
-            }
-
-            Ok(([(header::CONTENT_TYPE, ct.as_str())], data).into_response())
-        }
-
-        // skip if we can't find it
-        Ok(None) => Err(err(
-            StatusCode::NOT_FOUND,
-            (
-                ErrorCode::EntityNotFound,
-                "user avatar with hash was not found",
-                json!({"hash": hash}),
-            ),
-        )),
-
-        Err(e) => {
-            error!(error = %e, id, "unable to get current avatar for user");
-            sentry_eyre::capture_report(&e);
-
-            Err(internal_server_error())
-        }
-    }
-}
-
-async fn fetch_avatar_impl(
-    user: User,
-    storage: &StorageService,
-) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    if let Some(ref hash) = user.avatar_hash {
-        match crate::avatars::user(storage, user.id.try_into().unwrap(), Some(hash)).await {
-            Ok(Some(data)) => {
-                let ct = default_resolver(data.as_ref());
-                let mime = ct.parse::<mime::Mime>().map_err(|e| {
-                    error!(error = %e, user.id, user.avatar = hash, "unable to validate `Content-Type` as a valid media type");
-                    sentry::capture_error(&e);
-
-                    internal_server_error()
-                })?;
-
-                if mime.type_() != mime::IMAGE {
-                    return Err(err(
-                        StatusCode::UNPROCESSABLE_ENTITY,
-                        (
-                            ErrorCode::UnableToProcess,
-                            "media type for given avatar is invalid for some reason",
-                            json!({"mediaType": mime.to_string()}),
-                        ),
-                    ));
-                }
-
-                return Ok(([(header::CONTENT_TYPE, ct.as_str())], data).into_response());
-            }
-
-            // skip if we can't find it
-            Ok(None) => {}
-            Err(e) => {
-                error!(error = %e, user.id, "unable to get current avatar for user");
-                sentry_eyre::capture_report(&e);
-
-                return Err(internal_server_error());
-            }
-        }
-    }
-
-    if let Some(ref gravatar) = user.gravatar_email {
-        match crate::avatars::gravatar(gravatar).await {
-            Ok(Some(data)) => {
-                let ct = default_resolver(data.as_ref());
-                let mime = ct.parse::<mime::Mime>().map_err(|e| {
-                    error!(error = %e, user.id, "unable to validate `Content-Type` as a valid media type from Gravatar");
-                    sentry::capture_error(&e);
-
-                    internal_server_error()
-                })?;
-
-                if mime.type_() != mime::IMAGE {
-                    return Err(err(
-                        StatusCode::UNPROCESSABLE_ENTITY,
-                        (
-                            ErrorCode::UnableToProcess,
-                            "media type for given avatar is invalid for some reason",
-                            json!({"mediaType": mime.to_string()}),
-                        ),
-                    ));
-                }
-
-                return Ok(([(header::CONTENT_TYPE, ct.as_str())], data).into_response());
-            }
-
-            // skip if we can't find it
-            Ok(None) => {}
-            Err(e) => {
-                error!(error = %e, user.id, "unable to get current avatar for user");
-                sentry_eyre::capture_report(&e);
-
-                return Err(internal_server_error());
-            }
-        }
-    }
-
-    match crate::avatars::identicons(user.id.try_into().unwrap()).await {
-        Ok(data) => {
-            let ct = default_resolver(data.as_ref());
-            let mime = ct.parse::<mime::Mime>().map_err(|e| {
-                error!(error = %e, user.id, "unable to validate `Content-Type` as a valid media type");
-                sentry::capture_error(&e);
-
-                internal_server_error()
-            })?;
-
-            if mime.type_() != mime::IMAGE {
-                return Err(err(
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    (
-                        ErrorCode::UnableToProcess,
-                        "media type for given avatar is invalid for some reason",
-                        json!({"mediaType": mime.to_string()}),
-                    ),
-                ));
-            }
-
-            Ok(([(header::CONTENT_TYPE, ct.as_str())], data).into_response())
-        }
-
-        Err(e) => {
-            error!(error = %e, user.id, "unable to get current avatar for user");
-            sentry_eyre::capture_report(&e);
-
-            Err(internal_server_error())
-        }
-    }
-}
-*/

@@ -53,6 +53,10 @@ impl Ulid {
     pub fn new(id: &str) -> Result<Ulid, ulid::DecodeError> {
         ::ulid::Ulid::from_string(id).map(Self)
     }
+
+    pub fn as_str(&self) -> String {
+        self.0.to_string()
+    }
 }
 
 /// Re-export common types from the [`ulid`][::ulid] crate.

@@ -121,13 +121,9 @@ impl Generator {
 
 const _: () = {
     static _CAN_BE_USED_IN_STATIC: Generator = Generator::new();
-
-    const fn __assert_send<T: Send>() {}
-    const fn __assert_sync<T: Sync>() {}
-
-    __assert_send::<Generator>();
-    __assert_sync::<Generator>();
 };
+
+crate::assert_send_and_sync!(Generator);
 
 #[cfg(test)]
 mod tests {

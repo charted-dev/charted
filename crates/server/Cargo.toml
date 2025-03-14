@@ -39,12 +39,21 @@ charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-metrics.workspace = true
 charted-types = { workspace = true, features = ["openapi"] }
-derive_more = { workspace = true, features = ["display", "from", "error"] }
+derive_more = { workspace = true, features = [
+    "display",
+    "from",
+    "error",
+    "deref",
+] }
 eyre.workspace = true
 futures-util = "0.3.31"
+hex = "0.4.3"
 jsonwebtoken = "9.3.1"
+md5 = "0.7.0"
 metrics-exporter-prometheus.workspace = true
 mime = "0.3.17"
+multer.workspace = true
+reqwest.workspace = true
 sea-orm.workspace = true
 sentry.workspace = true
 sentry-tower = { version = "0.36.0", features = ["axum", "axum-matched-path"] }

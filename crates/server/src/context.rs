@@ -20,11 +20,22 @@ use charted_authz::Authenticator;
 use charted_config::Config;
 use sea_orm::DatabaseConnection;
 use std::sync::{
-    Arc, OnceLock,
+    Arc, LazyLock, OnceLock,
     atomic::{AtomicUsize, Ordering},
 };
 
 static SINGLETON: OnceLock<Context> = OnceLock::new();
+pub static HTTP_CLIENT: LazyLock<reqwest::Client> = LazyLock::new(|| {
+    reqwest::Client::builder()
+        .gzip(true)
+        .use_rustls_tls()
+        .user_agent(format!(
+            "Noelware/charted-server (+https://github.com/charted-dev/charted; {})",
+            charted_core::version()
+        ))
+        .build()
+        .unwrap()
+});
 
 pub struct Context {
     pub ulid_generator: charted_core::ulid::Generator,

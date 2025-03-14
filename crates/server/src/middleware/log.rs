@@ -73,7 +73,7 @@ pub async fn log(metadata: Metadata, State(cx): State<Context>, req: Request<Bod
 
     latency.record(elapsed);
 
-    info!(latency = %charted_core::serde::Duration::from(elapsed), "processed request");
+    info!(latency = %charted_core::serde::Duration::from(elapsed), res.status = %res.status(), "processed request");
     res
 }
 
