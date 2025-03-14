@@ -1289,7 +1289,6 @@ dependencies = [
  "charted-core",
  "derive_more 2.0.1",
  "eyre",
- "monostate",
  "sentry-types",
  "serde",
  "toml",
@@ -3667,27 +3666,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d848d178417aab67f0ef7196082fa4e95ce42ed9d2a1cfd2f074de76855d0075"
 dependencies = [
  "macro_magic",
- "proc-macro2",
- "quote",
- "syn 2.0.100",
-]
-
-[[package]]
-name = "monostate"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aafe1be9d0c75642e3e50fedc7ecadf1ef1cbce6eb66462153fc44245343fbee"
-dependencies = [
- "monostate-impl",
- "serde",
-]
-
-[[package]]
-name = "monostate-impl"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c402a4092d5e204f32c9e155431046831fa712637043c58cb73bc6bc6c9663b5"
-dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
