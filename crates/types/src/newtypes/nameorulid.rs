@@ -70,6 +70,28 @@ impl From<Ulid> for NameOrUlid {
     }
 }
 
+#[cfg(feature = "openapi")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+/// Produce a [`Parameter`](utoipa::openapi::path::Parameter) with `idOrName` as the
+/// parameter name.
+impl utoipa::IntoParams for NameOrUlid {
+    fn into_params(
+        parameter_in_provider: impl Fn() -> Option<utoipa::openapi::path::ParameterIn>,
+    ) -> Vec<utoipa::openapi::path::Parameter> {
+        vec![
+            utoipa::openapi::path::Parameter::builder()
+                .name("idOrName")
+                .required(utoipa::openapi::Required::True)
+                .parameter_in(parameter_in_provider().unwrap_or_default())
+                .description(Some("Queries this resource by the entity's ID or name."))
+                .schema(Some(utoipa::openapi::RefOr::Ref(
+                    utoipa::openapi::Ref::from_schema_name("NameOrUlid"),
+                )))
+                .build(),
+        ]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

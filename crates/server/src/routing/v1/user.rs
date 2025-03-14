@@ -54,7 +54,15 @@ pub fn create_router(cx: &Context) -> Router<Context> {
         true => Router::new().route("/", routing::get(main)),
     };
 
-    let id_or_name = Router::new().route("/", routing::get(fetch));
+    let id_or_name = Router::new().route("/", routing::get(fetch)).route(
+        "/repositories",
+        routing::get(
+            repositories::list_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
+                crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
+            )),
+        ),
+    );
+
     let at_me = {
         let mut base = Router::new();
         match cx.config.single_user {
@@ -86,7 +94,19 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             }
         }
 
-        base
+        base.nest("/apikeys", apikeys::create_router()).route(
+            "/repositories",
+            routing::get(
+                repositories::list_self_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
+                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
+                )),
+            )
+            .put(
+                repositories::create_user_repository.layer(AsyncRequireAuthorizationLayer::new(
+                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoCreate),
+                )),
+            ),
+        )
     };
 
     router.nest("/@me", at_me).nest("/{idOrName}", id_or_name)
@@ -325,14 +345,11 @@ impl IntoResponses for FetchUserR {
 #[instrument(name = "charted.server.ops.fetch[user]", skip_all, fields(%id_or_name))]
 #[utoipa::path(
     get,
-
     path = "/v1/users/{idOrName}",
     tag = "Users",
     operation_id = "getUserByIdOrName",
     responses(FetchUserR),
-    params(
-        ("idOrName" = NameOrUlid, Path)
-    )
+    params(NameOrUlid)
 )]
 pub async fn fetch(State(cx): State<Context>, Path(id_or_name): Path<NameOrUlid>) -> api::Result<User> {
     match id_or_name {
@@ -392,7 +409,7 @@ impl IntoResponses for FetchSelfR {
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     get,
-    path = "/v1/users/{idOrName}",
+    path = "/v1/users/@me",
     tag = "Users",
     operation_id = "getSelfUser",
     responses(FetchSelfR)
@@ -617,6 +634,7 @@ pub async fn patch(
 
     if !errors.is_empty() {
         return Err(api::Response {
+            headers: axum::http::HeaderMap::new(),
             success: false,
             status: StatusCode::CONFLICT,
             errors,

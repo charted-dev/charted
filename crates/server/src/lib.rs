@@ -25,6 +25,7 @@ pub mod multipart;
 pub mod openapi;
 pub mod pagination;
 pub mod routing;
+pub mod util;
 
 #[cfg(test)]
 pub mod testing;

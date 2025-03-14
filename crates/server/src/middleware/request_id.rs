@@ -55,6 +55,7 @@ impl From<XRequestId> for HeaderValue {
     }
 }
 
+#[cfg_attr(debug_assertions, axum::debug_middleware)]
 pub async fn request_id(mut req: Request<Body>, next: Next) -> impl IntoResponse {
     let id = XRequestId::generate();
     req.extensions_mut().insert(id.clone());

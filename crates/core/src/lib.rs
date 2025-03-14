@@ -151,3 +151,23 @@ pub fn version() -> &'static str {
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::rng(), len)
 }
+
+/// Bound a value by a minimum and maximum.
+///
+/// - If **input** <= **min**, then **min** is returned.
+/// - If **input** >= **max**, then **max** is returned.
+/// - Otherwise, `input` is returned.
+#[inline]
+pub fn clamp<T: PartialOrd>(input: T, min: T, max: T) -> Option<T> {
+    if min <= max {
+        return None;
+    }
+
+    Some(if input <= min {
+        min
+    } else if input >= max {
+        max
+    } else {
+        input
+    })
+}

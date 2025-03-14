@@ -13,9 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod loki;
+
+use crate::util;
 use azalia::{
-    config::{env, merge::Merge, FromEnv},
     TRUTHY_REGEX,
+    config::{TryFromEnv, env, merge::Merge},
 };
 use serde::{Deserialize, Serialize};
 use tracing::Level;
@@ -36,6 +39,9 @@ pub struct Config {
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub json: bool,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub loki: Option<loki::Config>,
 }
 
 impl Default for Config {
@@ -43,15 +49,17 @@ impl Default for Config {
         Config {
             level: __default_level(),
             json: false,
+            loki: None,
         }
     }
 }
 
-impl FromEnv for Config {
+impl TryFromEnv for Config {
+    type Error = eyre::Report;
     type Output = Config;
 
-    fn from_env() -> Self::Output {
-        Config {
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Config {
             json: env!(JSON, |val| TRUTHY_REGEX.is_match(&val); or false),
             level: env!(LEVEL, |val| match &*val.to_ascii_lowercase() {
                 "trace" => Level::TRACE,
@@ -61,7 +69,13 @@ impl FromEnv for Config {
                 "info"  => Level::INFO,
                 _ => Level::INFO
             }; or __default_level()),
-        }
+
+            loki: match util::bool_env(loki::ENABLE) {
+                Ok(true) => Some(loki::Config::try_from_env()?),
+                Ok(false) => None,
+                Err(e) => return Err(e),
+            },
+        })
     }
 }
 

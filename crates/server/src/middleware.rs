@@ -15,8 +15,10 @@
 
 pub mod sessions;
 
+mod admin;
 mod log;
 mod request_id;
 
+pub use admin::*;
 pub use log::*;
 pub use request_id::*;

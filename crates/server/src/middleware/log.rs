@@ -43,6 +43,7 @@ pub struct Metadata {
     http.method = metadata.method.as_str(),
     http.uri = metadata.uri.path(),
 ))]
+#[cfg_attr(debug_assertions, axum::debug_middleware)]
 pub async fn log(metadata: Metadata, State(cx): State<Context>, req: Request<Body>, next: Next) -> impl IntoResponse {
     let uri = metadata.uri.path();
     if uri.contains("/heartbeat") {

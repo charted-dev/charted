@@ -146,6 +146,34 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
         _ => None,
     };
 
+    let loki_layer = (|| {
+        let res: Result<Option<tracing_loki::Layer>, tracing_loki::Error> = match config.logging.loki {
+            Some(ref config) => {
+                let mut builder = tracing_loki::builder();
+                for (name, label) in config.labels.iter() {
+                    builder = builder.label(name.to_owned(), label)?;
+                }
+
+                for (name, field) in config.fields.iter() {
+                    builder = builder.extra_field(name.to_owned(), field.to_owned())?;
+                }
+
+                for (name, header) in config.headers.iter() {
+                    builder = builder.http_header(name, header)?;
+                }
+
+                let (layer, task) = builder.build_url(config.url.to_owned())?;
+                tokio::spawn(task);
+
+                Ok(Some(layer))
+            }
+
+            None => Ok(None),
+        };
+
+        res
+    })()?;
+
     tracing_subscriber::registry()
         .with(
             if config.logging.json {
@@ -167,6 +195,7 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
                 .with_filter(LevelFilter::from_level(config.logging.level))
         }))
         .with(tracing_error::ErrorLayer::default())
+        .with(loki_layer)
         .try_init()
         .map_err(Into::into)
 }

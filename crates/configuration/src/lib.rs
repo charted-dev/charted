@@ -23,7 +23,7 @@ pub mod storage;
 pub mod tracing;
 pub(crate) mod util;
 
-use azalia::config::{FromEnv, TryFromEnv, env, merge::Merge};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use sentry_types::Dsn;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -181,7 +181,7 @@ impl TryFromEnv for Config {
             base_url: util::env_optional_from_str(BASE_URL, None)?,
             database: database::Config::try_from_env()?,
             sessions: sessions::Config::try_from_env()?,
-            logging: logging::Config::from_env(),
+            logging: logging::Config::try_from_env()?,
             storage: storage::Config::try_from_env()?,
             metrics: metrics::Config::try_from_env()?,
             server: server::Config::try_from_env()?,

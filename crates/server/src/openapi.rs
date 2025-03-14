@@ -16,7 +16,7 @@
 mod modifiers;
 
 use crate::routing::v1::{Entrypoint, features::Features, main::Main};
-use charted_types::User;
+use charted_types::{ApiKey, Organization, OrganizationMember, Repository, RepositoryMember, User};
 use modifiers::*;
 use serde_json::Value;
 use std::{borrow::Cow, marker::PhantomData};
@@ -107,26 +107,28 @@ use utoipa::{
             crate::routing::v1::features::Features,
 
             crate::pagination::PaginationRequest,
-            crate::pagination::PaginatedRepository,
-            crate::pagination::PaginatedRepositoryMember,
-            crate::pagination::PaginatedOrganization,
-            crate::pagination::PaginatedOrganizationMember,
-            crate::pagination::PaginatedApiKey,
         ),
         responses(
-            crate::pagination::PaginatedRepository,
-            crate::pagination::PaginatedRepositoryMember,
-            crate::pagination::PaginatedOrganization,
-            crate::pagination::PaginatedOrganizationMember,
-            crate::pagination::PaginatedApiKey,
+            ListApiResponse<ApiKey>,
+            ListApiResponse<Repository>,
+            ListApiResponse<RepositoryMember>,
+            ListApiResponse<Organization>,
+            ListApiResponse<OrganizationMember>,
 
             ApiResponse<Entrypoint>,
             ApiResponse<Features>,
+            ApiResponse<ApiKey>,
             ApiResponse<User>,
             ApiResponse<Main>
         )
     ),
     paths(
+        crate::routing::v1::user::apikeys::delete,
+        crate::routing::v1::user::apikeys::create,
+        crate::routing::v1::user::apikeys::patch,
+        crate::routing::v1::user::apikeys::fetch,
+        crate::routing::v1::user::apikeys::list,
+
         crate::routing::v1::user::repositories::list_self_user_repositories,
         crate::routing::v1::user::repositories::list_user_repositories,
         crate::routing::v1::user::repositories::create_user_repository,

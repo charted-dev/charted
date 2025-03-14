@@ -45,6 +45,7 @@ azalia = { workspace = true, features = [
 charted-core.workspace = true
 derive_more = { workspace = true, features = ["display", "deref"] }
 eyre.workspace = true
+monostate = "0.1.14"
 sentry-types = "0.36.0"
 serde.workspace = true
 toml.workspace = true

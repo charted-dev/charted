@@ -116,6 +116,11 @@ pub type Result<T> = std::result::Result<Response<T>, Response>;
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Response<T = ()> {
+    /// List of HTTP headers to append to this response.
+    #[cfg(feature = "axum")]
+    #[serde(skip)]
+    pub headers: ::axum::http::HeaderMap<::axum::http::HeaderValue>,
+
     /// The status of the response.
     #[cfg(feature = "axum")]
     #[serde(skip)]
@@ -144,6 +149,19 @@ pub struct Response<T = ()> {
     pub errors: Vec<Error>,
 }
 
+impl<T> Response<T> {
+    #[cfg(feature = "axum")]
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+    pub fn with_header<K: Into<axum::http::HeaderName>, V: Into<axum::http::HeaderValue>>(
+        mut self,
+        key: K,
+        value: V,
+    ) -> Self {
+        self.headers.insert(key.into(), value.into());
+        self
+    }
+}
+
 impl<T: PartialEq> PartialEq for Response<T> {
     fn eq(&self, other: &Self) -> bool {
         self.success == other.success && self.data.eq(&other.data) && self.errors.eq(&other.errors)
@@ -155,13 +173,16 @@ impl<T: Eq> Eq for Response<T> {}
 #[cfg(feature = "axum")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 impl<T: Serialize> ::axum::response::IntoResponse for Response<T> {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(mut self) -> axum::response::Response {
         let data = serde_json::to_string(&self).unwrap();
-        axum::http::Response::builder()
-            .status(self.status)
-            .header(axum::http::header::CONTENT_TYPE, "application/json; charset=utf-8")
-            .body(axum::body::Body::from(data))
-            .unwrap()
+        let _ = self.headers.insert(
+            axum::http::header::CONTENT_TYPE,
+            "application/json; charset=utf-8".try_into().unwrap(),
+        );
+
+        let mut res = axum::http::Response::builder().status(self.status);
+        res.headers_mut().replace(&mut self.headers);
+        res.body(axum::body::Body::from(data)).unwrap()
     }
 }
 
@@ -457,6 +478,7 @@ impl From<(ErrorCode, Cow<'static, str>, Option<Value>)> for Error {
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 pub fn ok<T>(status: axum::http::StatusCode, data: T) -> Response<T> {
     Response {
+        headers: ::axum::http::HeaderMap::new(),
         success: true,
         errors: Vec::new(),
         status,
@@ -484,6 +506,7 @@ pub fn from_default<T: Default>(status: axum::http::StatusCode) -> Response<T> {
 pub fn err<E: Into<Error>>(status: axum::http::StatusCode, error: E) -> Response {
     let error = error.into();
     Response {
+        headers: ::axum::http::HeaderMap::new(),
         success: false,
         errors: vec![error],
         status,

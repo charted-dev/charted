@@ -13,27 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Context;
+use axum::{
+    Extension,
+    body::Body,
+    extract::State,
+    http::{Request, Response},
+    middleware::Next,
+};
 use charted_core::api;
-use std::io;
+use charted_types::Session;
 
-pub type Result<T> = std::result::Result<T, Error>;
-
-/// Representation of any error that could've occurred in this crate.
-#[derive(Debug, derive_more::From, derive_more::Display, derive_more::Error)]
-#[non_exhaustive]
-pub enum Error {
-    #[display("api server had failed with status code {}: {:#?}", _0.status, _0.errors)]
-    Api(#[error(not(source))] Box<api::Response>),
-
-    /// URL given failed to parse.
-    ParseUrl(url::ParseError),
-
-    /// Something related to [`reqwest`] failed.
-    Reqwest(reqwest::Error),
-
-    /// json encoded body failed to deserialize.
-    Json(serde_json::Error),
-
-    /// I/o error that occurred.
-    Io(io::Error),
+#[cfg_attr(debug_assertions, axum::debug_middleware)]
+#[allow(unused)]
+pub async fn admin_guard(
+    State(cx): State<Context>,
+    Extension(session): Extension<Option<Session>>,
+    req: Request<Body>,
+    next: Next,
+) -> Result<Response<Body>, api::Response> {
+    todo!()
 }

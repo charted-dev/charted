@@ -62,6 +62,10 @@ serde_yaml_ng.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 tracing-error = "0.2.1"
+tracing-loki = { version = "0.2.6", default-features = false, features = [
+    "compat-0-2-1",
+    "rustls",
+] }
 tracing-opentelemetry = "0.29.0"
 tracing-subscriber.workspace = true
 url.workspace = true
