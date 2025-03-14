@@ -449,6 +449,485 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "409": {
+                        "description": "API key already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "operationId": "getSingleApiKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "404": {
+                        "description": "API key was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Deletes an API key.",
+                "operationId": "deleteAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patches a API key's metadata.",
+                "operationId": "createAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Request body for patching this API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "409": {
+                        "description": "Failed to apply patches",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/avatar": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the authenticated user's current avatar.",
+                "operationId": "getSelfUserAvatar",
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Upload an avatar.",
+                "operationId": "uploadSelfUserAvatar",
+                "requestBody": {
+                    "description": "Multipart form of a single field being the avatar data",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer",
+                                    "format": "u-int8",
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Response datatype that returns a `TupleUnit` object",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TupleUnit"
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request that was processed a success?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/avatars/{hash}": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the authenticated user's avatar by their hash.",
+                "operationId": "getSelfUserAvatarByHash",
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/users/@me/repositories": {
@@ -511,6 +990,181 @@
                     },
                     "404": {
                         "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the user's current avatar.",
+                "operationId": "getCurrentUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatars/{hash}": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the user's avatar by their hash.",
+                "operationId": "getUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "The hash that the request will check for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -964,6 +1618,485 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "409": {
+                        "description": "API key already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "operationId": "getSingleApiKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "404": {
+                        "description": "API key was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Deletes an API key.",
+                "operationId": "deleteAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patches a API key's metadata.",
+                "operationId": "createAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Request body for patching this API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "409": {
+                        "description": "Failed to apply patches",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/avatar": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the authenticated user's current avatar.",
+                "operationId": "getSelfUserAvatar",
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Upload an avatar.",
+                "operationId": "uploadSelfUserAvatar",
+                "requestBody": {
+                    "description": "Multipart form of a single field being the avatar data",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer",
+                                    "format": "u-int8",
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Response datatype that returns a `TupleUnit` object",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TupleUnit"
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request that was processed a success?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/avatars/{hash}": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the authenticated user's avatar by their hash.",
+                "operationId": "getSelfUserAvatarByHash",
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v1/users/@me/repositories": {
@@ -1026,6 +2159,181 @@
                     },
                     "404": {
                         "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the user's current avatar.",
+                "operationId": "getCurrentUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/avatars/{hash}": {
+            "get": {
+                "tags": ["crate::routing::v1::user::avatars"],
+                "summary": "Returns the user's avatar by their hash.",
+                "operationId": "getUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "The hash that the request will check for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar data as a raw image",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "format": "u-int8",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Avatar by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
