@@ -6625,6 +6625,7 @@ dependencies = [
  "quote",
  "syn 2.0.100",
  "ulid",
+ "url",
 ]
 
 [[package]]

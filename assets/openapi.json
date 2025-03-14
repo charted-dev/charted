@@ -714,7 +714,7 @@
         },
         "/users/@me/avatar": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the authenticated user's current avatar.",
                 "operationId": "getSelfUserAvatar",
                 "responses": {
@@ -784,7 +784,7 @@
                 }
             },
             "post": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Upload an avatar.",
                 "operationId": "uploadSelfUserAvatar",
                 "requestBody": {
@@ -805,31 +805,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Response datatype that returns a `TupleUnit` object",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/TupleUnit"
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request that was processed a success?"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/UrlResponse"
                     },
                     "5XX": {
                         "description": "Internal Server Failure",
@@ -860,7 +836,7 @@
         },
         "/users/@me/avatars/{hash}": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the authenticated user's avatar by their hash.",
                 "operationId": "getSelfUserAvatarByHash",
                 "responses": {
@@ -1017,7 +993,7 @@
         },
         "/users/{idOrName}/avatar": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the user's current avatar.",
                 "operationId": "getCurrentUserAvatar",
                 "parameters": [
@@ -1100,7 +1076,7 @@
         },
         "/users/{idOrName}/avatars/{hash}": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the user's avatar by their hash.",
                 "operationId": "getUserAvatar",
                 "parameters": [
@@ -1114,7 +1090,7 @@
                         }
                     },
                     {
-                        "name": "idOrName",
+                        "name": "hash",
                         "in": "path",
                         "description": "The hash that the request will check for",
                         "required": true,
@@ -1883,7 +1859,7 @@
         },
         "/v1/users/@me/avatar": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the authenticated user's current avatar.",
                 "operationId": "getSelfUserAvatar",
                 "responses": {
@@ -1953,7 +1929,7 @@
                 }
             },
             "post": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Upload an avatar.",
                 "operationId": "uploadSelfUserAvatar",
                 "requestBody": {
@@ -1974,31 +1950,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Response datatype that returns a `TupleUnit` object",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/TupleUnit"
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request that was processed a success?"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/UrlResponse"
                     },
                     "5XX": {
                         "description": "Internal Server Failure",
@@ -2029,7 +1981,7 @@
         },
         "/v1/users/@me/avatars/{hash}": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the authenticated user's avatar by their hash.",
                 "operationId": "getSelfUserAvatarByHash",
                 "responses": {
@@ -2186,7 +2138,7 @@
         },
         "/v1/users/{idOrName}/avatar": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the user's current avatar.",
                 "operationId": "getCurrentUserAvatar",
                 "parameters": [
@@ -2269,7 +2221,7 @@
         },
         "/v1/users/{idOrName}/avatars/{hash}": {
             "get": {
-                "tags": ["crate::routing::v1::user::avatars"],
+                "tags": ["Users/Avatars"],
                 "summary": "Returns the user's avatar by their hash.",
                 "operationId": "getUserAvatar",
                 "parameters": [
@@ -2283,7 +2235,7 @@
                         }
                     },
                     {
-                        "name": "idOrName",
+                        "name": "hash",
                         "in": "path",
                         "description": "The hash that the request will check for",
                         "required": true,
@@ -3418,6 +3370,10 @@
                 "examples": ["01D39ZY06FGSCTVN4T2V9PKHFZ"],
                 "maxLength": 26
             },
+            "Url": {
+                "type": "string",
+                "format": "uri"
+            },
             "User": {
                 "type": "object",
                 "description": "The baseline entity.\n\nUsers can manage and create repositories and organizations, be apart\nof repository & organizations and much more.",
@@ -3772,6 +3728,33 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/Main"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UrlResponse": {
+                "description": "Response datatype that returns a `Url` object",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Url"
                                 },
                                 "errors": {
                                     "type": "array",

@@ -23,10 +23,28 @@ use std::{borrow::Cow, marker::PhantomData};
 use utoipa::{
     OpenApi, PartialSchema, ToResponse, ToSchema,
     openapi::{
-        Array, ArrayBuilder, Content, ContentBuilder, Object, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder,
-        Schema, Type, schema::SchemaType,
+        Array, ArrayBuilder, Content, ContentBuilder, KnownFormat, Object, ObjectBuilder, Ref, RefOr, Response,
+        ResponseBuilder, Schema, SchemaFormat, Type, schema::SchemaType,
     },
 };
+
+pub(crate) struct Url;
+impl utoipa::__dev::ComposeSchema for Url {
+    fn compose(_: Vec<RefOr<Schema>>) -> RefOr<Schema> {
+        let object = Object::builder()
+            .schema_type(SchemaType::new(Type::String))
+            .format(Some(SchemaFormat::KnownFormat(KnownFormat::Uri)))
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for Url {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("Url")
+    }
+}
 
 #[derive(OpenApi)]
 #[openapi(
@@ -49,8 +67,7 @@ use utoipa::{
     modifiers(
         &UpdatePathsToIncludeDefaultVersion,
         &IncludeErrorProneDatatypes,
-        &SecuritySchemes,
-        &ResponseModifiers
+        &SecuritySchemes
     ),
     components(
         schemas(
@@ -106,7 +123,7 @@ use utoipa::{
             crate::routing::v1::main::Main,
             crate::routing::v1::features::Features,
 
-            crate::pagination::PaginationRequest,
+            crate::pagination::PaginationRequest
         ),
         responses(
             ListApiResponse<ApiKey>,
@@ -119,7 +136,8 @@ use utoipa::{
             ApiResponse<Features>,
             ApiResponse<ApiKey>,
             ApiResponse<User>,
-            ApiResponse<Main>
+            ApiResponse<Main>,
+            ApiResponse<Url>,
         )
     ),
     paths(

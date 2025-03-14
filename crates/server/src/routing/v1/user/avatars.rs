@@ -16,13 +16,8 @@
 mod ops;
 
 use crate::{
-    Context,
-    extract::Path,
-    extract_refor_t,
-    middleware::sessions::Session,
-    modify_property,
-    multipart::Multipart,
-    openapi::{ApiErrorResponse, ApiResponse},
+    Context, extract::Path, extract_refor_t, middleware::sessions::Session, modify_property, multipart::Multipart,
+    openapi::ApiErrorResponse,
 };
 use axum::{Extension, extract::State, response::IntoResponse};
 use azalia::remi::{
@@ -40,7 +35,7 @@ use url::Url;
 use utoipa::{
     IntoParams, IntoResponses, PartialSchema, ToResponse,
     openapi::{
-        Content, RefOr, Response,
+        Content, Ref, RefOr, Response,
         path::{Parameter, ParameterIn},
     },
 };
@@ -76,7 +71,7 @@ impl IntoParams for HashParams {
     fn into_params(parameter_in_provider: impl Fn() -> Option<ParameterIn>) -> Vec<Parameter> {
         vec![
             Parameter::builder()
-                .name("idOrName")
+                .name("hash")
                 .required(utoipa::openapi::Required::True)
                 .parameter_in(parameter_in_provider().unwrap_or_default())
                 .description(Some("The hash that the request will check for"))
@@ -93,6 +88,7 @@ impl IntoParams for HashParams {
     get,
     path = "/v1/users/{idOrName}/avatar",
     operation_id = "getCurrentUserAvatar",
+    tag = "Users/Avatars",
     params(NameOrUlid),
     responses(GetUserAvatarR)
 )]
@@ -145,6 +141,7 @@ pub async fn get_user_avatar(
     get,
     path = "/v1/users/{idOrName}/avatars/{hash}",
     operation_id = "getUserAvatar",
+    tag = "Users/Avatars",
     params(NameOrUlid, HashParams),
     responses(GetUserAvatarR)
 )]
@@ -197,6 +194,7 @@ pub async fn get_user_avatar_by_hash(
     get,
     path = "/v1/users/@me/avatar",
     operation_id = "getSelfUserAvatar",
+    tag = "Users/Avatars",
     responses(GetUserAvatarR)
 )]
 pub async fn get_self_user_avatar(
@@ -213,6 +211,7 @@ pub async fn get_self_user_avatar(
     get,
     path = "/v1/users/@me/avatars/{hash}",
     operation_id = "getSelfUserAvatarByHash",
+    tag = "Users/Avatars",
     responses(GetUserAvatarR)
 )]
 pub async fn get_self_user_avatar_by_hash(
@@ -227,7 +226,7 @@ struct UpdateAvatarR;
 impl IntoResponses for UpdateAvatarR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap! {
-            "201" => extract_refor_t!(ApiResponse::<()>::response().1),
+            "201" => Ref::from_response_name("UrlResponse"),
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("Internal Server Failure"));
@@ -245,6 +244,7 @@ impl IntoResponses for UpdateAvatarR {
     post,
     path = "/v1/users/@me/avatar",
     operation_id = "uploadSelfUserAvatar",
+    tag = "Users/Avatars",
     request_body(
         description = "Multipart form of a single field being the avatar data",
         content = [u8],
