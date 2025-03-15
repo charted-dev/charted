@@ -25,6 +25,7 @@ pub const LABELS: &str = "CHARTED_METRICS_OTEL_LABELS";
 pub const URL: &str = "CHARTED_METRICS_OTEL_ENDPOINT";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// A list of labels to use to detect this instance.
     ///

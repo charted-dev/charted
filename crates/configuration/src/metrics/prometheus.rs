@@ -31,6 +31,7 @@ pub const ENDPOINT: &str = "CHARTED_METRICS_PROMETHEUS_ENDPOINT";
 /// Enables metrics collection for Prometheus and exports a scraper endpoint
 /// either on the API server itself or standalone.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// The scraper will be in its own standalone HTTP server which can be
     /// accessed internally.
@@ -85,6 +86,7 @@ impl TryFromEnv for Config {
 }
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Standalone {
     /// A list of headers to append to all responses.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]

@@ -47,6 +47,19 @@ use serde::{Deserialize, Serialize};
 #[display("{}", self.0)]
 pub struct DateTime(chrono::DateTime<Utc>);
 
+impl DateTime {
+    /// Get the current timestamp as the newtype.
+    pub fn now() -> Self {
+        Utc::now().into()
+    }
+}
+
+impl From<DateTime> for chrono::DateTime<Utc> {
+    fn from(DateTime(value): DateTime) -> Self {
+        value
+    }
+}
+
 cfg_openapi! {
     use utoipa::{
         openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type, SchemaFormat, KnownFormat},

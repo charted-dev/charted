@@ -32,7 +32,7 @@ pub const URL: &str = "CHARTED_TRACING_ENDPOINT";
 
 /// Configures how traces are sampled.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
+#[serde(untagged, deny_unknown_fields)]
 pub enum Sampler {
     RatioOf(f64),
     Toggle(bool),
@@ -98,6 +98,7 @@ impl TryFromEnv for Sampler {
 /// [OpenTelemetry Collector]: https://opentelemetry.io/docs/collector/
 /// [Elastic APM]: https://www.elastic.co/observability/application-performance-monitoring
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// A list of labels to use to detect this instance.
     ///

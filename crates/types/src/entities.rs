@@ -317,6 +317,12 @@ pub struct ApiKey {
     #[serde(default)]
     pub scopes: i64,
 
+    /// The token itself. When querying API tokens, they're set to `null`and not
+    /// serialized for security reasons, this is only a non-null value if the API key
+    /// was first created.
+    #[serde(default)]
+    pub token: Option<String>,
+
     /// reference to the [`User`] that owns this api key
     pub owner: Ulid,
 
@@ -332,6 +338,14 @@ impl ApiKey {
     /// avaliable scopes.
     pub fn bitfield(&self) -> ApiKeyScopes {
         ApiKeyScopes::new(self.scopes.try_into().unwrap())
+    }
+
+    /// Sanitizes the output of this [`ApiKey`] by setting the [`token`] field to
+    /// [`None`].
+    ///
+    /// [`token`]: #
+    pub fn sanitize(self) -> Self {
+        Self { token: None, ..self }
     }
 }
 

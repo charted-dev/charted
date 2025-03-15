@@ -30,6 +30,7 @@ pub const URL: &str = "CHARTED_LOG_LOKI_URL";
 ///
 /// [Grafana Loki]: https://grafana.com/loki
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// A list of HTTP headers to send to Grafana Loki.
     ///

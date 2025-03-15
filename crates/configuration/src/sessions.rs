@@ -16,7 +16,7 @@
 pub mod ldap;
 
 use crate::util;
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use eyre::bail;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, env::VarError};
@@ -25,7 +25,7 @@ pub const BACKEND: &str = "CHARTED_SESSIONS_BACKEND";
 pub const STATIC_USERS: &str = "CHARTED_SESSIONS_STATIC_USERS";
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, derive_more::Display)]
-#[serde(rename_all = "lowercase")]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum Backend {
     #[display("static")]
     Static(BTreeMap<String, String>),
@@ -75,14 +75,14 @@ impl TryFromEnv for Backend {
                     "unexpected input given from environment variable `${}`: expected `local`, `default`, `static`, or `ldap`; received {} instead",
                     BACKEND,
                     input
-                )
-            }
+                ),
+            },
 
             Err(VarError::NotPresent) => Ok(Backend::default()),
             Err(VarError::NotUnicode(_)) => bail!(
                 "environment variable `${}` couldn't be loaded due to invalid unicode",
                 BACKEND
-            )
+            ),
         }
     }
 }

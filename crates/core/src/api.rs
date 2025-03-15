@@ -115,6 +115,7 @@ pub type Result<T> = std::result::Result<Response<T>, Response>;
 /// Representation of a response that the API server sends for each request.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(deny_unknown_fields)]
 pub struct Response<T = ()> {
     /// List of HTTP headers to append to this response.
     #[cfg(feature = "axum")]
@@ -210,8 +211,8 @@ pub struct Error {
 /// This field can be looked up from the documentation to give
 /// a better representation of the error.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE", deny_unknown_fields)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
     /// A system failure occurred.
     SystemFailure,

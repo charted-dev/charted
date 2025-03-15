@@ -46,6 +46,7 @@ impl<'s> From<&'s str> for Context {
 
 /// A credential.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Credential {
     /// A fully qualified HTTP URI that points to the registry to use.
     pub registry: Url,
@@ -62,7 +63,7 @@ pub struct Credential {
 /// Representation of what authentication scheme to use when requesting to
 /// **charted-server**.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case", untagged)]
+#[serde(rename_all = "kebab-case", untagged, deny_unknown_fields)]
 pub enum Repr {
     /// Loads the API key from a system environment variable.
     EnvironmentVariable(String),

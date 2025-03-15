@@ -20,7 +20,7 @@ use std::path::PathBuf;
 
 /// Untagged enumeration to determine if a value is a [`PathBuf`] or a [`String`].
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, derive_more::From, derive_more::Display)]
-#[serde(untagged)]
+#[serde(untagged, deny_unknown_fields)]
 pub enum StringOrPath {
     #[display("{}", _0.display())]
     Path(PathBuf),
@@ -52,6 +52,7 @@ impl Merge for StringOrPath {
 /// use-cases.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize, derive_more::Deref, derive_more::Display)]
 #[display("sqlite://{}?mode=rwc", self.path)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(flatten)]
     #[deref]

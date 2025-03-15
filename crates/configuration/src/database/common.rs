@@ -28,6 +28,7 @@ pub const URL: &str = "CHARTED_DATABASE_URL";
 
 /// Common configuration shared within each database.
 #[derive(Debug, Clone, Serialize, Deserialize, Merge)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Maximum amount of connections that the database pool can hold.
     #[serde(default = "__max_connections")]

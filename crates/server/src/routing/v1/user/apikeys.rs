@@ -15,7 +15,7 @@
 
 use crate::{
     Context,
-    extract::Query,
+    extract::{Json, Path, Query},
     extract_refor_t,
     middleware::sessions::{Middleware, Session},
     modify_property,
@@ -30,10 +30,13 @@ use axum::{
     http::{HeaderValue, StatusCode, header},
     routing,
 };
-use charted_core::{api, bitflags::ApiKeyScope, clamp};
+use charted_core::{api, bitflags::ApiKeyScope, clamp, rand_string};
 use charted_database::entities::{ApiKeyEntity, apikey};
-use charted_types::{ApiKey, NameOrUlid};
-use sea_orm::{ColumnTrait, EntityTrait, Order, PaginatorTrait, QueryFilter, QueryOrder};
+use charted_types::{ApiKey, NameOrUlid, payloads::CreateApiKeyPayload};
+use sea_orm::{
+    ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder, sqlx::types::chrono,
+};
+use serde_json::json;
 use std::{cmp, collections::BTreeMap};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
@@ -42,12 +45,19 @@ use utoipa::{
 };
 
 pub fn create_router() -> Router<Context> {
-    Router::new().route(
-        "/",
-        routing::get(list.layer(AsyncRequireAuthorizationLayer::new(
-            Middleware::default().with_scope(ApiKeyScope::ApiKeyList),
-        ))),
-    )
+    Router::new()
+        .route(
+            "/",
+            routing::get(list.layer(AsyncRequireAuthorizationLayer::new(
+                Middleware::default().with_scope(ApiKeyScope::ApiKeyList),
+            ))),
+        )
+        .route(
+            "{idOrName}",
+            routing::get(fetch.layer(AsyncRequireAuthorizationLayer::new(
+                Middleware::default().with_scope(ApiKeyScope::ApiKeyView),
+            ))),
+        )
 }
 
 struct AllApiKeysR;
@@ -153,89 +163,38 @@ impl IntoResponses for SingleApiKeyR {
     params(NameOrUlid),
     responses(SingleApiKeyR)
 )]
-pub async fn fetch() -> api::Result<Option<ApiKey>> {
-    todo!()
-}
-
-/*
-    let mut conn = ctx
-        .pool
-        .get()
-        .inspect_err(|e| {
-            sentry::capture_error(e);
-            error!(error = %e, "failed to get db connection");
-        })
-        .map_err(|e| api::system_failure::<eyre::Report>(e.into()))?;
-
-    let Some(apikey) = charted_database::connection!(@raw conn {
-        PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, diesel::result::Error, _>(|txn| {
-            use postgresql::api_keys::{dsl, table};
-            use diesel::pg::Pg;
-
-            let mut query = table
-                .into_boxed()
-                .select(<ApiKey as SelectableHelper<Pg>>::as_select())
-                .filter(dsl::owner.eq(&user.id));
-
-            query = match &id_or_name {
-                NameOrUlid::Name(name) => query.filter(dsl::name.eq(name)),
-                NameOrUlid::Ulid(id) => query.filter(dsl::id.eq(id))
-            };
-
-            match query.first(txn) {
-                Ok(apikey) => Ok(Some(apikey)),
-                Err(diesel::result::Error::NotFound) => Ok(None),
-                Err(e) => Err(e),
-            }
-        });
-
-        SQLite(conn) => conn.immediate_transaction(|txn| {
-            use sqlite::api_keys::{dsl, table};
-            use diesel::sqlite::Sqlite;
-
-            let mut query = table
-                .into_boxed()
-                .select(<ApiKey as SelectableHelper<Sqlite>>::as_select())
-                .filter(dsl::owner.eq(&user.id));
-
-            query = match &id_or_name {
-                NameOrUlid::Name(name) => query.filter(dsl::name.eq(name)),
-                NameOrUlid::Ulid(id) => query.filter(dsl::id.eq(id)),
-            };
-
-            match query.first(txn) {
-                Ok(apikey) => Ok(Some(apikey)),
-                Err(diesel::result::Error::NotFound) => Ok(None),
-                Err(e) => Err(e),
-            }
-        });
+pub async fn fetch(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id_or_name): Path<NameOrUlid>,
+) -> api::Result<ApiKey> {
+    let Some(apikey) = (match id_or_name.clone() {
+        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name)),
+        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id),
     })
-    .inspect_err(|e| {
-        sentry::capture_error(e);
-        error!(error = %e, "failed to query api key");
-    })
-    .map_err(|e| api::system_failure::<eyre::Report>(e.into()))?
-    else {
+    .filter(apikey::Column::Owner.eq(user.id))
+    .one(&cx.pool)
+    .await
+    .map_err(api::system_failure)?
+    .map(Into::<ApiKey>::into) else {
         return Err(api::err(
             StatusCode::NOT_FOUND,
             (
                 api::ErrorCode::EntityNotFound,
-                "api key with given ID or name doesn't exist",
-                json!({
-                    "idOrName": id_or_name
-                }),
+                "api key with name or id was not found",
+                json!({"idOrName":id_or_name}),
             ),
         ));
     };
 
-    Ok(api::ok(StatusCode::OK, apikey.sanitize()))
-*/
+    Ok(api::ok(StatusCode::OK, apikey))
+}
 
 pub struct CreateApiKeyR;
 impl IntoResponses for CreateApiKeyR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap! {
-            "200" => Ref::from_response_name("ApiKeyResponse"),
+            "201" => Ref::from_response_name("ApiKeyResponse"),
             "409" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("API key already exists"));
@@ -267,118 +226,75 @@ impl IntoResponses for CreateApiKeyR {
     ),
     responses(CreateApiKeyR)
 )]
-pub async fn create() -> api::Result<ApiKey> {
-    todo!()
-}
-
-/*
-    let mut conn = ctx
-        .pool
-        .get()
+pub async fn create(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(CreateApiKeyPayload {
+        display_name,
+        description,
+        expires_in,
+        scopes,
+        name,
+    }): Json<CreateApiKeyPayload>,
+) -> api::Result<ApiKey> {
+    if ApiKeyEntity::find()
+        .filter(apikey::Column::Name.eq(name.clone()))
+        .filter(apikey::Column::Owner.eq(user.id))
+        .one(&cx.pool)
+        .await
         .inspect_err(|e| {
+            error!(error = %e, apikey.name = %name, owner = %user.id, "failed to find apikey by name");
             sentry::capture_error(e);
-            error!(error = %e, "failed to get db connection");
         })
-        .map_err(|e| api::system_failure::<eyre::Report>(e.into()))?;
-
-    let exists = charted_database::connection!(@raw conn {
-        PostgreSQL(conn) => conn.build_transaction().read_only().run(|txn| {
-            use postgresql::api_keys::{dsl, table};
-            use diesel::pg::Pg;
-
-            let query = table
-                .select(<ApiKey as SelectableHelper<Pg>>::as_select())
-                .filter(dsl::owner.eq(&user.username))
-                .filter(dsl::name.eq(&name));
-
-            match query.first(txn) {
-                Ok(_) => Ok(true),
-                Err(diesel::result::Error::NotFound) => Ok(false),
-                Err(e) => Err(e)
-            }
-        });
-
-        SQLite(conn) => conn.immediate_transaction(|txn| {
-            use sqlite::api_keys::{dsl, table};
-            use diesel::sqlite::Sqlite;
-
-            let query = table
-                .select(<ApiKey as SelectableHelper<Sqlite>>::as_select())
-                .filter(dsl::owner.eq(&user.username))
-                .filter(dsl::name.eq(&name));
-
-            match query.first(txn) {
-                Ok(_) => Ok(true),
-                Err(diesel::result::Error::NotFound) => Ok(false),
-                Err(e) => Err(e)
-            }
-        });
-    })
-    .inspect_err(|e| {
-        sentry::capture_error(e);
-        error!(error = %e, "failed to query api key with given name and owner");
-    })
-    .map_err(|e| api::system_failure::<eyre::Report>(e.into()))?;
-
-    if exists {
+        .map_err(api::system_failure)?
+        .is_some()
+    {
         return Err(api::err(
             StatusCode::CONFLICT,
             (
                 api::ErrorCode::EntityAlreadyExists,
-                "api key with name already exists",
-                json!({"name": name.as_str()}),
+                "apikey with the given name already exists on this account",
+                json!({"name": &name, "owner": &user.id}),
             ),
         ));
     }
 
-    let scopes = scopes.into_iter().collect::<ApiKeyScopes>();
-    let token = rand_string(16);
-    let id = ctx
-        .ulid_gen
+    let id = cx
+        .ulid_generator
         .generate()
         .inspect_err(|e| {
+            error!(error = %e, apikey.name = %name, "received error when generating id for apikey");
             sentry::capture_error(e);
-            error!("received monotonic overflow -- please inspect this as fast you can!!!!!");
         })
         .map_err(api::system_failure)?;
 
-    let now: charted_types::DateTime = chrono::DateTime::from(Local::now()).into();
-    let key = ApiKey {
+    let now = chrono::Utc::now();
+    let token = rand_string(32);
+    let model = apikey::Model {
+        display_name,
         description,
+        expires_in: expires_in.map(Into::into),
         created_at: now,
         updated_at: now,
-        expires_in: None,
-        scopes: scopes.value().try_into().unwrap(),
-        token,
+        scopes,
         owner: user.id,
-        name,
+        token,
+        name: name.clone(),
         id: id.into(),
     };
 
-    charted_database::connection!(@raw conn {
-        PostgreSQL(conn) => conn.build_transaction().read_write().run(|txn| {
-            use postgresql::api_keys::table;
+    let active_model = model.clone().into_active_model();
+    ApiKeyEntity::insert(active_model)
+        .exec(&cx.pool)
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, apikey.name = %name, apikey.owner = %user.id, "failed to create api key");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?;
 
-            diesel::insert_into(table).values(&key).execute(txn)
-        });
-
-        SQLite(conn) => conn.immediate_transaction(|txn| {
-            use sqlite::api_keys::table;
-
-            diesel::insert_into(table).values(&key).execute(txn)
-        });
-    })
-    .inspect_err(|e| {
-        sentry::capture_error(e);
-        error!(error = %e, "failed to insert api key into database");
-    })
-    .map_err(|_| api::internal_server_error())?;
-
-    // TODO(@auguwu): register api key to a scheduled background job
-    // to be deleted within today + `expires_in`
-
-    Ok(api::ok(StatusCode::CREATED, key))
-*/
+    Ok(api::ok(StatusCode::CREATED, model.into()))
+}
 
 struct PatchApiKeyR;
 impl IntoResponses for PatchApiKeyR {

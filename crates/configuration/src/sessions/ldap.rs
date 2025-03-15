@@ -28,6 +28,7 @@ pub const BIND_DN: &str = "CHARTED_SESSIONS_LDAP_BIND_DN";
 pub const SERVER: &str = "CHARTED_SESSIONS_LDAP_SERVER";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// If `true`, then charted-server will try to establish a TLS connection with the
     /// LDAP server without certificate verification. This is not recommended for
@@ -106,6 +107,7 @@ impl TryFromEnv for Config {
 
 /// List of attributes that charted-server will map to the LDAP server.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Attributes {
     /// Maps a charted-server username to a LDAP username.
     ///

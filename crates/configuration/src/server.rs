@@ -17,7 +17,7 @@ pub mod ratelimits;
 pub mod ssl;
 
 use crate::util;
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, net::SocketAddr};
 
@@ -28,6 +28,7 @@ pub const PORT: &[&str; 2] = &["CHARTED_SERVER_PORT", "PORT"];
 /// ## `[server]` table
 /// This configures the HTTP service that the API server creates.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// A list of headers to append to all responses.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]

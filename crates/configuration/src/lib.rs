@@ -40,6 +40,7 @@ use url::Url;
 /// the configuration is being loaded. The priority is **Environment Variables >
 /// Configuration File**.
 #[derive(Debug, Clone, Serialize, Deserialize, Merge)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// A secret key for generating JWT tokens for session-based authentication.
     ///

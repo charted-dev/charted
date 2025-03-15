@@ -27,7 +27,7 @@ pub const DRIVER: &str = "CHARTED_METRICS_DRIVER";
 /// Allows **charted-server** to collect metrics about itself and push to a
 /// OpenTelemetry-supported collector or as a Prometheus scraper.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum Config {
     Prometheus(prometheus::Config),
     OpenTelemetry(opentelemetry::Config),

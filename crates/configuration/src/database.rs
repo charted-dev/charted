@@ -25,7 +25,7 @@ use std::{env::VarError, fmt::Display};
 /// The `database` table allows to configure the database that charted-server
 /// uses to store persistent data like users, repositories, and more.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum Config {
     /// Uses [PostgreSQL] as the database driver. This is recommended
     /// for production use.

@@ -27,6 +27,7 @@ const LEVEL: &str = "CHARTED_LOG_LEVEL";
 const JSON: &str = "CHARTED_LOG_JSON";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Configures the log level of the API server's logging capabilities. The higher the
     /// level, the more verbose messages you'll get. For production environments, the

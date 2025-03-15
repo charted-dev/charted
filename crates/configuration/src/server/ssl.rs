@@ -23,6 +23,7 @@ pub const ENABLED: &str = "CHARTED_SERVER_SSL";
 pub const CERT: &str = "CHARTED_SERVER_SSL_CERTIFICATE";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Location to a certificate private key.
     pub cert_key: PathBuf,

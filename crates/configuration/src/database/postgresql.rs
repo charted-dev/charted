@@ -15,7 +15,7 @@
 
 use super::common;
 use crate::util;
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -24,6 +24,7 @@ use url::Url;
 /// This database driver will use [PostgreSQL](https://postgresql.org). This driver
 /// is recommended to be used for production use cases and better reliability.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize, derive_more::Display, derive_more::Deref)]
+#[serde(deny_unknown_fields)]
 #[display("{}", self.url)]
 pub struct Config {
     #[serde(flatten)]

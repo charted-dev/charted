@@ -44,6 +44,7 @@ impl From<Model> for ApiKey {
             created_at: model.created_at.into(),
             updated_at: model.updated_at.into(),
             scopes: model.scopes,
+            token: Some(model.token),
             owner: model.owner,
             name: model.name,
             id: model.id,
