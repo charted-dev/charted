@@ -464,7 +464,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "$ref": "#/components/responses/ApiKeyResponse"
                     },
                     "409": {
@@ -1609,7 +1609,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "$ref": "#/components/responses/ApiKeyResponse"
                     },
                     "409": {
@@ -2366,6 +2366,10 @@
                         "type": "integer",
                         "format": "int64",
                         "description": "the list of permissions that this api key has as a [bitfield] data structure.\n\n[bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure"
+                    },
+                    "token": {
+                        "type": ["string", "null"],
+                        "description": "The token itself. When querying API tokens, they're set to `null`and not\nserialized for security reasons, this is only a non-null value if the API key\nwas first created."
                     },
                     "updated_at": {
                         "type": "string",
