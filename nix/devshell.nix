@@ -16,7 +16,6 @@
   inherit (pkgs) mkShell lib darwin stdenv;
 
   common = import ./common.nix;
-  toolchain = common.mkRustPlatform pkgs.rust-bin;
   rustflags = common.rustflags stdenv;
 
   darwinNativeBuildInputs = with darwin.apple_sdk.frameworks; [
@@ -38,7 +37,7 @@
 
   buildInputs = with pkgs;
     [
-      (callPackage ./packages/cargo-upgrades.nix {})
+      cargo-upgrades
       cargo-machete
       cargo-nextest
       cargo-expand
@@ -48,7 +47,7 @@
 
       sea-orm-cli
 
-      toolchain
+      (common.mkRustPlatform pkgs.rust-bin)
       openssl
       git
     ]
@@ -61,6 +60,6 @@ in
 
     name = "charted-dev";
     shellHook = ''
-      export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
+      export RUSTFLAGS="${rustflags}"
     '';
   }

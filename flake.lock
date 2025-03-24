@@ -32,10 +32,31 @@
         "type": "github"
       }
     },
+    "noelware": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1742110976,
+        "narHash": "sha256-LJBx9qnjZRM8xU+lqqBdAtmFyZhsJMQrbT7d7SU4FCM=",
+        "owner": "Noelware",
+        "repo": "nixpkgs-noelware",
+        "rev": "553ee6058df9e28de1cbec7804b3b6f4db6aeea6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Noelware",
+        "repo": "nixpkgs-noelware",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-compat": "flake-compat",
         "nixpkgs": "nixpkgs",
+        "noelware": "noelware",
         "rust-overlay": "rust-overlay",
         "systems": "systems"
       }
