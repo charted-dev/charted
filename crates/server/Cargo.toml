@@ -32,7 +32,6 @@ azalia = { workspace = true, features = ["remi"] }
 base64.workspace = true
 charted-authz.workspace = true
 charted-authz-local.workspace = true
-charted-authz-ldap.workspace = true
 charted-authz-static.workspace = true
 charted-config.workspace = true
 charted-core = { workspace = true, features = ["openapi", "axum"] }
@@ -75,7 +74,6 @@ tracing.workspace = true
 url.workspace = true
 utoipa.workspace = true
 validator = "0.20.0"
-pin-project-lite = "0.2.16"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt", "macros"] }

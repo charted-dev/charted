@@ -32,15 +32,10 @@ libsystemd = ["charted-server/libsystemd"]
 [dependencies]
 argon2.workspace = true
 azalia = { workspace = true, features = ["log", "log-writers"] }
-charted-authz.workspace = true
-charted-authz-local.workspace = true
-charted-authz-static.workspace = true
 charted-core.workspace = true
 charted-config.workspace = true
 charted-database.workspace = true
-charted-helm-charts.workspace = true
 charted-helm-types.workspace = true
-charted-metrics.workspace = true
 charted-server.workspace = true
 charted-types.workspace = true
 clap.workspace = true
