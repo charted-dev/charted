@@ -34,11 +34,6 @@ if noelware::arch::aarch64; then
     arch="aarch64"
 fi
 
-prepare() {
-    echo "~> install \`mold\`"
-    apt-get install -y mold
-}
-
 build() {
     if ! command -v "$cargo" >/dev/null; then
         echo "~> Missing \`cargo\` binary (defined from \`\$CARGO\`: $cargo)"
@@ -47,7 +42,7 @@ build() {
 
     local bin="$1"
 
-    export RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native $rustflags"
+    export RUSTFLAGS="--cfg tokio_unstable -Ctarget-cpu=native $rustflags"
 
     ! [ -d "$root/.result" ] && mkdir -p "$root/.result"
     pushd "$root/.result" >/dev/null
@@ -65,16 +60,6 @@ build() {
     popd >/dev/null
 }
 
-if noelware::isGitHubActions; then
-    noelware::startGroup "Prepare"
-    prepare
-    noelware::endGroup
-fi
-
-noelware::startGroup "[charted] Building \`darwin-$arch\` binary"
+noelware::startGroup "Building \`darwin-$arch\` binary"
 build "charted"
-noelware::endGroup
-
-noelware::startGroup "[helm-plugin] Building \`darwin-$arch\` binary"
-build "charted-helm-plugin"
 noelware::endGroup

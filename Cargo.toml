@@ -24,7 +24,6 @@ members = [
     "crates/core",
     "crates/database",
     "crates/helm/charts",
-    "crates/helm/plugin",
     "crates/helm/types",
     "crates/metrics",
     "crates/server",
@@ -64,7 +63,6 @@ charted-core = { path = "./crates/core", version = "0.1.0", features = [
 ] }
 charted-database = { path = "./crates/database" }
 charted-helm-charts = { path = "./crates/helm/charts" }
-charted-helm-plugin = { path = "./crates/helm/plugin" }
 charted-helm-types = { path = "./crates/helm/types" }
 charted-metrics = { path = "./crates/metrics" }
 charted-search = { path = "./crates/search" }

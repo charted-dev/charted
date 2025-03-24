@@ -796,7 +796,6 @@ dependencies = [
  "owo-colors 4.2.0",
  "serde_json",
  "tracing",
- "tracing-log",
  "tracing-subscriber",
 ]
 
@@ -1304,33 +1303,6 @@ dependencies = [
  "tempfile",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "charted-helm-plugin"
-version = "0.1.0"
-dependencies = [
- "azalia",
- "base64 0.22.1",
- "charted-core",
- "charted-types",
- "clap",
- "clap_complete",
- "derive_more 2.0.1",
- "dotenvy",
- "etcetera 0.10.0",
- "eyre",
- "mimalloc",
- "reqwest",
- "schemars",
- "secrecy",
- "serde",
- "serde_yaml_ng",
- "tokio",
- "toml",
- "tracing",
- "tracing-subscriber",
- "url",
 ]
 
 [[package]]
@@ -2067,17 +2039,6 @@ dependencies = [
  "cfg-if",
  "home",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "etcetera"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26c7b13d0780cb82722fd59f6f57f925e143427e4a75313a6c77243bf5326ae6"
-dependencies = [
- "cfg-if",
- "home",
- "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4578,7 +4539,7 @@ version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebb456a861f3093c9d3c19bccd4de78f52d0eab12ff33d0c22d74cd84858ceae"
 dependencies = [
- "etcetera 0.8.0",
+ "etcetera",
  "file-format",
  "infer 0.16.0",
  "remi",
@@ -5089,16 +5050,6 @@ dependencies = [
  "generic-array",
  "pkcs8 0.9.0",
  "subtle",
- "zeroize",
-]
-
-[[package]]
-name = "secrecy"
-version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e891af845473308773346dc847b2c23ee78fe442e0472ac50e22a18a93d3ae5a"
-dependencies = [
- "serde",
  "zeroize",
 ]
 
@@ -5733,7 +5684,7 @@ dependencies = [
  "chrono",
  "crc",
  "dotenvy",
- "etcetera 0.8.0",
+ "etcetera",
  "futures-channel",
  "futures-core",
  "futures-util",

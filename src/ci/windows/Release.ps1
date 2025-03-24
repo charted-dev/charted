@@ -66,4 +66,3 @@ function Main {
 }
 
 Main "charted"
-Main "charted-helm-plugin"

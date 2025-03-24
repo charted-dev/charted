@@ -127,7 +127,7 @@ impl BuildInfo {
 ///
 /// If the [`COMMIT_HASH`] is empty (i.e, not by using `git` or wasn't found on system),
 /// it'll return <code>v[{version}][VERSION]</code> instead. This is also returned on the
-/// `nixpkgs` version of **charted** and **charted-helm-plugin**.
+/// `nixpkgs` version of the project.
 pub fn version() -> &'static str {
     static ONCE: OnceLock<String> = OnceLock::new();
     ONCE.get_or_init(|| {

@@ -50,44 +50,6 @@ Refer to the [`charted-dev/helm-charts`] repository for more information on how 
 
 ### Nix/NixOS
 
-#### Nix
-
-You can use the **charted** and **charted-helm-plugin** Nix derivations from [`nixpkgs-noelware`]:
-
-```nix
-{
-    inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-        noelware = {
-            url = "github:Noelware/nixpkgs-noelware";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-    };
-
-    outputs = { nixpkgs, noelware, ... }: let
-        system = "x86_64-linux";
-        pkgs = import nixpkgs {
-            inherit system;
-
-            overlays = [(import noelware)];
-        };
-    in
-    {
-        devShells.${system}.default = pkgs.mkShell {
-            buildInputs = with pkgs; [
-                charted
-
-                (wrapHelm kubernetes-helm {
-                    plugins = [charted-helm-plugin];
-                })
-            ];
-        };
-    };
-}
-```
-
-#### NixOS
-
 The [`nixpkgs-noelware`] repository contains a NixOS module to run a **charted-server** instance:
 
 ```nix

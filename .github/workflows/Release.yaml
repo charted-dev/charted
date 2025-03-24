@@ -20,13 +20,12 @@ on:
             - 'v?[0-9]+.[0-9]+.[0-9]'
 jobs:
     binaries:
-        name: "Rust Build :: ${{matrix.binary}} / ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-xlarge' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
+        name: "Rust / Build :: ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-xlarge' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
         runs-on: ${{matrix.runner}}
         if: ${{github.repository == 'charted-dev/charted'}}
         strategy:
             fail-fast: true
             matrix:
-                binary: [charted, charted-helm-plugin]
                 include:
                     - runner: ubuntu-24.04
                       os: linux
@@ -80,12 +79,12 @@ jobs:
                   RUSTFLAGS: ''
                   CARGOFLAGS: ${{env.CARGOFLAGS}}
 
-            - name: Upload (/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/${{steps.tag.outputs.version}})
+            - name: Upload (/charted/server/${{steps.tag.outputs.version}})
               uses: Noelware/s3-action@2.2.7
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  path-format: "$(prefix)/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/${{steps.tag.outputs.version}}/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
+                  path-format: "$(prefix)/charted/server/${{steps.tag.outputs.version}}/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
                   secret-key: ${{secrets.S3_SECRET_KEY}}
                   directories: ./.result
                   endpoint: ${{secrets.S3_ENDPOINT}}
@@ -93,12 +92,12 @@ jobs:
                   prefix: /noelware/artifacts
                   bucket: august
 
-            - name: Upload (/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/latest)
+            - name: Upload (/charted/server/latest)
               uses: Noelware/s3-action@2.2.7
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  path-format: "$(prefix)/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/latest/${{matrix.binary}}-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
+                  path-format: "$(prefix)/charted/server/latest/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
                   secret-key: ${{secrets.S3_SECRET_KEY}}
                   directories: ./.result
                   endpoint: ${{secrets.S3_ENDPOINT}}

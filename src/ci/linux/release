@@ -81,10 +81,6 @@ if noelware::isGitHubActions; then
     noelware::endGroup
 fi
 
-noelware::startGroup "[charted] Building \`linux-$arch\` binary"
+noelware::startGroup "Building \`linux-$arch\` binary"
 build "charted"
-noelware::endGroup
-
-noelware::startGroup "[helm-plugin] Building \`linux-$arch\` binary"
-build "charted-helm-plugin"
 noelware::endGroup

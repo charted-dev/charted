@@ -23,7 +23,7 @@ use std::{
     process::exit,
 };
 use tracing::{error, info};
-use tracing_subscriber::{prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, prelude::*};
 
 fn main() -> eyre::Result<()> {
     preinit()?;
@@ -48,9 +48,6 @@ fn print_help() {
     eprintln!("{:━^80}", " COMMANDS ");
     eprintln!("$ cargo internals openapi <PATH>");
     eprintln!("    ↳ Generates the OpenAPI specification into <PATH>");
-    eprintln!();
-    eprintln!("$ cargo internals jsonschema <PATH>");
-    eprintln!("    ↳ Generates the JSON schema for `.charted.toml` into <PATH>");
 }
 
 fn preinit() -> eyre::Result<()> {
