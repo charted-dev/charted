@@ -34,7 +34,6 @@ pub mod testing;
 mod macros;
 
 mod context;
-mod drive;
 mod yaml;
 
 use argon2::{
@@ -43,7 +42,6 @@ use argon2::{
 };
 use charted_core::ARGON2;
 pub use context::*;
-pub use drive::drive;
 pub use yaml::*;
 
 pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {

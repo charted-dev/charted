@@ -17,11 +17,8 @@ mod apikey;
 mod basic;
 mod bearer;
 
-use super::Middleware;
-use crate::{
-    middleware::sessions::Error,
-    testing::{create_config, set_and_use_context},
-};
+use super::{Error, Options};
+use crate::Context;
 use axum::{
     Router,
     body::Body,
@@ -33,36 +30,36 @@ use charted_config::Config;
 use charted_core::api;
 use serde::de::DeserializeOwned;
 use tower::{Service, ServiceExt};
-use tower_http::auth::AsyncRequireAuthorizationLayer;
 
-pub(in crate::middleware::sessions::tests) async fn echo(req: axum::extract::Request) -> impl IntoResponse {
+pub(in crate::middleware::authn::tests) async fn echo(req: axum::extract::Request) -> impl IntoResponse {
     (StatusCode::OK, Response::new(req.into_body()))
 }
 
-pub(in crate::middleware::sessions::tests) async fn consume_body<T: DeserializeOwned>(body: Body) -> T {
+pub(in crate::middleware::authn::tests) async fn consume_body<T: DeserializeOwned>(body: Body) -> T {
     let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
     serde_json::from_slice(&bytes).unwrap()
 }
 
-pub(in crate::middleware::sessions::tests) fn create_router(
-    middleware: Middleware,
+pub(in crate::middleware::authn::tests) async fn create_router(
+    options: Options,
     basic_auth: bool,
     config_override: impl FnOnce(&mut Config),
-) -> Router<()> {
+) -> Router {
+    let context = Context::for_testing(|cfg| {
+        cfg.sessions.enable_basic_auth = basic_auth;
+        config_override(cfg);
+    })
+    .await
+    .unwrap();
+
     Router::new()
-        .route(
-            "/echo",
-            routing::post(echo).layer(AsyncRequireAuthorizationLayer::new(middleware)),
-        )
-        .with_state(set_and_use_context(create_config(|cfg| {
-            cfg.sessions.enable_basic_auth = basic_auth;
-            config_override(cfg);
-        })))
+        .route("/echo", routing::post(echo).layer(super::new(context.clone(), options)))
+        .with_state(context)
 }
 
 #[tokio::test]
 async fn disallow_if_no_header() {
-    let mut router = create_router(Default::default(), false, |_| {});
+    let mut router = create_router(Default::default(), false, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();
@@ -78,16 +75,16 @@ async fn disallow_if_no_header() {
 }
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn allow_if_no_header_and_can_be_allowed() {
     let mut router = create_router(
-        Middleware {
-            allow_unauthorized_requests: true,
+        Options {
+            allow_unauthorized: true,
             ..Default::default()
         },
         false,
         |_| {},
-    );
+    )
+    .await;
 
     let mut service = router.as_service::<Body>();
     let service = service.ready().await.unwrap();

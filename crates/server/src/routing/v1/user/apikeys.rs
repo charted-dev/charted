@@ -17,7 +17,7 @@ use crate::{
     Context,
     extract::{Json, Path, Query},
     extract_refor_t,
-    middleware::sessions::{Middleware, Session},
+    middleware::authn::{self, Options, Session},
     modify_property,
     openapi::ApiErrorResponse,
     pagination::{Ordering, PaginationRequest},
@@ -38,24 +38,25 @@ use sea_orm::{
 };
 use serde_json::json;
 use std::{cmp, collections::BTreeMap};
-use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     IntoResponses, ToResponse,
     openapi::{Ref, RefOr, Response},
 };
 
-pub fn create_router() -> Router<Context> {
+pub fn create_router(cx: &Context) -> Router<Context> {
     Router::new()
         .route(
             "/",
-            routing::get(list.layer(AsyncRequireAuthorizationLayer::new(
-                Middleware::default().with_scope(ApiKeyScope::ApiKeyList),
+            routing::get(list.layer(authn::new(
+                cx.clone(),
+                Options::default().with_scope(ApiKeyScope::ApiKeyList),
             ))),
         )
         .route(
-            "{idOrName}",
-            routing::get(fetch.layer(AsyncRequireAuthorizationLayer::new(
-                Middleware::default().with_scope(ApiKeyScope::ApiKeyView),
+            "/{idOrName}",
+            routing::get(fetch.layer(authn::new(
+                cx.clone(),
+                Options::default().with_scope(ApiKeyScope::ApiKeyView),
             ))),
         )
 }

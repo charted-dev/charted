@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::middleware::sessions::{
+use crate::middleware::authn::{
     Error,
     tests::{consume_body, create_router},
 };
@@ -28,9 +28,8 @@ use std::borrow::Cow;
 use tower::{Service, ServiceExt};
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn disallow_if_not_enabled_by_config() {
-    let mut router = create_router(Default::default(), false, |_| {});
+    let mut router = create_router(Default::default(), false, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();
@@ -56,9 +55,8 @@ async fn disallow_if_not_enabled_by_config() {
 }
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn decoding_error_missing_colon() {
-    let mut router = create_router(Default::default(), true, |_| {});
+    let mut router = create_router(Default::default(), true, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();
@@ -90,9 +88,8 @@ async fn decoding_error_missing_colon() {
 }
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn decoding_error_more_than_one_colon() {
-    let mut router = create_router(Default::default(), true, |_| {});
+    let mut router = create_router(Default::default(), true, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();
@@ -124,9 +121,8 @@ async fn decoding_error_more_than_one_colon() {
 }
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn invalid_name_in_username() {
-    let mut router = create_router(Default::default(), true, |_| {});
+    let mut router = create_router(Default::default(), true, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();
@@ -162,9 +158,8 @@ async fn invalid_name_in_username() {
 }
 
 #[tokio::test]
-#[ignore = "test is flakey at the moment"]
 async fn empty_username() {
-    let mut router = create_router(Default::default(), true, |_| {});
+    let mut router = create_router(Default::default(), true, |_| {}).await;
     let mut service = router.as_service::<Body>();
 
     let service = service.ready().await.unwrap();

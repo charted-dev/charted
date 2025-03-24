@@ -16,7 +16,7 @@
 mod ops;
 
 use crate::{
-    Context, extract::Path, extract_refor_t, middleware::sessions::Session, modify_property, multipart::Multipart,
+    Context, extract::Path, extract_refor_t, middleware::authn::Session, modify_property, multipart::Multipart,
     openapi::ApiErrorResponse,
 };
 use axum::{Extension, extract::State, response::IntoResponse};

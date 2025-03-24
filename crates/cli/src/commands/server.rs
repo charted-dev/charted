@@ -17,12 +17,10 @@ use crate::install_eyre_hook;
 use azalia::{
     config::TryFromEnv,
     log::{WriteLayer, writers},
-    remi::{StorageService, core::StorageService as _},
 };
-use charted_authz::Authenticator;
-use charted_config::{Config, metrics, sessions::Backend, storage};
-use charted_core::{Distribution, ulid::Generator};
-use charted_server::set_context;
+use charted_config::Config;
+use charted_core::Distribution;
+use charted_server::Context;
 use eyre::bail;
 use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
 use opentelemetry_otlp::SpanExporter;
@@ -32,9 +30,8 @@ use std::{
     borrow::Cow,
     io::{self, Write},
     path::PathBuf,
-    sync::{Arc, atomic::AtomicUsize},
 };
-use tracing::{info, level_filters::LevelFilter, warn};
+use tracing::{info, level_filters::LevelFilter};
 use tracing_subscriber::{filter, prelude::*};
 
 /// Runs the API server.
@@ -70,58 +67,12 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     init_logger(&config)?;
     info!("Hello world!");
 
-    let pool = charted_database::create_pool(&config.database).await?;
-    let storage = match config.storage.clone() {
-        storage::Config::Filesystem(fs) => {
-            StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
-        }
+    let context = Context::new(config).await?;
+    if let Err(e) = context.start().await {
+        tracing::error!(%e, "failed to run HTTP service");
+    }
 
-        storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)?),
-        storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
-    };
-
-    azalia::remi::StorageService::init(&storage).await?;
-    charted_helm_charts::init(&storage).await?;
-
-    let authz: Arc<dyn Authenticator> = match config.sessions.backend.clone() {
-        Backend::Static(mapping) => Arc::new(charted_authz_static::Backend::new(mapping)),
-        Backend::Local => Arc::new(charted_authz_local::Backend::default()),
-        b => {
-            warn!("using the {} backend is not supported! switching to local backend", b);
-            Arc::new(charted_authz_local::Backend::default())
-        }
-    };
-
-    let prom_handle = match config.metrics.clone() {
-        metrics::Config::Disabled => None,
-        metrics::Config::OpenTelemetry(config) => {
-            charted_metrics::init_opentelemetry(&config)?;
-            None
-        }
-
-        metrics::Config::Prometheus(config) => Some(charted_metrics::init_prometheus(&config)?),
-    };
-
-    #[allow(unused_mut)]
-    let mut features = azalia::hashmap!();
-    let context = charted_server::Context {
-        ulid_generator: Generator::new(),
-        requests: AtomicUsize::new(0),
-        features,
-        storage,
-        config,
-        authz,
-        pool,
-    };
-
-    set_context(context.clone());
-    charted_server::drive(prom_handle.as_ref()).await?;
-
-    warn!("server has been closed, closing resources...");
-    context.pool.close().await?;
-
-    warn!("goodbye.");
-    Ok(())
+    context.close().await
 }
 
 pub(in crate::commands) fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {
@@ -146,8 +97,8 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
         _ => None,
     };
 
-    let loki_layer = (|| {
-        let res: Result<Option<tracing_loki::Layer>, tracing_loki::Error> = match config.logging.loki {
+    let loki_layer = (|| -> Result<Option<tracing_loki::Layer>, tracing_loki::Error> {
+        match config.logging.loki {
             Some(ref config) => {
                 let mut builder = tracing_loki::builder();
                 for (name, label) in config.labels.iter() {
@@ -169,9 +120,7 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
             }
 
             None => Ok(None),
-        };
-
-        res
+        }
     })()?;
 
     tracing_subscriber::registry()

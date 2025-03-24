@@ -13,84 +13,93 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod error;
-pub use error::*;
-
 mod extract;
+pub use extract::*;
+
+mod error;
+
 use crate::Context;
 use axum::{
     body::Body,
-    http::{header::AUTHORIZATION, Request, StatusCode},
+    http::{Request, StatusCode, header::AUTHORIZATION},
     response::{IntoResponse, Response},
 };
-use base64::{engine::general_purpose::STANDARD, Engine};
+use base64::{Engine, engine::general_purpose::STANDARD};
 use charted_authz::InvalidPassword;
 use charted_core::{
-    api,
+    BoxedFuture, api,
     bitflags::{ApiKeyScope, ApiKeyScopes},
-    BoxedFuture,
 };
-use charted_database::entities::{apikey, session, user, ApiKeyEntity, SessionEntity, UserEntity};
-use charted_types::{name::Name, ApiKey, Ulid, User};
-pub use extract::*;
+use charted_database::entities::{ApiKeyEntity, SessionEntity, UserEntity, apikey, session, user};
+use charted_types::{ApiKey, Ulid, User, name::Name};
+use error::Error;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{borrow::Cow, collections::HashMap, str::FromStr};
-use tower_http::auth::AsyncAuthorizeRequest;
-use tracing::{error, instrument, trace};
+use tower_http::auth::{AsyncAuthorizeRequest, AsyncRequireAuthorizationLayer};
 
+/// The `iss` field value.
 pub const JWT_ISS: &str = "Noelware";
+
+/// The `aud` field value.
 pub const JWT_AUD: &str = "charted-server";
+
+/// JWT algorithm to use.
 pub const JWT_ALGORITHM: Algorithm = Algorithm::HS512;
+
+/// Claim name for a user ID.
 pub const JWT_UID_FIELD: &str = "uid";
+
+/// Claim name for a session ID.
 pub const JWT_SID_FIELD: &str = "sid";
 
-/// The middleware that can be attached to a single route.
 #[derive(Clone, Default)]
-pub struct Middleware {
-    /// whether if the middleware should continue running without
-    /// an `Authorization` header.
-    pub allow_unauthorized_requests: bool,
+pub struct Options {
+    /// whether if the rest endpoint requires a valid refresh token
+    pub require_refresh_token: bool,
 
-    /// whether if a refresh token is required to be the input
-    /// of a `Bearer` token.
-    pub refresh_token_required: bool,
+    /// whether if the rest endpoint is ok with no prior authorization.
+    pub allow_unauthorized: bool,
 
-    /// a list of API key scopes. If none are specified, then it'll
-    /// run like normal.
+    /// a list of api key scopes that the middleware should check
+    /// if it was ran from the api key path
     pub scopes: ApiKeyScopes,
 }
 
-// SETTERS \\
-
-impl Middleware {
-    /// Appends a new [`ApiKeyScope`] for this middleware to check.
-    pub fn with_scope<S: Into<ApiKeyScope>>(self, scope: S) -> Self {
-        let mut bitfield = self.scopes;
-        bitfield.add([scope.into()]);
-
-        Self {
-            scopes: bitfield,
-            ..self
-        }
+impl Options {
+    /// Append a scope to this middleware.
+    pub fn with_scope(mut self, scope: impl Into<ApiKeyScope>) -> Self {
+        self.scopes.add([scope.into()]);
+        self
     }
 }
 
-// IMPL \\
-impl Middleware {
+/// Creates a [`AsyncRequireAuthorizationLayer`] that will use the authn handler to
+/// handle authorization between in-flight requests.
+pub fn new(ctx: Context, options: Options) -> AsyncRequireAuthorizationLayer<Handler> {
+    AsyncRequireAuthorizationLayer::new(Handler { options, context: ctx })
+}
+
+#[derive(Clone)]
+pub struct Handler {
+    options: Options,
+    context: Context,
+}
+
+impl Handler {
     #[instrument(
-        name = "charted.server.authz.basic",
+        name = "charted.server.authn.basic",
         skip_all,
         fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    pub(self) async fn basic_auth<'ctx>(
+    async fn handle_basic_auth(
         self,
-        ctx: &'ctx Context,
+        ctx: Context,
         mut req: Request<Body>,
-        contents: String,
+        token: String,
     ) -> Result<Request<Body>, Response> {
-        if self.refresh_token_required {
+        if self.options.require_refresh_token {
             return Err(as_response(api::err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
@@ -112,7 +121,7 @@ impl Middleware {
 
         let decoded = String::from_utf8(
             STANDARD
-                .decode(&contents)
+                .decode(&token)
                 .inspect_err(|e| {
                     error!(error = %e, "failed to decode from base64");
                     sentry::capture_error(e);
@@ -128,7 +137,7 @@ impl Middleware {
                 return Err(as_response(Error::msg(
                     "received more than one `:` in basic auth input",
                     None,
-                )))
+                )));
             }
 
             Some(v) => v,
@@ -136,7 +145,7 @@ impl Middleware {
                 return Err(as_response(Error::msg(
                     "input must be in the form of 'username:password'",
                     None,
-                )))
+                )));
             }
         };
 
@@ -200,16 +209,13 @@ impl Middleware {
     }
 
     #[instrument(
-        name = "charted.server.authz.bearer",
+        name = "charted.server.authn.bearer",
         skip_all,
-        fields(
-            req.uri = req.uri().path(),
-            req.method = req.method().as_str(),
-        )
+        fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    pub(self) async fn bearer_auth<'ctx>(
+    async fn handle_bearer_auth(
         self,
-        ctx: &'ctx Context,
+        ctx: Context,
         mut req: Request<Body>,
         token: String,
     ) -> Result<Request<Body>, Response> {
@@ -263,7 +269,7 @@ impl Middleware {
             return Err(as_response(Error::UnknownSession));
         };
 
-        if self.refresh_token_required && session.refresh_token != token {
+        if self.options.require_refresh_token && session.refresh_token != token {
             return Err(as_response(Error::RefreshTokenRequired));
         }
 
@@ -295,20 +301,17 @@ impl Middleware {
     }
 
     #[instrument(
-        name = "charted.server.authz.apikey",
+        name = "charted.server.authn.apikey",
         skip_all,
-        fields(
-            req.uri = req.uri().path(),
-            req.method = req.method().as_str(),
-        )
+        fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    async fn apikey_auth<'ctx>(
+    async fn handle_apikey_auth(
         self,
-        ctx: &'ctx Context,
+        ctx: Context,
         mut req: Request<Body>,
         token: String,
     ) -> Result<Request<Body>, Response> {
-        if self.refresh_token_required {
+        if self.options.require_refresh_token {
             return Err(as_response(Error::RefreshTokenRequired));
         }
 
@@ -327,7 +330,7 @@ impl Middleware {
         };
 
         let scopes = apikey.bitfield();
-        for (scope, bit) in self.scopes.flags() {
+        for (scope, bit) in self.options.scopes.flags() {
             trace!(%apikey.name, %scope, "checking if api key enabled the scope required for this route");
             if !scopes.contains(bit) {
                 trace!(%apikey.name, %scope, "scope is not enabled!");
@@ -369,16 +372,15 @@ impl Middleware {
     }
 }
 
-impl AsyncAuthorizeRequest<Body> for Middleware {
+impl AsyncAuthorizeRequest<Body> for Handler {
     type Future = BoxedFuture<'static, Result<Request<Self::RequestBody>, Response<Self::ResponseBody>>>;
     type RequestBody = Body;
     type ResponseBody = Body;
 
     fn authorize(&mut self, request: Request<Body>) -> Self::Future {
         let headers = request.headers();
-
         let Some(header) = headers.get(AUTHORIZATION) else {
-            if self.allow_unauthorized_requests {
+            if self.options.allow_unauthorized {
                 return Box::pin(noop(request));
             }
 
@@ -414,17 +416,16 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                         "auth header must be in the form of 'Type Value', i.e, 'ApiKey hjdjshdjs'",
                         None,
                     )))
-                })
+                });
             }
         };
 
-        let ctx = Context::get();
-        let me = self.to_owned();
+        let context = self.context.clone();
+        let me = self.clone();
         match ty {
-            AuthType::Basic => Box::pin(me.basic_auth(ctx, request, value.to_owned())),
-            AuthType::Bearer => Box::pin(me.bearer_auth(ctx, request, value.to_owned())),
-
-            _ => unreachable!(),
+            AuthType::Basic => Box::pin(me.handle_basic_auth(context, request, value.to_owned())),
+            AuthType::Bearer => Box::pin(me.handle_bearer_auth(context, request, value.to_owned())),
+            AuthType::ApiKey => Box::pin(me.handle_apikey_auth(context, request, value.to_owned())),
         }
     }
 }

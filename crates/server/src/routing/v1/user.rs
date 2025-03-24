@@ -22,7 +22,7 @@ use crate::{
     Context,
     extract::{Json, Path},
     extract_refor_t, hash_password,
-    middleware::sessions::Session,
+    middleware::authn::{self, Options, Session},
     modify_property,
     openapi::{ApiErrorResponse, ApiResponse, EmptyApiResponse},
     routing::v1::{Entrypoint, EntrypointResponse},
@@ -39,7 +39,6 @@ use sea_orm::{
 };
 use serde_json::json;
 use std::{borrow::Cow, collections::BTreeMap};
-use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     IntoResponses, ToResponse,
     openapi::{Ref, RefOr, Response},
@@ -56,14 +55,7 @@ pub fn create_router(cx: &Context) -> Router<Context> {
 
     let id_or_name = Router::new()
         .route("/", routing::get(fetch))
-        .route(
-            "/repositories",
-            routing::get(
-                repositories::list_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
-                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
-                )),
-            ),
-        )
+        .route("/repositories", routing::get(repositories::list_user_repositories))
         .route("/avatar", routing::get(avatars::get_user_avatar))
         .route("/avatars/{hash}", routing::get(avatars::get_user_avatar_by_hash));
 
@@ -73,11 +65,13 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             true => {
                 base = base.route(
                     "/",
-                    routing::get(get_self.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    routing::get(get_self.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default().with_scope(ApiKeyScope::UserAccess),
                     )))
-                    .patch(patch.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserUpdate),
+                    .patch(patch.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default().with_scope(ApiKeyScope::UserUpdate),
                     ))),
                 )
             }
@@ -85,47 +79,65 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             false => {
                 base = base.route(
                     "/",
-                    routing::get(get_self.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    routing::get(get_self.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default().with_scope(ApiKeyScope::UserAccess),
                     )))
-                    .patch(patch.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserUpdate),
+                    .patch(patch.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default().with_scope(ApiKeyScope::UserUpdate),
                     )))
-                    .delete(delete.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserDelete),
+                    .delete(delete.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default().with_scope(ApiKeyScope::UserDelete),
                     ))),
                 )
             }
         }
 
-        base.nest("/apikeys", apikeys::create_router())
+        base.nest("/apikeys", apikeys::create_router(cx))
             .route(
                 "/repositories",
                 routing::get(
-                    repositories::list_self_user_repositories.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoAccess),
+                    repositories::list_self_user_repositories.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default()
+                            .with_scope(ApiKeyScope::RepoAccess)
+                            .with_scope(ApiKeyScope::UserAccess),
                     )),
                 )
                 .put(
-                    repositories::create_user_repository.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::RepoCreate),
+                    repositories::create_user_repository.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default()
+                            .with_scope(ApiKeyScope::RepoCreate)
+                            .with_scope(ApiKeyScope::UserAccess),
                     )),
                 ),
             )
             .route(
                 "/avatar",
-                routing::get(avatars::get_self_user_avatar.layer(AsyncRequireAuthorizationLayer::new(
-                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                routing::get(avatars::get_self_user_avatar.layer(authn::new(
+                    cx.to_owned(),
+                    Options::default().with_scope(ApiKeyScope::UserAccess),
                 )))
-                .post(avatars::upload_user_avatar.layer(AsyncRequireAuthorizationLayer::new(
-                    crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAvatarUpdate),
-                ))),
+                .post(
+                    avatars::upload_user_avatar.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default()
+                            .with_scope(ApiKeyScope::RepoCreate)
+                            .with_scope(ApiKeyScope::UserAvatarUpdate),
+                    )),
+                ),
             )
             .route(
                 "/avatars/{hash}",
                 routing::get(
-                    avatars::get_self_user_avatar_by_hash.layer(AsyncRequireAuthorizationLayer::new(
-                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    avatars::get_self_user_avatar_by_hash.layer(authn::new(
+                        cx.to_owned(),
+                        Options::default()
+                            .with_scope(ApiKeyScope::RepoCreate)
+                            .with_scope(ApiKeyScope::UserAccess),
                     )),
                 ),
             )

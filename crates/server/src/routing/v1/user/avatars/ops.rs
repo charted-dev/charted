@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{Context, HTTP_CLIENT};
+use crate::Context;
 use axum::{
     body::Bytes,
     http::{HeaderMap, HeaderValue, StatusCode, header},
@@ -41,7 +41,7 @@ pub(crate) async fn fetch(cx: Context, user: User) -> Result<OpaqueRT, api::Resp
             return fetch_by_hash(cx, user.id, hash.to_owned()).await;
         }
 
-        return fetch_gravatar(&email).await;
+        return fetch_gravatar(&cx, &email).await;
     } else if let Some(hash) = user.avatar_hash {
         return fetch_by_hash(cx, user.id, hash).await;
     }
@@ -49,7 +49,7 @@ pub(crate) async fn fetch(cx: Context, user: User) -> Result<OpaqueRT, api::Resp
     let url = format!("{DICEBEAR_IDENTICONS_URI}/{}.png", user.id);
     debug!(%url, "requesting avatar from gravatar");
 
-    let res = HTTP_CLIENT.get(url).send().await.map_err(api::system_failure)?;
+    let res = cx.http.get(url).send().await.map_err(api::system_failure)?;
     if res.status() == StatusCode::NOT_FOUND {
         return Err(api::Response {
             success: false,
@@ -68,7 +68,7 @@ pub(crate) async fn fetch(cx: Context, user: User) -> Result<OpaqueRT, api::Resp
     ))
 }
 
-pub(crate) async fn fetch_gravatar(email: &str) -> Result<OpaqueRT, api::Response> {
+pub(crate) async fn fetch_gravatar(cx: &Context, email: &str) -> Result<OpaqueRT, api::Response> {
     let hash = {
         use md5::compute;
 
@@ -79,7 +79,7 @@ pub(crate) async fn fetch_gravatar(email: &str) -> Result<OpaqueRT, api::Respons
     let url = format!("{GRAVATAR_URI}/{hash}.png");
     debug!(%url, "requesting avatar from gravatar");
 
-    let res = HTTP_CLIENT.get(url).send().await.map_err(api::system_failure)?;
+    let res = cx.http.get(url).send().await.map_err(api::system_failure)?;
     if res.status() == StatusCode::NOT_FOUND {
         return Err(api::Response {
             success: false,

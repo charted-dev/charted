@@ -55,7 +55,7 @@ macro_rules! mk_router(
 
 fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
     let details = azalia::message_from_panic(message);
-    error!("HTTP service has panicked: {}", details);
+    error!(%details, "HTTP service has panicked");
 
     api::err(StatusCode::INTERNAL_SERVER_ERROR, api::Error {
         code: api::ErrorCode::InternalServerError,
@@ -119,7 +119,7 @@ pub fn create_router(cx: &Context) -> Router<Context> {
                         .allow_origin(tower_http::cors::Any),
                 )
                 .layer(axum::middleware::from_fn(crate::middleware::request_id))
-                .layer(axum::middleware::from_fn(crate::middleware::log)),
+                .layer(axum::middleware::from_fn_with_state(cx.clone(), crate::middleware::log)),
         )
         .fallback(four_oh_four_not_found)
         .method_not_allowed_fallback(four_oh_five_method_not_allowed)

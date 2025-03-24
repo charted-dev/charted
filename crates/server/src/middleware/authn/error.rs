@@ -98,8 +98,8 @@ impl Error {
     }
 
     fn api_error_code(&self) -> api::ErrorCode {
-        use api::ErrorCode::*;
         use Error as E;
+        use api::ErrorCode::*;
 
         match self {
             E::RefreshTokenRequired => RefreshTokenRequired,
