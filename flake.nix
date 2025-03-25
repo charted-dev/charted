@@ -57,9 +57,8 @@
     packages = eachSystem (system: let
       pkgs = nixpkgsFor system;
       charted = pkgs.callPackage ./nix/packages/charted.nix {};
-      helm-plugin = pkgs.callPackage ./nix/packages/helm-plugin.nix {};
     in {
-      inherit charted helm-plugin;
+      inherit charted;
 
       default = charted;
     });

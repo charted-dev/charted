@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    Context,
+    Context, commit_patch,
     extract::{Json, Path, Query},
     extract_refor_t,
     middleware::authn::{self, Options, Session},
@@ -32,9 +32,13 @@ use axum::{
 };
 use charted_core::{api, bitflags::ApiKeyScope, clamp, rand_string};
 use charted_database::entities::{ApiKeyEntity, apikey};
-use charted_types::{ApiKey, NameOrUlid, payloads::CreateApiKeyPayload};
+use charted_types::{
+    ApiKey, NameOrUlid,
+    payloads::{CreateApiKeyPayload, PatchApiKeyPayload},
+};
 use sea_orm::{
-    ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder, sqlx::types::chrono,
+    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder,
+    sqlx::types::chrono,
 };
 use serde_json::json;
 use std::{cmp, collections::BTreeMap};
@@ -335,8 +339,67 @@ impl IntoResponses for PatchApiKeyR {
     params(NameOrUlid),
     responses(PatchApiKeyR)
 )]
-pub async fn patch() -> api::Result<()> {
-    todo!()
+pub async fn patch(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id_or_name): Path<NameOrUlid>,
+    Json(PatchApiKeyPayload {
+        display_name,
+        description,
+        scopes: _,
+        name: _,
+    }): Json<PatchApiKeyPayload>,
+) -> api::Result<()> {
+    let (apikey, mut model) = (match &id_or_name {
+        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name.to_owned())),
+        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id.to_owned()),
+    })
+    .filter(apikey::Column::Owner.eq(user.id))
+    .one(&cx.pool)
+    .await
+    .map_err(api::system_failure)?
+    .map(|entity| {
+        (
+            Into::<ApiKey>::into(entity.clone()),
+            Into::<apikey::ActiveModel>::into(entity),
+        )
+    })
+    .ok_or_else(|| {
+        api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "apikey with either name or id wasn't found",
+                json!({"idOrName":id_or_name}),
+            ),
+        )
+    })?;
+
+    let mut errors = Vec::new();
+    commit_patch!(model of string?: old.display_name => display_name);
+    commit_patch!(model of string?: old.description => description; validate that len < 140 [errors]);
+
+    // TODO(@auguwu): add `scopes` and `name` support
+
+    if !errors.is_empty() {
+        return Err(api::Response {
+            headers: axum::http::HeaderMap::new(),
+            success: false,
+            status: StatusCode::CONFLICT,
+            errors,
+            data: None::<()>,
+        });
+    }
+
+    model
+        .update(&cx.pool)
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, %apikey.name, apikey.owner = %user.username, "failed to commit changes for patch");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)
+        .map(|_| api::no_content())
 }
 
 struct DeleteApiKeyR;
@@ -344,6 +407,13 @@ impl IntoResponses for DeleteApiKeyR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap! {
             "204" => Ref::from_response_name("EmptyApiResponse"),
+            "404" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("API key by ID or name was not found"));
+
+                response
+            },
+
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("Internal Server Failure"));
@@ -365,6 +435,34 @@ impl IntoResponses for DeleteApiKeyR {
     params(NameOrUlid),
     responses(DeleteApiKeyR)
 )]
-pub async fn delete() -> api::Result<()> {
-    todo!()
+pub async fn delete(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id_or_name): Path<NameOrUlid>,
+) -> api::Result<()> {
+    let ApiKey { id, .. } = (match &id_or_name {
+        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name.to_owned())),
+        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id.to_owned()),
+    })
+    .filter(apikey::Column::Owner.eq(user.id))
+    .one(&cx.pool)
+    .await
+    .map_err(api::system_failure)?
+    .ok_or_else(|| {
+        api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "apikey with either name or id wasn't found",
+                json!({"idOrName":id_or_name}),
+            ),
+        )
+    })
+    .map(Into::<ApiKey>::into)?;
+
+    ApiKeyEntity::delete_by_id(id)
+        .exec(&cx.pool)
+        .await
+        .map(|_| api::from_default(StatusCode::ACCEPTED))
+        .map_err(api::system_failure)
 }

@@ -19,7 +19,7 @@ pub mod repositories;
 pub mod sessions;
 
 use crate::{
-    Context,
+    Context, commit_patch,
     extract::{Json, Path},
     extract_refor_t, hash_password,
     middleware::authn::{self, Options, Session},
@@ -510,52 +510,9 @@ pub async fn patch(
 
     let mut errors = Vec::new();
 
-    if let Some(prefers_gravatar) = prefers_gravatar &&
-        user.prefers_gravatar != prefers_gravatar
-    {
-        model.prefers_gravatar = ActiveValue::Set(prefers_gravatar);
-    }
-
-    if let Some(gravatar_email) = gravatar_email.as_deref() {
-        let old = user.gravatar_email.as_deref();
-        if old.is_none() && !gravatar_email.is_empty() {
-            model.gravatar_email = ActiveValue::set(Some(gravatar_email.to_owned()));
-        } else if let Some(old) = old &&
-            !old.is_empty() &&
-            old != gravatar_email
-        {
-            model.gravatar_email = ActiveValue::set(Some(gravatar_email.to_owned()));
-        } else {
-            model.gravatar_email = ActiveValue::set(None);
-        }
-    }
-
-    if let Some(description) = description.as_deref() {
-        if description.len() > 140 {
-            let len = description.len();
-            errors.push(api::Error {
-                code: api::ErrorCode::ValidationFailed,
-                message: Cow::Borrowed("expected to be less than 140 characters"),
-                details: Some(json!({
-                    "path": "description",
-                    "expected": 140,
-                    "received": [len - 140, len]
-                })),
-            });
-        } else {
-            let old = user.description.as_deref();
-            if old.is_none() && !description.is_empty() {
-                model.description = ActiveValue::set(Some(description.to_owned()));
-            } else if let Some(old) = old &&
-                !old.is_empty() &&
-                old != description
-            {
-                model.description = ActiveValue::set(Some(description.to_owned()));
-            } else {
-                model.description = ActiveValue::set(None);
-            }
-        }
-    }
+    commit_patch!(model of bool: old.prefers_gravatar => prefers_gravatar; [user]);
+    commit_patch!(model of string?: old.gravatar_email => gravatar_email);
+    commit_patch!(model of string?: old.description => description; validate that len < 140 [errors]);
 
     if let Some(email) = email.as_deref() {
         if !email.validate_email() {
@@ -639,32 +596,7 @@ pub async fn patch(
         }
     }
 
-    if let Some(name) = name.as_deref() {
-        if name.len() > 64 {
-            let len = name.len();
-            errors.push(api::Error {
-                code: api::ErrorCode::ValidationFailed,
-                message: Cow::Borrowed("expected to be less than 140 characters"),
-                details: Some(json!({
-                    "path": "name",
-                    "expected": 64,
-                    "received": [len - 64, len]
-                })),
-            });
-        } else {
-            let old = user.name.as_deref();
-            if old.is_none() && !name.is_empty() {
-                model.name = ActiveValue::set(Some(name.to_owned()));
-            } else if let Some(old) = old &&
-                !old.is_empty() &&
-                old != name
-            {
-                model.name = ActiveValue::set(Some(name.to_owned()));
-            } else {
-                model.name = ActiveValue::set(None);
-            }
-        }
-    }
+    commit_patch!(model of string?: old.name => name; validate that len < 64 [errors]);
 
     if !errors.is_empty() {
         return Err(api::Response {

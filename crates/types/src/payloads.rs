@@ -17,6 +17,7 @@
 //! the API server for the `PUT` and `PATCH` REST endpoints.
 
 use crate::{DateTime, name::Name};
+use charted_core::bitflags::ApiKeyScope;
 use serde::Deserialize;
 
 macro_rules! mk_payload_structs {
@@ -111,6 +112,10 @@ mk_payload_structs! {
         /// - string that is the same: field will not update
         #[serde(default)]
         pub description: Option<String>,
+
+        /// changes the permissions of this api key.
+        #[serde(default)]
+        pub scopes: Option<Vec<ApiKeyScope>>,
 
         /// changes the api key's name.
         ///

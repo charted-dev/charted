@@ -149,11 +149,7 @@ jobs:
                   name: noelware
                   authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
 
-            - name: 'Build :: `charted`'
-              run: nix build .#charted
-
-            - name: 'Build :: `charted-helm-plugin`'
-              run: nix build .#helm-plugin
+            - run: nix build .#charted
     clippy:
         name: 'Rust / Clippy'
         runs-on: ubuntu-24.04
