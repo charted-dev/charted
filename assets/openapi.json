@@ -307,7 +307,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:access"]
+                    }
+                ]
             },
             "delete": {
                 "tags": ["Users"],
@@ -381,7 +386,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:update"]
+                    }
+                ]
             }
         },
         "/users/@me/apikeys": {
@@ -605,6 +615,30 @@
                 "responses": {
                     "204": {
                         "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "404": {
+                        "description": "API key by ID or name was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "5XX": {
                         "description": "Internal Server Failure",
@@ -1172,6 +1206,37 @@
                 "summary": "Lists all the avaliable user repositories.",
                 "description": "If the user is logged in with credentials, this will also show their private\nrepositories as well.",
                 "operationId": "listRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "Amount of entries per page.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "path",
+                        "description": "Ordering of the data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -1452,7 +1517,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:access"]
+                    }
+                ]
             },
             "delete": {
                 "tags": ["Users"],
@@ -1526,7 +1596,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:update"]
+                    }
+                ]
             }
         },
         "/v1/users/@me/apikeys": {
@@ -1750,6 +1825,30 @@
                 "responses": {
                     "204": {
                         "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "404": {
+                        "description": "API key by ID or name was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "5XX": {
                         "description": "Internal Server Failure",
@@ -2317,6 +2416,37 @@
                 "summary": "Lists all the avaliable user repositories.",
                 "description": "If the user is logged in with credentials, this will also show their private\nrepositories as well.",
                 "operationId": "listRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "Amount of entries per page.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "path",
+                        "description": "Ordering of the data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
                 "responses": {}
             }
         }
@@ -3113,6 +3243,13 @@
                                 "description": "changes the api key's name.\n\nif the name of the api key already conflicts with another\nkey, then a 409 Conflict HTTP response is sent instead.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
                             }
                         ]
+                    },
+                    "scopes": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "$ref": "#/components/schemas/ApiKeyScope"
+                        },
+                        "description": "changes the permissions of this api key."
                     }
                 }
             },
