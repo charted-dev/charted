@@ -796,6 +796,7 @@ dependencies = [
  "owo-colors 4.2.0",
  "serde_json",
  "tracing",
+ "tracing-log",
  "tracing-subscriber",
 ]
 

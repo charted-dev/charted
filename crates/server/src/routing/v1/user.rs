@@ -125,21 +125,17 @@ pub fn create_router(cx: &Context) -> Router<Context> {
                     avatars::upload_user_avatar.layer(authn::new(
                         cx.to_owned(),
                         Options::default()
-                            .with_scope(ApiKeyScope::RepoCreate)
+                            .with_scope(ApiKeyScope::UserAccess)
                             .with_scope(ApiKeyScope::UserAvatarUpdate),
                     )),
                 ),
             )
             .route(
                 "/avatars/{hash}",
-                routing::get(
-                    avatars::get_self_user_avatar_by_hash.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default()
-                            .with_scope(ApiKeyScope::RepoCreate)
-                            .with_scope(ApiKeyScope::UserAccess),
-                    )),
-                ),
+                routing::get(avatars::get_self_user_avatar_by_hash.layer(authn::new(
+                    cx.to_owned(),
+                    Options::default().with_scope(ApiKeyScope::UserAccess),
+                ))),
             )
     };
 
@@ -446,7 +442,10 @@ impl IntoResponses for FetchSelfR {
     path = "/v1/users/@me",
     tag = "Users",
     operation_id = "getSelfUser",
-    responses(FetchSelfR)
+    responses(FetchSelfR),
+    security(
+        ("ApiKey" = ["user:access"])
+    )
 )]
 pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> api::Response<User> {
     api::ok(StatusCode::OK, user)
@@ -486,7 +485,10 @@ impl IntoResponses for PatchUserR {
         description = "Payload object for patching user metadata",
         content = ref("#/components/schemas/PatchUserPayload")
     ),
-    responses(PatchUserR)
+    responses(PatchUserR),
+    security(
+        ("ApiKey" = ["user:update"])
+    )
 )]
 pub async fn patch(
     State(cx): State<Context>,

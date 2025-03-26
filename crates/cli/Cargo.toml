@@ -31,7 +31,11 @@ libsystemd = ["charted-server/libsystemd"]
 
 [dependencies]
 argon2.workspace = true
-azalia = { workspace = true, features = ["log", "log-writers"] }
+azalia = { workspace = true, features = [
+    "log",
+    "log-writers",
+    "log-tracing-log",
+] }
 charted-core.workspace = true
 charted-config.workspace = true
 charted-database.workspace = true

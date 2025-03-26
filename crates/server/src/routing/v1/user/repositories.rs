@@ -13,6 +13,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{
+    Context,
+    extract::{Path, Query},
+    middleware::authn::Session,
+    pagination::{Ordering, PaginationRequest},
+    util::{self, BuildLinkHeaderOpts},
+};
+use axum::{
+    Extension,
+    extract::State,
+    http::{
+        StatusCode,
+        header::{self, HeaderValue},
+    },
+};
+use charted_core::{api, clamp};
+use charted_database::entities::{RepositoryEntity, UserEntity, repository, user};
+use charted_types::{NameOrUlid, Repository, User};
+use sea_orm::{ColumnTrait, EntityTrait, Order, PaginatorTrait, QueryFilter, QueryOrder};
+use serde_json::json;
+use std::{cmp, collections::BTreeMap};
+use utoipa::{
+    IntoResponses,
+    openapi::{RefOr, Response},
+};
+
+struct ListRepositoriesR;
+impl IntoResponses for ListRepositoriesR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {}
+    }
+}
+
 /// Lists all the avaliable user repositories.
 ///
 /// If the user is logged in with credentials, this will also show their private
@@ -22,9 +55,88 @@
     get,
     path = "/v1/users/{idOrName}/repositories",
     operation_id = "listRepositories",
-    tag = "Repositories"
+    tag = "Repositories",
+    params(PaginationRequest),
+    responses(ListRepositoriesR)
 )]
-pub async fn list_user_repositories() {}
+pub async fn list_user_repositories(
+    State(cx): State<Context>,
+    Path(id_or_name): Path<NameOrUlid>,
+    Query(PaginationRequest {
+        per_page,
+        order_by,
+        page,
+    }): Query<PaginationRequest>,
+) -> api::Result<Vec<Repository>> {
+    let ion = id_or_name.clone();
+
+    let per_page = clamp(per_page, 10, 100).unwrap_or(10);
+    let paginator = (match id_or_name {
+        NameOrUlid::Ulid(id) => RepositoryEntity::find().filter(repository::Column::Owner.eq(id)),
+        NameOrUlid::Name(ref name) => match UserEntity::find()
+            .filter(user::Column::Username.eq(name.to_owned()))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+        {
+            Some(user) => RepositoryEntity::find().filter(repository::Column::Owner.eq(user.id)),
+            None => {
+                return Err(api::err(
+                    StatusCode::NOT_FOUND,
+                    (
+                        api::ErrorCode::EntityNotFound,
+                        "user with id or name was not found",
+                        json!({"idOrName":id_or_name}),
+                    ),
+                ));
+            }
+        },
+    })
+    .filter(repository::Column::Private.eq(false))
+    .order_by(
+        repository::Column::Id,
+        match order_by {
+            Ordering::Ascending => Order::Asc,
+            Ordering::Descending => Order::Desc,
+        },
+    )
+    .paginate(&cx.pool, per_page as u64);
+
+    let pages = paginator.num_pages().await.map_err(api::system_failure)?;
+    let entries = paginator
+        .fetch_page(cmp::min(0, page as u64))
+        .await
+        .map_err(api::system_failure)?
+        .into_iter()
+        .map(Into::<Repository>::into)
+        .collect::<Vec<_>>();
+
+    let mut link_hdr = String::new();
+    util::build_link_header(
+        &mut link_hdr,
+        BuildLinkHeaderOpts {
+            entries: entries.len(),
+            current: page,
+            per_page,
+            max_pages: pages,
+            resource: cx
+                .config
+                .base_url
+                .unwrap()
+                .join(&format!("/users/{ion}/repositories"))
+                .unwrap(),
+        },
+    )
+    .map_err(api::system_failure)?;
+
+    let mut response = api::ok(StatusCode::OK, entries);
+    if !link_hdr.is_empty() {
+        response = response.with_header(header::LINK, HeaderValue::from_bytes(link_hdr.as_bytes()).unwrap());
+    }
+
+    Ok(response)
+}
 
 /// Lists all of this user's repositories.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -34,7 +146,57 @@ pub async fn list_user_repositories() {}
     operation_id = "listMyRepositories",
     tag = "Repositories"
 )]
-pub async fn list_self_user_repositories() {}
+pub async fn list_self_user_repositories(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Query(PaginationRequest {
+        per_page,
+        order_by,
+        page,
+    }): Query<PaginationRequest>,
+) -> api::Result<Vec<Repository>> {
+    let per_page = clamp(per_page, 10, 100).unwrap_or(10);
+    let paginator = RepositoryEntity::find()
+        .filter(repository::Column::Owner.eq(user.id))
+        .filter(repository::Column::Private.eq(true))
+        .order_by(
+            repository::Column::Id,
+            match order_by {
+                Ordering::Ascending => Order::Asc,
+                Ordering::Descending => Order::Desc,
+            },
+        )
+        .paginate(&cx.pool, per_page as u64);
+
+    let pages = paginator.num_pages().await.map_err(api::system_failure)?;
+    let entries = paginator
+        .fetch_page(cmp::min(0, page as u64))
+        .await
+        .map_err(api::system_failure)?
+        .into_iter()
+        .map(Into::<Repository>::into)
+        .collect::<Vec<_>>();
+
+    let mut link_hdr = String::new();
+    util::build_link_header(
+        &mut link_hdr,
+        BuildLinkHeaderOpts {
+            entries: entries.len(),
+            current: page,
+            per_page,
+            max_pages: pages,
+            resource: cx.config.base_url.unwrap().join("/users/@me/repositories").unwrap(),
+        },
+    )
+    .map_err(api::system_failure)?;
+
+    let mut response = api::ok(StatusCode::OK, entries);
+    if !link_hdr.is_empty() {
+        response = response.with_header(header::LINK, HeaderValue::from_bytes(link_hdr.as_bytes()).unwrap());
+    }
+
+    Ok(response)
+}
 
 /// Creates a repository under this user.
 #[utoipa::path(
@@ -47,74 +209,6 @@ pub async fn list_self_user_repositories() {}
 pub async fn create_user_repository() {}
 
 /*
-/*
-/// Retrieve all of a user's repositories. This filters out private ones.
-#[controller(
-    tags("Users", "Repositories"),
-    response(200, "List of all the user's repositories", ("application/json", response!("RepositoryPaginatedResponse"))),
-    pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier."),
-    queryParameter("cursor", snowflake, description = "Cursor to passthrough to proceed into the next or previous page."),
-    queryParameter("per_page", int32, description = "How many elements should be present in a page."),
-    queryParameter("order", schema!("OrderBy"), description = "Order to sort the entries by.")
-)]
-pub async fn list_user_repositories(
-    State(Instance { controllers, .. }): State<Instance>,
-    NameOrSnowflake(nos): NameOrSnowflake,
-    Query(PaginationQuery {
-        mut per_page,
-        cursor,
-        order,
-    }): Query<PaginationQuery>,
-    session: Option<Extension<Session>>,
-) -> Result<Pagination<Repository>> {
-    let owner = match controllers.users.get_by(&nos).await {
-        Ok(Some(user)) => user,
-        Ok(None) => {
-            return Err(err(
-                StatusCode::NOT_FOUND,
-                (
-                    ErrorCode::EntityNotFound,
-                    "user with id or name doesn't exist",
-                    json!({"idOrName":nos}),
-                ),
-            ))
-        }
-
-        Err(_) => return Err(internal_server_error()),
-    };
-
-    let list_private_stuff = match session {
-        Some(Extension(Session { user, .. })) => owner.id == user.id,
-        None => false,
-    };
-
-    if per_page > 100 {
-        return Err(err(
-            StatusCode::NOT_ACCEPTABLE,
-            (
-                ErrorCode::MaxPerPageExceeded,
-                "`per_page` query parameter can't go over 100 entries",
-                json!({"perPage": per_page}),
-            ),
-        ));
-    }
-
-    per_page = cmp::min(10, per_page);
-    controllers
-        .repositories
-        .paginate(PaginationRequest {
-            list_private_stuff,
-            owner_id: Some(owner.id.try_into().unwrap()),
-            order_by: order,
-            per_page,
-            cursor,
-            metadata: azalia::hashmap!(),
-        })
-        .await
-        .map(|data| ok(StatusCode::OK, data))
-        .map_err(|_| internal_server_error())
-}
-
 /// Create a repository with the current authenticated user as the owner of the repository
 #[controller(
     method = put,
@@ -187,5 +281,4 @@ pub async fn create_user_repository(
         .map(|_| ok(StatusCode::CREATED, repo))
         .map_err(|_| internal_server_error())
 }
-*/
 */

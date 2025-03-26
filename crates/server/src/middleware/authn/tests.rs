@@ -40,17 +40,20 @@ pub(in crate::middleware::authn::tests) async fn consume_body<T: DeserializeOwne
     serde_json::from_slice(&bytes).unwrap()
 }
 
+pub(in crate::middleware::authn::tests) async fn create_context(config_override: impl FnOnce(&mut Config)) -> Context {
+    Context::for_testing(config_override).await.unwrap()
+}
+
 pub(in crate::middleware::authn::tests) async fn create_router(
     options: Options,
     basic_auth: bool,
     config_override: impl FnOnce(&mut Config),
 ) -> Router {
-    let context = Context::for_testing(|cfg| {
+    let context = create_context(|cfg| {
         cfg.sessions.enable_basic_auth = basic_auth;
-        config_override(cfg);
+        config_override(cfg)
     })
-    .await
-    .unwrap();
+    .await;
 
     Router::new()
         .route("/echo", routing::post(echo).layer(super::new(context.clone(), options)))
