@@ -945,13 +945,134 @@
                 "tags": ["Repositories"],
                 "summary": "Lists all of this user's repositories.",
                 "operationId": "listMyRepositories",
-                "responses": {}
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "Amount of entries per page.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "path",
+                        "description": "Ordering of the data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             "put": {
-                "tags": ["Repositories"],
+                "tags": ["Users", "Repositories"],
                 "summary": "Creates a repository under this user.",
                 "operationId": "createRepository",
-                "responses": {}
+                "requestBody": {
+                    "description": "Request body for creating a new repository",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "409": {
+                        "description": "repository already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/users/{idOrName}": {
@@ -1237,7 +1358,35 @@
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v1": {
@@ -2155,13 +2304,134 @@
                 "tags": ["Repositories"],
                 "summary": "Lists all of this user's repositories.",
                 "operationId": "listMyRepositories",
-                "responses": {}
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "Amount of entries per page.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "path",
+                        "description": "Ordering of the data.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             "put": {
-                "tags": ["Repositories"],
+                "tags": ["Users", "Repositories"],
                 "summary": "Creates a repository under this user.",
                 "operationId": "createRepository",
-                "responses": {}
+                "requestBody": {
+                    "description": "Request body for creating a new repository",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "409": {
+                        "description": "repository already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v1/users/{idOrName}": {
@@ -2447,7 +2717,35 @@
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    },
+                    "5XX": {
+                        "description": "Internal Server Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -2875,10 +3173,51 @@
                 "type": "object"
             },
             "CreateRepositoryPayload": {
-                "type": "object"
+                "type": "object",
+                "description": "Request body for creating a repository.",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "a short description about this repository",
+                        "maximum": 140
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "name of this repository."
+                    },
+                    "private": {
+                        "type": "boolean",
+                        "description": "whether if this repository is private and only the owner\nor the repository members (if the feature flag is enabled)\ncan view, download, create, update, etc."
+                    },
+                    "readme": {
+                        "type": ["string", "null"],
+                        "description": "the contents of the **README.md** file of this repository.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor users to see about the chart itself.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest",
+                        "maximum": 16382
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChartType",
+                        "description": "chart type.\n\nthis is not overridable when a new chart is published."
+                    }
+                }
             },
             "CreateRepositoryReleasePayload": {
-                "type": "object"
+                "type": "object",
+                "required": ["tag"],
+                "properties": {
+                    "tag": {
+                        "$ref": "#/components/schemas/Version",
+                        "description": "SemVer-based [`Version`] to indicate what version this release is.\n\nThis is an immutable tag and can't be patched without conflicts; you can only delete a\nrelease by its ID or version, which will remove this tag and can be freely used."
+                    },
+                    "title": {
+                        "type": ["string", "null"],
+                        "description": "title of this release."
+                    },
+                    "update_text": {
+                        "type": ["string", "null"],
+                        "description": "changelog of this release, can be rendered as HTML or Markdown.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor a changelog viewer.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest"
+                    }
+                }
             },
             "CreateUserPayload": {
                 "type": "object",
@@ -3257,10 +3596,59 @@
                 "type": "object"
             },
             "PatchRepositoryPayload": {
-                "type": "object"
+                "type": "object",
+                "description": "Request body for modifying a repository.",
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "a short description about this repository",
+                        "maximum": 140
+                    },
+                    "name": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "changes the name of this repository if provided."
+                            }
+                        ]
+                    },
+                    "private": {
+                        "type": ["boolean", "null"],
+                        "description": "whether if this repository is private and only the owner\nor the repository members (if the feature flag is enabled)\ncan view, download, create, update, etc."
+                    },
+                    "readme": {
+                        "type": ["string", "null"],
+                        "description": "the contents of the **README.md** file of this repository.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor users to see about the chart itself.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest",
+                        "maximum": 16382
+                    },
+                    "type": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/ChartType",
+                                "description": "chart type.\n\nthis is not overridable when a new chart is published."
+                            }
+                        ]
+                    }
+                }
             },
             "PatchRepositoryReleasePayload": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": ["string", "null"],
+                        "description": "changes the title of this release."
+                    },
+                    "update_text": {
+                        "type": ["string", "null"],
+                        "description": "updates the changelog of this release, can be rendered as HTML or Markdown."
+                    }
+                }
             },
             "PatchUserPayload": {
                 "type": "object",
