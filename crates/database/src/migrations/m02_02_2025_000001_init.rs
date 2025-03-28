@@ -15,7 +15,7 @@
 
 use crate::entities;
 use charted_types::ChartType;
-use sea_orm::{sea_query::extension::postgres::Type, ActiveEnum, DatabaseBackend};
+use sea_orm::{ActiveEnum, DatabaseBackend, sea_query::extension::postgres::Type};
 use sea_orm_migration::prelude::*;
 
 pub fn migration() -> impl MigrationTrait {

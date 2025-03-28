@@ -18,7 +18,7 @@
 use charted_core::ResultExt;
 use charted_helm_types::ChartIndex;
 use charted_types::name::Name;
-use eyre::{bail, Context};
+use eyre::{Context, bail};
 use rayon::ThreadPoolBuilder;
 use std::{fs::File, process::exit, str::FromStr};
 use tokio::runtime::Handle;

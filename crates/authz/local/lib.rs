@@ -15,7 +15,7 @@
 
 use argon2::{PasswordHash, PasswordVerifier};
 use charted_authz::{Authenticator, Request};
-use charted_core::{BoxedFuture, ARGON2};
+use charted_core::{ARGON2, BoxedFuture};
 use eyre::{bail, eyre};
 use tracing::{error, instrument};
 
@@ -95,10 +95,12 @@ mod tests {
     #[tokio::test]
     async fn authenticate() {
         let backend = Backend::default();
-        assert!(backend
-            .authenticate(build_request("noel", "noeliscutieuwu"))
-            .await
-            .is_ok());
+        assert!(
+            backend
+                .authenticate(build_request("noel", "noeliscutieuwu"))
+                .await
+                .is_ok()
+        );
 
         let err = backend
             .authenticate(build_request("noel", "thetwinofboel"))

@@ -15,7 +15,7 @@
 
 use crate::commands::server::load_config;
 use charted_database::migrations::Migrator;
-use cli_table::{format::Justify, Cell, Table};
+use cli_table::{Cell, Table, format::Justify};
 use sea_orm_migration::{MigrationStatus, MigratorTrait};
 use std::path::PathBuf;
 use tracing::warn;

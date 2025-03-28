@@ -15,11 +15,11 @@
 
 pub mod commands;
 
-use azalia::log::{writers::default::Writer, WriteLayer};
+use azalia::log::{WriteLayer, writers::default::Writer};
 use color_eyre::config::HookBuilder;
 use commands::Subcommand;
 use std::{future::Future, io};
-use tracing::{level_filters::LevelFilter, Level};
+use tracing::{Level, level_filters::LevelFilter};
 
 #[derive(Debug, clap::Parser)]
 #[clap(

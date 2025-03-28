@@ -23,4 +23,4 @@ mod ulid_;
 pub use datetime::*;
 pub use nameorulid::*;
 pub use semver::*;
-pub use ulid_::{ulid, Ulid};
+pub use ulid_::{Ulid, ulid};

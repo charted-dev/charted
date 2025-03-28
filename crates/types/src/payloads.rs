@@ -16,7 +16,7 @@
 //! Types that can effictively create or patch a object's metadata. Used by
 //! the API server for the `PUT` and `PATCH` REST endpoints.
 
-use crate::{DateTime, name::Name};
+use crate::{ChartType, DateTime, Version, name::Name};
 use charted_core::bitflags::ApiKeyScope;
 use serde::Deserialize;
 
@@ -206,13 +206,83 @@ mk_payload_structs! {
 mk_payload_structs! {
     Repository;
 
+    /// Request body for creating a repository.
     #[derive(Debug, Clone, Deserialize)]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-    create {}
+    create {
+        /// a short description about this repository
+        #[serde(default)]
+        #[cfg_attr(feature = "openapi", schema(maximum = 140))]
+        pub description: Option<String>,
 
+        /// whether if this repository is private and only the owner
+        /// or the repository members (if the feature flag is enabled)
+        /// can view, download, create, update, etc.
+        #[serde(default)]
+        pub private: bool,
+
+        /// the contents of the **README.md** file of this repository.
+        ///
+        /// for clients or web uis (like [Hoshi]) might display the contents
+        /// for users to see about the chart itself.
+        ///
+        /// While it can be either HTML or Markdown, the client is responsible for
+        /// sanitization. the server does minimal sanitization if the content
+        /// is pure HTML.
+        ///
+        /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+        #[serde(default)]
+        #[cfg_attr(feature = "openapi", schema(maximum = 16382))] // 16kib should be fine?
+        pub readme: Option<String>,
+
+        /// name of this repository.
+        pub name: Name,
+
+        /// chart type.
+        ///
+        /// this is not overridable when a new chart is published.
+        #[serde(default, rename = "type")]
+        pub ty: ChartType,
+    }
+
+    /// Request body for modifying a repository.
     #[derive(Debug, Clone, Deserialize)]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-    patch {}
+    patch {
+        /// a short description about this repository
+        #[serde(default)]
+        #[cfg_attr(feature = "openapi", schema(maximum = 140))]
+        pub description: Option<String>,
+
+        /// whether if this repository is private and only the owner
+        /// or the repository members (if the feature flag is enabled)
+        /// can view, download, create, update, etc.
+        #[serde(default)]
+        pub private: Option<bool>,
+
+        /// the contents of the **README.md** file of this repository.
+        ///
+        /// for clients or web uis (like [Hoshi]) might display the contents
+        /// for users to see about the chart itself.
+        ///
+        /// While it can be either HTML or Markdown, the client is responsible for
+        /// sanitization. the server does minimal sanitization if the content
+        /// is pure HTML.
+        ///
+        /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+        #[serde(default)]
+        #[cfg_attr(feature = "openapi", schema(maximum = 16382))] // 16kib should be fine?
+        pub readme: Option<String>,
+
+        /// changes the name of this repository if provided.
+        pub name: Option<Name>,
+
+        /// chart type.
+        ///
+        /// this is not overridable when a new chart is published.
+        #[serde(default, rename = "type")]
+        pub ty: Option<ChartType>,
+    }
 }
 
 mk_payload_structs! {
@@ -220,11 +290,42 @@ mk_payload_structs! {
 
     #[derive(Debug, Clone, Deserialize)]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-    create {}
+    create {
+        /// changelog of this release, can be rendered as HTML or Markdown.
+        ///
+        /// for clients or web uis (like [Hoshi]) might display the contents
+        /// for a changelog viewer.
+        ///
+        /// While it can be either HTML or Markdown, the client is responsible for
+        /// sanitization. the server does minimal sanitization if the content
+        /// is pure HTML.
+        ///
+        /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+        #[serde(default)]
+        pub update_text: Option<String>,
+
+        /// title of this release.
+        #[serde(default)]
+        pub title: Option<String>,
+
+        /// SemVer-based [`Version`] to indicate what version this release is.
+        ///
+        /// This is an immutable tag and can't be patched without conflicts; you can only delete a
+        /// release by its ID or version, which will remove this tag and can be freely used.
+        pub tag: Version,
+    }
 
     #[derive(Debug, Clone, Deserialize)]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-    patch {}
+    patch {
+        /// updates the changelog of this release, can be rendered as HTML or Markdown.
+        #[serde(default)]
+        pub update_text: Option<String>,
+
+        /// changes the title of this release.
+        #[serde(default)]
+        pub title: Option<String>,
+    }
 }
 
 mk_payload_structs! {
@@ -250,225 +351,3 @@ mk_payload_structs! {
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     patch {}
 }
-
-// super::create_modifying_payload! {
-// Organization;
-//
-// Request body payload for creating a new organization.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// create {
-// Short description about this organization. If `description` was set to `null`, then
-// this will not be updated, if `description` was a empty string, the `description`
-// will be set to a empty string and will present as "*no description for this
-// organization*" in Hoshi.
-// #[serde(default)]
-// pub description: Option<String>,
-//
-// Display name for this organization.
-// #[serde(default)]
-// pub display_name: Option<String>,
-//
-// Whether if the organization is private or not.
-// #[serde(default)]
-// pub private: bool,
-//
-// Organization name.
-// pub name: Name,
-// }
-//
-// Request body payload for patching an organization's metadata.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// patch {
-// Adds or removes a Twitter handle from this organization's metadata.
-//
-// * If this is `null`, this will not do any patching
-// * If this is a empty string, this will act as "removing" it from the metadata
-// * If the comparsion (`old.twitter_handle == twitter_handle`) is false, then this will
-//   update it.
-// #[serde(default)]
-// pub twitter_handle: Option<String>,
-//
-// Optional field to update this organization's gravatar email. If this organization
-// doesn't have an avatar that is used or prefers not to use their previously uploaded
-// avatars and they set their Gravatar email, their Gravatar will be used.
-// #[serde(default)]
-// pub gravatar_email: Option<String>,
-//
-// Display name for this organization.
-// #[serde(default)]
-// pub display_name: Option<String>,
-//
-// Whether if the organization is private or not.
-// #[serde(default)]
-// pub private: Option<bool>,
-//
-// Organization name to rename to.
-// #[serde(default)]
-// pub name: Option<Name>,
-// }
-// }
-//
-// use crate::{helm::ChartType, name::Name};
-// use serde::Deserialize;
-// use utoipa::ToSchema;
-//
-// super::create_modifying_payload! {
-// Repository;
-//
-// Request body payload for creating a repository.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// create {
-// Short description about this repository.
-// #[serde(default)]
-// pub description: Option<String>,
-//
-// Whether if this repository is private.
-// #[serde(default)]
-// pub private: bool,
-//
-// The contents of the README that will be displayed on the repository. If you're
-// using charted's official Helm plugin, new releases can update its README and it'll
-// be reflected.
-//
-// This should be valid Markdown, but XSS cross scripting is impossible as scripts
-// in codeblocks or via `<script>` won't be executed.
-//
-// You can retrieve a repository's README (if it is public or if you have access) with
-// the [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST
-// endpoint if the instance has the CDN feature enabled. It'll be under
-// `/repositories/{id}/README.md`. #[serde(default)]
-// pub readme: Option<String>,
-//
-// #[serde(skip)]
-// pub creator: i64,
-//
-// [`Name`] to attach to this repository.
-// pub name: Name,
-//
-// Type of chart this represents. When serializing to valid Helm objects,
-// `operator` will be replaced with `application`.
-// #[serde(default, rename = "type")]
-// pub r#type: ChartType,
-// }
-//
-// Request body payload for patching a repository's metadata.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// patch {
-// Short description about this repository. If `description` was set to `null`, then
-// this will not be updated, if `description` was a empty string, the `description`
-// will be set to a empty string and will present as "*no description for this
-// repository*" in Hoshi.
-// #[serde(default)]
-// pub description: Option<String>,
-//
-// Whether if this repository is private. This cannot be set to the actual value
-// that it was previously.
-// #[serde(default)]
-// pub private: Option<bool>,
-//
-// The contents of the README that will be displayed on the repository. If you're
-// using charted's official Helm plugin, new releases can update its README and it'll
-// be reflected.
-//
-// This should be valid Markdown, but XSS cross scripting is impossible as scripts
-// in codeblocks or via `<script>` won't be executed.
-//
-// You can retrieve a repository's README (if it is public or if you have access) with
-// the [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST
-// endpoint if the instance has the CDN feature enabled. It'll be under
-// `/repositories/{id}/README.md`. #[serde(default)]
-// pub readme: Option<String>,
-//
-// [`Name`] to update towards, this will not update if it is
-// the same.
-// #[schema(value_type = Name)]
-// pub name: Option<Name>,
-//
-// Type of chart this represents. When serializing to valid Helm objects,
-// `operator` will be replaced with `application`.
-// #[serde(default, rename = "type")]
-// pub r#type: Option<ChartType>,
-// }
-// }
-//
-// super::create_modifying_payload! {
-// User;
-//
-// Request body payload for creating a user.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// create {
-// User handle to use to identify yourself.
-// pub username: Name,
-//
-// The password to use when authenticating, this is optional on non-local sessions.
-// #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
-// pub password: Option<String>,
-//
-// Email address to identify this user
-// pub email: String,
-// }
-//
-// Request body payload for modifying a user's metadata
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// patch {
-// Determines if the user avatar should use their Gravatar email.
-// #[serde(default)]
-// pub prefers_gravatar: Option<bool>,
-//
-// Updates the email address to fetch the Gravatar email from.
-// pub gravatar_email: Option<String>,
-//
-// Short description about this user.
-// pub description: Option<String>,
-//
-// Updates this user's username.
-// pub username: Option<Name>,
-//
-// Updates this user's password, if the session manager configured allows it.
-// #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
-// pub password: Option<String>,
-//
-// Updates this user's email.
-// pub email: Option<String>,
-//
-// Updates this user's display name.
-// pub name: Option<String>,
-// }
-// }
-//
-// super::super::create_modifying_payload! {
-// RepositoryRelease;
-//
-// Request body payload for creating a release for a repository.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// create {
-// Represents a changelog (that can be Markdown or HTML (it'll remove XSS
-// vulnerabilities)) that will appear via `/repositories/:id/releases/:version/changelog`.
-//
-// > [!NOTE]
-// > Hoshi will wrap `CHANGELOG.html` to the same styles as when rendering Markdown.
-// #[serde(default)]
-// pub update_text: Option<String>,
-//
-// SemVer-based [`Version`] to indicate what version this release is. This is an immutable
-// tag and can't be patched without conflicting; you can only delete a release by its ID
-// or version, which will remove this tag and can be freely used.
-// pub tag: Version,
-// }
-//
-// Request body payload for updating a repository release's metadata.
-// #[derive(Debug, Clone, Deserialize, ToSchema)]
-// patch {
-// Updates the changelog for the repository release that people can view from
-// the API server or from [Hoshi]
-//
-// * If this is `null`, this will not attempt to do anything as this is the default state.
-// * If this is just `""`, then this is considered as a removal and won't be available for
-//   people to access.
-// * If this is not an empty string, it will overwrite the previous value.
-//
-// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
-// #[serde(default)]
-// pub update_text: Option<String>,
-// }
-// }

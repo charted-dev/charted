@@ -15,8 +15,11 @@
 
 use crate::{
     Context,
-    extract::{Path, Query},
+    extract::{Json, Path, Query},
+    extract_refor_t,
     middleware::authn::Session,
+    modify_property,
+    openapi::ApiErrorResponse,
     pagination::{Ordering, PaginationRequest},
     util::{self, BuildLinkHeaderOpts},
 };
@@ -28,21 +31,32 @@ use axum::{
         header::{self, HeaderValue},
     },
 };
+use azalia::remi::core::UploadRequest;
 use charted_core::{api, clamp};
 use charted_database::entities::{RepositoryEntity, UserEntity, repository, user};
-use charted_types::{NameOrUlid, Repository, User};
-use sea_orm::{ColumnTrait, EntityTrait, Order, PaginatorTrait, QueryFilter, QueryOrder};
+use charted_types::{NameOrUlid, Repository, User, payloads::CreateRepositoryPayload};
+use sea_orm::{
+    ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder, sqlx::types::chrono,
+};
 use serde_json::json;
 use std::{cmp, collections::BTreeMap};
 use utoipa::{
-    IntoResponses,
-    openapi::{RefOr, Response},
+    IntoResponses, ToResponse,
+    openapi::{Ref, RefOr, Response},
 };
 
 struct ListRepositoriesR;
 impl IntoResponses for ListRepositoriesR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {}
+        azalia::btreemap! {
+            "200" => Ref::from_response_name("ListRepositoryResponse"),
+            "5XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Internal Server Failure"));
+
+                response
+            }
+        }
     }
 }
 
@@ -94,13 +108,10 @@ pub async fn list_user_repositories(
         },
     })
     .filter(repository::Column::Private.eq(false))
-    .order_by(
-        repository::Column::Id,
-        match order_by {
-            Ordering::Ascending => Order::Asc,
-            Ordering::Descending => Order::Desc,
-        },
-    )
+    .order_by(repository::Column::Id, match order_by {
+        Ordering::Ascending => Order::Asc,
+        Ordering::Descending => Order::Desc,
+    })
     .paginate(&cx.pool, per_page as u64);
 
     let pages = paginator.num_pages().await.map_err(api::system_failure)?;
@@ -113,21 +124,18 @@ pub async fn list_user_repositories(
         .collect::<Vec<_>>();
 
     let mut link_hdr = String::new();
-    util::build_link_header(
-        &mut link_hdr,
-        BuildLinkHeaderOpts {
-            entries: entries.len(),
-            current: page,
-            per_page,
-            max_pages: pages,
-            resource: cx
-                .config
-                .base_url
-                .unwrap()
-                .join(&format!("/users/{ion}/repositories"))
-                .unwrap(),
-        },
-    )
+    util::build_link_header(&mut link_hdr, BuildLinkHeaderOpts {
+        entries: entries.len(),
+        current: page,
+        per_page,
+        max_pages: pages,
+        resource: cx
+            .config
+            .base_url
+            .unwrap()
+            .join(&format!("/users/{ion}/repositories"))
+            .unwrap(),
+    })
     .map_err(api::system_failure)?;
 
     let mut response = api::ok(StatusCode::OK, entries);
@@ -144,7 +152,9 @@ pub async fn list_user_repositories(
     get,
     path = "/v1/users/@me/repositories",
     operation_id = "listMyRepositories",
-    tag = "Repositories"
+    tag = "Repositories",
+    params(PaginationRequest),
+    responses(ListRepositoriesR)
 )]
 pub async fn list_self_user_repositories(
     State(cx): State<Context>,
@@ -159,13 +169,10 @@ pub async fn list_self_user_repositories(
     let paginator = RepositoryEntity::find()
         .filter(repository::Column::Owner.eq(user.id))
         .filter(repository::Column::Private.eq(true))
-        .order_by(
-            repository::Column::Id,
-            match order_by {
-                Ordering::Ascending => Order::Asc,
-                Ordering::Descending => Order::Desc,
-            },
-        )
+        .order_by(repository::Column::Id, match order_by {
+            Ordering::Ascending => Order::Asc,
+            Ordering::Descending => Order::Desc,
+        })
         .paginate(&cx.pool, per_page as u64);
 
     let pages = paginator.num_pages().await.map_err(api::system_failure)?;
@@ -178,16 +185,13 @@ pub async fn list_self_user_repositories(
         .collect::<Vec<_>>();
 
     let mut link_hdr = String::new();
-    util::build_link_header(
-        &mut link_hdr,
-        BuildLinkHeaderOpts {
-            entries: entries.len(),
-            current: page,
-            per_page,
-            max_pages: pages,
-            resource: cx.config.base_url.unwrap().join("/users/@me/repositories").unwrap(),
-        },
-    )
+    util::build_link_header(&mut link_hdr, BuildLinkHeaderOpts {
+        entries: entries.len(),
+        current: page,
+        per_page,
+        max_pages: pages,
+        resource: cx.config.base_url.unwrap().join("/users/@me/repositories").unwrap(),
+    })
     .map_err(api::system_failure)?;
 
     let mut response = api::ok(StatusCode::OK, entries);
@@ -198,87 +202,151 @@ pub async fn list_self_user_repositories(
     Ok(response)
 }
 
+struct CreateRepositoryR;
+impl IntoResponses for CreateRepositoryR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "201" => Ref::from_response_name("RepositoryResponse"),
+            "409" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("repository already exists"));
+
+                response
+            },
+
+            "5XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Internal Server Failure"));
+
+                response
+            }
+        }
+    }
+}
+
 /// Creates a repository under this user.
 #[utoipa::path(
     put,
     path = "/v1/users/@me/repositories",
     operation_id = "createRepository",
-    tag = "Repositories"
+    tags = ["Users", "Repositories"],
+    responses(CreateRepositoryR),
+    request_body(
+        content = ref("#/components/schemas/CreateRepositoryPayload"),
+        description = "Request body for creating a new repository",
+        content_type = "application/json"
+    ),
 )]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn create_user_repository() {}
-
-/*
-/// Create a repository with the current authenticated user as the owner of the repository
-#[controller(
-    method = put,
-    tags("Repositories"),
-    requestBody("Payload for creating a repository", ("application/json", schema!("CreateRepositoryPayload"))),
-    response(201, "Repository created", ("application/json", response!("RepositoryResponse"))),
-    response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
-    response(409, "Conflict: repository with that name already exists on the user's account", ("application/json", response!("ApiErrorResponse"))),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
 pub async fn create_user_repository(
-    State(Instance {
-        controllers,
-        snowflake,
-        pool,
-        ..
-    }): State<Instance>,
+    State(cx): State<Context>,
     Extension(Session { user, .. }): Extension<Session>,
-    Json(payload): Json<CreateRepositoryPayload>,
-) -> Result<Repository> {
-    validate(&payload, CreateRepositoryPayload::validate)?;
-
-    match sqlx::query_as::<Postgres, Repository>(
-        "select repositories.id from repositories where name = $1 and owner = $2;",
-    )
-    .bind(&payload.name)
-    .bind(user.id)
-    .fetch_optional(&pool)
-    .await
+    Json(CreateRepositoryPayload {
+        description,
+        private,
+        readme,
+        name,
+        ty,
+    }): Json<CreateRepositoryPayload>,
+) -> api::Result<Repository> {
+    if RepositoryEntity::find()
+        .filter(repository::Column::Name.eq(name.clone()))
+        .filter(repository::Column::Owner.eq(user.id))
+        .one(&cx.pool)
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, repository.name = %name, repository.owner = %user.id, "failed to find repository by name");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?
+        .is_some()
     {
-        Ok(None) => {}
-        Ok(Some(_)) => {
-            return Err(err(
-                StatusCode::CONFLICT,
-                (
-                    ErrorCode::EntityAlreadyExists,
-                    "repository with given name already exists on your account",
-                    json!({"name":payload.name}),
-                ),
-            ))
-        }
-
-        Err(e) => {
-            error!(error = %e, user.id, %payload.name, "unable to find a user repository with name");
-            sentry::capture_error(&e);
-
-            return Err(internal_server_error());
-        }
+        return Err(api::err(
+            StatusCode::CONFLICT,
+            (
+                api::ErrorCode::EntityAlreadyExists,
+                "repository with the given name already exists on this account",
+                json!({"name": &name, "owner": &user.id}),
+            )
+        ));
     }
 
-    let id = snowflake.generate();
-    let now = Local::now();
-    let repo = Repository {
-        description: payload.description.clone(),
-        created_at: now,
-        updated_at: now,
-        private: payload.private,
-        r#type: payload.r#type,
-        owner: user.id,
-        name: payload.name.clone(),
-        id: i64::try_from(id.value()).unwrap(),
-
-        ..Default::default()
+    let readme_repr = if let Some(readme) = readme {
+        let content_type = azalia::remi::fs::default_resolver(readme.as_bytes());
+        if content_type.starts_with("text/html") {
+            Some((readme, ".html", content_type))
+        } else if content_type.starts_with("text/plain") {
+            Some((readme, ".txt", content_type))
+        } else {
+            return Err(api::err(
+                StatusCode::FORBIDDEN,
+                (
+                    api::ErrorCode::InvalidBody,
+                    "only accepting `text/html` or `text/plain` as the content type for readme",
+                    json!({"contentType":content_type}),
+                ),
+            ));
+        }
+    } else {
+        None
     };
 
-    controllers
-        .repositories
-        .create(payload, &repo)
+    let id = cx
+        .ulid_generator
+        .generate()
+        .inspect_err(|e| {
+            error!(error = %e, apikey.name = %name, "received error when generating id for apikey");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?;
+
+    let now = chrono::Utc::now();
+    let model = repository::Model {
+        description,
+        deprecated: false,
+        created_at: now,
+        updated_at: now,
+        icon_hash: None,
+        private,
+        creator: None,
+        owner: user.id,
+        type_: ty,
+        name: name.clone(),
+        id: id.into(),
+    };
+
+    let active_model = model.clone().into_active_model();
+    RepositoryEntity::insert(active_model)
+        .exec(&cx.pool)
         .await
-        .map(|_| ok(StatusCode::CREATED, repo))
-        .map_err(|_| internal_server_error())
+        .inspect_err(|e| {
+            error!(error = %e, repository.name = %name, repository.owner = %user.id, "failed to create repository");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?;
+
+    if let Some((content, ext, ty)) = readme_repr {
+        use azalia::remi::core::StorageService;
+
+        // if it ever fails, once a request is inflight for /repositories/:id/README, then
+        // we can just re-create it if it doesn't exist.
+        //
+        // for filesystem, this should always work no matter what
+        //
+        // for other storages, it could possibly fail so this is why we'll just
+        // re-create it later if it fails
+        let _ = cx
+            .storage
+            .upload(
+                format!("./repositories/{id}/README{ext}"),
+                UploadRequest::default().with_content_type(Some(ty)).with_data(content),
+            )
+            .await
+            .inspect_err(|e| {
+                error!(error = %e, repository.id = %id, "failed to upload readme");
+                sentry::capture_error(e);
+            });
+    }
+
+    Ok(api::ok(StatusCode::CREATED, model.into()))
 }
-*/

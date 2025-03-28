@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use axum::{
-    extract::{rejection::QueryRejection, FromRequestParts},
+    extract::{FromRequestParts, rejection::QueryRejection},
     http::request::Parts,
 };
 use charted_core::api;

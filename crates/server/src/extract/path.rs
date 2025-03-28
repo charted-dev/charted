@@ -14,8 +14,8 @@
 // limitations under the License.
 
 use axum::{
-    extract::{path::ErrorKind, rejection::PathRejection, FromRequestParts},
-    http::{request::Parts, StatusCode},
+    extract::{FromRequestParts, path::ErrorKind, rejection::PathRejection},
+    http::{StatusCode, request::Parts},
 };
 use charted_core::api;
 use serde::de::DeserializeOwned;

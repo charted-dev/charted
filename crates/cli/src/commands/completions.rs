@@ -15,7 +15,7 @@
 
 use crate::Program;
 use clap::CommandFactory;
-use clap_complete::{generate, Shell};
+use clap_complete::{Shell, generate};
 use eyre::bail;
 use std::io;
 use tracing::trace;

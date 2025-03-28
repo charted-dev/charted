@@ -16,7 +16,7 @@
 use axum::{
     body::Bytes,
     extract::{self, FromRequest},
-    http::{header, StatusCode},
+    http::{StatusCode, header},
 };
 use charted_core::api::{self, ErrorCode};
 use serde::de::DeserializeOwned;

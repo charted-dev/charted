@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
     PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
 };
 use charted_authz::{Authenticator, Request};
-use charted_core::{BoxedFuture, ARGON2};
+use charted_core::{ARGON2, BoxedFuture};
 use eyre::bail;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -144,10 +144,12 @@ mod tests {
     #[tokio::test]
     async fn test_authentication_backend() {
         let backend = build_backend();
-        assert!(backend
-            .authenticate(build_request("noel", "noeliscutieuwu"))
-            .await
-            .is_ok());
+        assert!(
+            backend
+                .authenticate(build_request("noel", "noeliscutieuwu"))
+                .await
+                .is_ok()
+        );
 
         let err = backend
             .authenticate(build_request("noel", "thetwinofboel"))

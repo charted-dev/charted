@@ -26,7 +26,7 @@
 //!   and a maximum length of 32.
 
 use crate::{cfg_jsonschema, cfg_openapi};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{borrow::Cow, ops::Deref, str::FromStr, sync::Arc};
 
 const MAX_LENGTH: usize = 32;
@@ -65,7 +65,7 @@ impl std::error::Error for Error {}
 ///
 /// * A **Name** can never overflow since we require names to have a minimum length of 2
 ///   and a maximum length of 32.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, derive_more::Display)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, derive_more::Display)]
 #[display("{}", self.as_str())]
 pub struct Name(Arc<str>);
 impl Name {
@@ -130,6 +130,27 @@ impl FromStr for Name {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::try_new(s)
+    }
+}
+
+impl Serialize for Name {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self)
+    }
+}
+
+impl<'de> Deserialize<'de> for Name {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+
+        let s = String::deserialize(deserializer)?;
+        Name::try_new(s).map_err(D::Error::custom)
     }
 }
 

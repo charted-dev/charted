@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use argon2::password_hash::{rand_core::OsRng, PasswordHasher, SaltString};
+use argon2::password_hash::{PasswordHasher, SaltString, rand_core::OsRng};
 use charted_core::ARGON2;
 use eyre::bail;
 use std::io::{self, BufRead};

@@ -14,8 +14,9 @@
 // limitations under the License.
 
 use charted_cli::{
-    commands::{migrate, server, Subcommand},
-    install_eyre_hook, Program,
+    Program,
+    commands::{Subcommand, migrate, server},
+    install_eyre_hook,
 };
 use clap::Parser;
 use mimalloc::MiMalloc;

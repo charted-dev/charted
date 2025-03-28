@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use super::create_table;
-use charted_types::{name::Name, Ulid, User};
+use charted_types::{Ulid, User, name::Name};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
 

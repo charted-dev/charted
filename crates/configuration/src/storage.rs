@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use azalia::{
-    config::{env, merge::Merge, TryFromEnv},
+    config::{TryFromEnv, env, merge::Merge},
     remi,
 };
 use eyre::bail;
@@ -71,7 +71,7 @@ impl TryFromEnv for Config {
                     "environment variable `${}` received an invalid input: expected either `filesystem`, `fs`, `s3`, or `azure`; received {} instead",
                     SERVICE,
                     v
-                )
+                ),
             },
 
             Err(VarError::NotPresent) => Ok(Default::default()),
@@ -108,6 +108,7 @@ pub(crate) mod filesystem {
 
 pub(crate) mod s3 {
     use azalia::{
+        TRUTHY_REGEX,
         config::{env, merge::Merge},
         remi::{
             self,
@@ -116,7 +117,6 @@ pub(crate) mod s3 {
                 s3::types::{BucketCannedAcl, ObjectCannedAcl},
             },
         },
-        TRUTHY_REGEX,
     };
     use eyre::eyre;
     use std::{borrow::Cow, env::VarError, str::FromStr};
@@ -229,7 +229,7 @@ pub(crate) mod azure {
             azure::{CloudLocation, Credential},
         },
     };
-    use eyre::{eyre, Context};
+    use eyre::{Context, eyre};
     use std::env::VarError;
 
     pub const ACCESS_KEY_ACCOUNT: &str = "CHARTED_STORAGE_AZURE_CREDENTIAL_ACCESSKEY_ACCOUNT";
