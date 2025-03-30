@@ -15,7 +15,7 @@
 
 use crate::install_eyre_hook;
 use azalia::{
-    config::TryFromEnv,
+    config::env::TryFromEnv,
     log::{WriteLayer, writers},
 };
 use charted_config::Config;

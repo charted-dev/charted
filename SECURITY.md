@@ -1,7 +1,6 @@
 # Security Policy
 
-Our current security policy is due to change as [Noelware](https://noelware.org) is currently in early stages of opening up. In the future,
-we do plan to give out monetary rewards.
+Our current security policy is due to change as [Noelware](https://noelware.org) is currently in early stages of opening up.
 
 ## Supported Versions
 
@@ -9,13 +8,15 @@ we do plan to give out monetary rewards.
 -   💛 **Deprecated**
 -   ❤️ **Not Supported**
 
+As of the **0.1.0** release, the Kotlin version (the nightly variants listed below) is no longer receiving security updates.
+
 | Version                                       | Supported? |
 | --------------------------------------------- | ---------- |
-| `0.1.0-beta`                                  | 💚         |
-| `0.3.2-nightly`                               | 💚         |
-| `0.3.1-nightly`                               | 💛         |
-| `0.3.0-nightly`                               | 💛         |
-| `0.2.0-nightly.1`                             | 💛         |
+| `0.1.0`                                       | 💚         |
+| `0.3.2-nightly`                               | ❤️         |
+| `0.3.1-nightly`                               | ❤️         |
+| `0.3.0-nightly`                               | ❤️         |
+| `0.2.0-nightly.1`                             | ❤️         |
 | `0.2.0-nightly`                               | ❤️         |
 | `0.1.1-nightly.1` (previously v1.1.1-nightly) | ❤️         |
 | `0.1.1-nightly` (previously v1.1-nightly)     | ❤️         |

@@ -37,6 +37,7 @@ openapi = ["dep:utoipa"]
 axum = ["dep:axum"]
 
 [dependencies]
+azalia = { workspace = true, features = ["config"] }
 argon2.workspace = true
 axum = { workspace = true, optional = true }
 backtrace = { version = "0.3.48", optional = true }

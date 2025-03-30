@@ -29,7 +29,7 @@ name = "internals"
 path = "main.rs"
 
 [dependencies]
-azalia = { workspace = true, features = ["log", "log-writers"] }
+azalia = { workspace = true, features = ["log", "log+writers"] }
 charted-server.workspace = true
 color-eyre.workspace = true
 eyre.workspace = true

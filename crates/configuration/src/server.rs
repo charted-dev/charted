@@ -17,7 +17,10 @@ pub mod ratelimits;
 pub mod ssl;
 
 use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, net::SocketAddr};
 
@@ -65,20 +68,12 @@ impl Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            headers: util::btreemap_env(HEADERS)?,
-            host: util::env_from_result_lazy(env!(HOST[0]), || {
-                util::env_from_result_lazy(env!(HOST[1]), || Ok(__default_host()))
-            })?,
-
-            port: match util::env_from_str(PORT[0], __default_port()) {
-                Ok(value) => value,
-                Err(_) => util::env_from_str(PORT[1], __default_port())?,
-            },
-
+            headers: env::try_parse(HEADERS)?,
+            host: env::try_parse_or_else(HOST[0], env::try_parse_or_else(HOST[1], __default_host())?)?,
+            port: env::try_parse_or_else(PORT[0], env::try_parse_or_else(PORT[1], __default_port())?)?,
             ssl: match util::bool_env(ssl::ENABLED) {
                 Ok(true) => ssl::Config::try_from_env().map(Some)?,
                 Ok(false) => None,

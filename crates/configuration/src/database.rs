@@ -17,7 +17,10 @@ pub mod common;
 pub mod postgresql;
 pub mod sqlite;
 
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv, TryParseError},
+    merge::Merge,
+};
 use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use std::{env::VarError, fmt::Display};
@@ -78,18 +81,21 @@ pub const DRIVER: &str = "CHARTED_DATABASE_DRIVER";
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!(DRIVER) {
+    fn try_from_env() -> Result<Self, Self::Error> {
+        match env::try_parse::<_, String>(DRIVER) {
             Ok(s) => match &*s.to_ascii_lowercase() {
                 "postgresql" | "postgres" => Ok(Config::PostgreSQL(postgresql::Config::try_from_env()?)),
                 "sqlite" => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
-                s => Err(eyre!("unknown variant for `$CHARTED_DATABASE_DRIVER`: {s}")),
+                s => Err(eyre!("unknown variant for `${}`: {}", DRIVER, s)),
             },
 
-            Err(VarError::NotPresent) => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
-            Err(VarError::NotUnicode(_)) => Err(eyre!("received non-unicode in `${}` environment variable", DRIVER)),
+            Err(TryParseError::System(VarError::NotPresent)) => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
+            Err(TryParseError::System(VarError::NotUnicode(_))) => {
+                Err(eyre!("received non-unicode in `${}` environment variable", DRIVER))
+            }
+
+            Err(err) => Err(err.into()),
         }
     }
 }
@@ -129,7 +135,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use azalia::config::MultipleEnvGuard;
+    use azalia::config::env::MultipleEnvGuard;
 
     // A test that is similar to `merge sqlite -> sqlite` but uses
     // the actual system environment variables via `MultipleEnvGuard`

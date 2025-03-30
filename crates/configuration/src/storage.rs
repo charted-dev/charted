@@ -14,12 +14,14 @@
 // limitations under the License.
 
 use azalia::{
-    config::{TryFromEnv, env, merge::Merge},
+    config::{
+        env::{self, TryFromEnv},
+        merge::Merge,
+    },
     remi,
 };
-use eyre::bail;
 use serde::{Deserialize, Serialize};
-use std::{env::VarError, path::PathBuf};
+use std::path::PathBuf;
 
 const SERVICE: &str = "CHARTED_STORAGE_SERVICE";
 
@@ -52,31 +54,18 @@ impl Default for Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!(SERVICE) {
-            Ok(input) => match &*input.to_ascii_lowercase() {
-                "filesystem" | "fs" => Ok(Config::Filesystem(remi::fs::StorageConfig {
-                    directory: env!(
-                        filesystem::DIRECTORY,
-                        |val| PathBuf::from(val);
-                        or PathBuf::from("./data")
-                    ),
-                })),
+    fn try_from_env() -> Result<Self, Self::Error> {
+        crate::impl_enum_based_env_value!(SERVICE, {
+            on match fail: |input| "environment variable `${}` is not invalid: expected `filesystem`, `s3`, or `azure`, received `{}` instead" [SERVICE, input];
 
-                "azure" => Ok(Config::Azure(azure::create_config()?)),
-                "s3" => Ok(Config::S3(s3::create_config()?)),
-                v => bail!(
-                    "environment variable `${}` received an invalid input: expected either `filesystem`, `fs`, `s3`, or `azure`; received {} instead",
-                    SERVICE,
-                    v
-                ),
-            },
+            "filesystem" | "fs" | "" => Ok(Config::Filesystem(remi::fs::StorageConfig {
+                directory: env::try_parse(filesystem::DIRECTORY)?
+            }));
 
-            Err(VarError::NotPresent) => Ok(Default::default()),
-            Err(VarError::NotUnicode(_)) => bail!("environment variable `${}` received invalid unicode", SERVICE),
-        }
+            "azure" => Ok(Config::Azure(azure::create_config()?));
+            "s3" => Ok(Config::S3(s3::create_config()?));
+        })
     }
 }
 
@@ -107,9 +96,12 @@ pub(crate) mod filesystem {
 }
 
 pub(crate) mod s3 {
+    use crate::util;
     use azalia::{
-        TRUTHY_REGEX,
-        config::{env, merge::Merge},
+        config::{
+            env::{self, TryFromEnvValue},
+            merge::Merge,
+        },
         remi::{
             self,
             s3::aws::{
@@ -118,8 +110,7 @@ pub(crate) mod s3 {
             },
         },
     };
-    use eyre::eyre;
-    use std::{borrow::Cow, env::VarError, str::FromStr};
+    use std::{borrow::Cow, convert::Infallible};
 
     pub const ENABLE_SIGNER_V4_REQUESTS: &str = "CHARTED_STORAGE_S3_ENABLE_SIGNER_V4_REQUESTS";
     pub const ENFORCE_PATH_ACCESS_STYLE: &str = "CHARTED_STORAGE_S3_ENFORCE_PATH_ACCESS_STYLE";
@@ -166,33 +157,30 @@ pub(crate) mod s3 {
         };
     }
 
+    struct RegionEnv(Region);
+    impl TryFromEnvValue for RegionEnv {
+        type Error = Infallible;
+
+        fn try_from_env_value(value: String) -> Result<Self, Self::Error> {
+            Ok(RegionEnv(Region::new(value)))
+        }
+    }
+
     pub fn create_config() -> eyre::Result<remi::s3::StorageConfig> {
         Ok(remi::s3::StorageConfig {
-            enable_signer_v4_requests: env!(ENABLE_SIGNER_V4_REQUESTS, |val| TRUTHY_REGEX.is_match(&val); or false),
-            enforce_path_access_style: env!(ENFORCE_PATH_ACCESS_STYLE, |val| TRUTHY_REGEX.is_match(&val); or false),
-            default_object_acl: env!(DEFAULT_OBJECT_ACL, |val| ObjectCannedAcl::from_str(val.as_str()).ok(); or Some(DEFAULT_OBJECT_CANNED_ACL)),
-            default_bucket_acl: env!(DEFAULT_BUCKET_ACL, |val| BucketCannedAcl::from_str(val.as_str()).ok(); or Some(DEFAULT_BUCKET_CANNED_ACL)),
-            secret_access_key: env!(SECRET_ACCESS_KEY).map_err(|e| match e {
-                VarError::NotPresent => {
-                    eyre!("you're required to add the [{SECRET_ACCESS_KEY}] environment variable")
-                }
+            enable_signer_v4_requests: util::bool_env(ENABLE_SIGNER_V4_REQUESTS)?,
+            enforce_path_access_style: util::bool_env(ENFORCE_PATH_ACCESS_STYLE)?,
+            default_bucket_acl: util::env_from_str(DEFAULT_BUCKET_ACL, DEFAULT_BUCKET_CANNED_ACL).map(Some)?,
+            default_object_acl: util::env_from_str(DEFAULT_OBJECT_ACL, DEFAULT_OBJECT_CANNED_ACL).map(Some)?,
+            secret_access_key: env::try_parse(SECRET_ACCESS_KEY)?,
+            access_key_id: env::try_parse(ACCESS_KEY_ID)?,
+            app_name: env::try_parse_optional(APP_NAME)?,
+            endpoint: env::try_parse_optional(ENDPOINT)?,
+            prefix: env::try_parse_optional(PREFIX)?,
+            region: env::try_parse_or_else::<_, RegionEnv>(REGION, RegionEnv(Region::new(Cow::Borrowed("us-east-1"))))
+                .map(|s| Some(s.0))?,
 
-                VarError::NotUnicode(_) => eyre!("wanted valid UTF-8 for env `{SECRET_ACCESS_KEY}`"),
-            })?,
-
-            access_key_id: env!(ACCESS_KEY_ID).map_err(|e| match e {
-                VarError::NotPresent => {
-                    eyre!("you're required to add the [{ACCESS_KEY_ID}] environment variable")
-                }
-
-                VarError::NotUnicode(_) => eyre!("wanted valid UTF-8 for env `{ACCESS_KEY_ID}`"),
-            })?,
-
-            app_name: env!(APP_NAME, optional),
-            endpoint: env!(ENDPOINT, optional),
-            prefix: env!(PREFIX, optional),
-            region: env!(REGION, |val| Some(Region::new(Cow::Owned(val))); or Some(Region::new(Cow::Borrowed("us-east-1")))),
-            bucket: env!(BUCKET, optional).unwrap_or("ume".into()),
+            bucket: env::try_parse_optional(BUCKET)?.unwrap_or(String::from("charted")),
         })
     }
 
@@ -229,8 +217,6 @@ pub(crate) mod azure {
             azure::{CloudLocation, Credential},
         },
     };
-    use eyre::{Context, eyre};
-    use std::env::VarError;
 
     pub const ACCESS_KEY_ACCOUNT: &str = "CHARTED_STORAGE_AZURE_CREDENTIAL_ACCESSKEY_ACCOUNT";
     pub const ACCESS_KEY: &str = "CHARTED_STORAGE_AZURE_CREDENTIAL_ACCESSKEY";
@@ -248,7 +234,7 @@ pub(crate) mod azure {
         Ok(remi::azure::StorageConfig {
             credentials: create_credentials_config()?,
             location: create_location()?,
-            container: env!(CONTAINER, optional).unwrap_or("ume".into()),
+            container: env::try_parse_optional(CONTAINER)?.unwrap_or(String::from("charted")),
         })
     }
 
@@ -301,59 +287,33 @@ pub(crate) mod azure {
     }
 
     fn create_credentials_config() -> eyre::Result<remi::azure::Credential> {
-        match env!(CREDENTIAL) {
-            Ok(input) => match &*input.to_ascii_lowercase() {
-                "anonymous" | "anon" | "" => Ok(remi::azure::Credential::Anonymous),
-                "accesskey" | "access_key" | "access-key" => Ok(remi::azure::Credential::AccessKey {
-                    account: env!(ACCESS_KEY_ACCOUNT).with_context(|| format!("missing required environment variable when `${CREDENTIAL}` is set to Access Key: `${ACCESS_KEY_ACCOUNT}`"))?,
-                    access_key: env!(ACCESS_KEY).with_context(|| format!("missing required environment variable when `${CREDENTIAL}` is set to Access Key: `${ACCESS_KEY}`"))?
-                }),
+        crate::impl_enum_based_env_value!(CREDENTIAL, {
+            on match fail: |input| "invalid input [{}] for `${}`: expected either `anonymous` (`anon` is accepted as well), \
+                `sastoken` (`sas-token`, `sas_token` is accepted as well), \
+                `accesskey` (`access-key` and `access_key` is accepted as well) \
+                or `bearer`." [input, CREDENTIAL];
 
-                "sastoken" | "sas-token" | "sas_token" => Ok(remi::azure::Credential::SASToken(
-                    env!(SAS_TOKEN).with_context(|| format!("missing required environment variable when `${CREDENTIAL}` is set to SAS Token: `${SAS_TOKEN}`"))?
-                )),
+            "anonymous" | "anon" | "" => Ok(remi::azure::Credential::Anonymous);
+            "accesskey" | "access-key" | "access_key" => Ok(remi::azure::Credential::AccessKey {
+                account: env::try_parse(ACCESS_KEY_ACCOUNT)?,
+                access_key: env::try_parse(ACCESS_KEY)?
+            });
 
-                "bearer" => Ok(remi::azure::Credential::Bearer(
-                    env!(SAS_TOKEN).with_context(|| format!("missing required environment variable when `${CREDENTIAL}` is set to SAS Token: `${BEARER}`"))?
-                )),
-
-                input => Err(eyre!("unknown input [{input}] for `${CREDENTIAL}` environment variable"))
-            },
-
-            Err(VarError::NotPresent) => Ok(remi::azure::Credential::Anonymous),
-            Err(VarError::NotUnicode(_)) => Err(eyre!("environment variable `${CREDENTIAL}` was invalid utf-8"))
-        }
+            "sastoken" | "sas-token" | "sas_token" => Ok(remi::azure::Credential::SASToken(env::try_parse(SAS_TOKEN)?));
+            "bearer" => Ok(remi::azure::Credential::Bearer(env::try_parse(BEARER)?));
+        })
     }
 
     fn create_location() -> eyre::Result<CloudLocation> {
-        match env!(LOCATION) {
-            Ok(res) => match &*res.to_ascii_lowercase() {
-                "public" | "" => {
-                    Ok(CloudLocation::Public(env!(ACCOUNT).with_context(|| {
-                        format!("missing required environment variable: [{ACCOUNT}]")
-                    })?))
-                }
+        crate::impl_enum_based_env_value!(LOCATION, {
+            on match fail: |input| "invalid input [{}] for `${}`: expected either: `public`, `china`, or `custom`." [input, LOCATION];
 
-                "china" => {
-                    Ok(CloudLocation::China(env!(ACCOUNT).with_context(|| {
-                        format!("missing required environment variable: [{ACCOUNT}]")
-                    })?))
-                }
-
-                "custom" => Ok(CloudLocation::Custom {
-                    account: env!(ACCOUNT)
-                        .with_context(|| format!("missing required environment variable: [{ACCOUNT}]"))?,
-
-                    uri: env!(URI).with_context(|| format!("missing required environment variable: [{ACCOUNT}]"))?,
-                }),
-
-                input => Err(eyre!(
-                    "invalid option given: {input} | expected [public, china, custom]"
-                )),
-            },
-
-            Err(VarError::NotPresent) => Err(eyre!("missing required environment variable: [{LOCATION}]")),
-            Err(VarError::NotUnicode(_)) => Err(eyre!("environment variable [{LOCATION}] was not in valid unicode")),
-        }
+            "public" | "" => Ok(CloudLocation::Public(env::try_parse(ACCOUNT)?));
+            "china" => Ok(CloudLocation::China(env::try_parse(ACCOUNT)?));
+            "custom" => Ok(CloudLocation::Custom {
+                account: env::try_parse(ACCOUNT)?,
+                uri: env::try_parse(URI)?
+            });
+        })
     }
 }

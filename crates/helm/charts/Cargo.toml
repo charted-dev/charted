@@ -28,7 +28,7 @@ authors.workspace = true
 path = "lib.rs"
 
 [dependencies]
-azalia = { workspace = true, features = ["remi", "remi-fs"] }
+azalia = { workspace = true, features = ["remi", "remi+fs"] }
 charted-types.workspace = true
 charted-helm-types.workspace = true
 eyre.workspace = true

@@ -14,8 +14,10 @@
 // limitations under the License.
 
 use super::common;
-use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -67,15 +69,14 @@ pub const PORT: &str = "CHARTED_DATABASE_PORT";
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            password: env!(PASSWORD).ok(),
-            username: env!(USERNAME).ok(),
-            schema: env!(SCHEMA).ok(),
+            password: env::try_parse(PASSWORD).ok(),
+            username: env::try_parse(USERNAME).ok(),
+            schema: env::try_parse(SCHEMA).ok(),
             common: common::Config::try_from_env()?,
-            url: util::env_from_str(
+            url: env::try_parse_or_else(
                 common::URL,
                 Url::parse("postgresql://localhost:5432/charted?application_name=charted-server").unwrap(),
             )?,

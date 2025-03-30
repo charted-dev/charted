@@ -13,8 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::config::{TryFromEnv, env, merge::Merge};
-use eyre::Context;
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
+use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -44,17 +47,11 @@ impl Default for Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            cert_key: env!(CERT_KEY)
-                .map(PathBuf::from)
-                .context("unable to load up `CHARTED_SERVER_SSL_CERT_KEY` env")?,
-
-            cert: env!(CERT)
-                .map(PathBuf::from)
-                .context("unable to load up `CHARTED_SERVER_SSL_CERT` env")?,
+            cert_key: env::try_parse(CERT_KEY).map_err(|err| eyre!("unable to load `${}`: {}", CERT_KEY, err))?,
+            cert: env::try_parse(CERT).map_err(|err| eyre!("unable to load `${}`: {}", CERT, err))?,
         })
     }
 }

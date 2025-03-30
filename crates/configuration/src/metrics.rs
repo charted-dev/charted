@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv, TryParseError},
+    merge::Merge,
+};
 use eyre::bail;
 use serde::{Deserialize, Serialize};
 use std::env::VarError;
@@ -57,10 +60,9 @@ impl Merge for Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!(DRIVER) {
+    fn try_from_env() -> Result<Self, Self::Error> {
+        match env::try_parse_or_else::<_, String>(DRIVER, Default::default()) {
             Ok(input) => match &*input.to_ascii_lowercase() {
                 "opentelemetry" | "otel" => Ok(Self::OpenTelemetry(opentelemetry::Config::try_from_env()?)),
                 "prometheus" => Ok(Self::Prometheus(prometheus::Config::try_from_env()?)),
@@ -71,8 +73,11 @@ impl TryFromEnv for Config {
                 ),
             },
 
-            Err(VarError::NotPresent) => Ok(Default::default()),
-            Err(VarError::NotUnicode(_)) => bail!("environment variable `${}` received invalid unicode", DRIVER),
+            Err(TryParseError::System(VarError::NotPresent)) => {
+                bail!("environment variable `${}` received invalid unicode", DRIVER)
+            }
+
+            Err(e) => Err(e.into()),
         }
     }
 }

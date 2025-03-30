@@ -756,8 +756,8 @@ dependencies = [
 
 [[package]]
 name = "azalia"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -769,18 +769,20 @@ dependencies = [
 
 [[package]]
 name = "azalia-config"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
- "azalia-config-derive",
+ "azalia-config-macros",
+ "sentry-types",
  "url",
 ]
 
 [[package]]
-name = "azalia-config-derive"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+name = "azalia-config-macros"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
+ "heck 0.5.0",
  "proc-macro2",
  "quote",
  "syn 2.0.100",
@@ -788,8 +790,8 @@ dependencies = [
 
 [[package]]
 name = "azalia-log"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -802,8 +804,8 @@ dependencies = [
 
 [[package]]
 name = "azalia-remi"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
  "remi",
  "remi-azure",
@@ -815,8 +817,8 @@ dependencies = [
 
 [[package]]
 name = "azalia-serde"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=f4600130658cfe523350222717b4530ce4d30123#f4600130658cfe523350222717b4530ce4d30123"
+version = "0.1.1"
+source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
 dependencies = [
  "serde",
  "tracing",
@@ -1248,6 +1250,7 @@ version = "0.1.0"
 dependencies = [
  "argon2",
  "axum",
+ "azalia",
  "backtrace",
  "chrono",
  "derive_more 2.0.1",

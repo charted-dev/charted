@@ -14,8 +14,10 @@
 // limitations under the License.
 
 use super::DRIVER;
-use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv, TryParseError},
+    merge::Merge,
+};
 use eyre::bail;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, env::VarError};
@@ -42,20 +44,21 @@ pub struct Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            labels: util::btreemap_env(LABELS)?,
-            url: match env!(URL) {
-                Ok(url) => Url::parse(&url)?,
-                Err(VarError::NotPresent) => bail!(
+            labels: env::try_parse_or_else(LABELS, Default::default()).unwrap_or_default(),
+            url: match env::try_parse::<_, Url>(URL) {
+                Ok(url) => url,
+
+                Err(TryParseError::Parse(err)) => bail!("failed to parse url: {}", err),
+                Err(TryParseError::System(VarError::NotPresent)) => bail!(
                     "environment variable `${}` is required when environment variable `${}` is set to \"opentelemetry\"",
                     URL,
                     DRIVER,
                 ),
 
-                Err(VarError::NotUnicode(_)) => {
+                Err(TryParseError::System(VarError::NotUnicode(_))) => {
                     bail!("environment variable `${}` contained invalid unicode characters", URL)
                 }
             },

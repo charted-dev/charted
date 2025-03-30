@@ -16,9 +16,9 @@
 pub mod loki;
 
 use crate::util;
-use azalia::{
-    TRUTHY_REGEX,
-    config::{TryFromEnv, env, merge::Merge},
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
 };
 use serde::{Deserialize, Serialize};
 use tracing::Level;
@@ -57,19 +57,22 @@ impl Default for Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            json: env!(JSON, |val| TRUTHY_REGEX.is_match(&val); or false),
-            level: env!(LEVEL, |val| match &*val.to_ascii_lowercase() {
-                "trace" => Level::TRACE,
-                "debug" => Level::DEBUG,
-                "error" => Level::ERROR,
-                "warn"  => Level::WARN,
-                "info"  => Level::INFO,
-                _ => Level::INFO
-            }; or __default_level()),
+            json: util::bool_env(JSON)?,
+            level: match env::try_parse_or_else(LEVEL, String::from("info")) {
+                Ok(val) => match &*val.to_ascii_lowercase() {
+                    "trace" => Level::TRACE,
+                    "debug" => Level::DEBUG,
+                    "error" => Level::ERROR,
+                    "warn" => Level::WARN,
+                    "info" => Level::INFO,
+                    _ => Level::INFO,
+                },
+
+                Err(e) => return Err(e.into()),
+            },
 
             loki: match util::bool_env(loki::ENABLE) {
                 Ok(true) => Some(loki::Config::try_from_env()?),

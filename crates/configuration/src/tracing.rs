@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
-use eyre::bail;
+use azalia::config::{
+    env::{self, TryFromEnv, TryParseError},
+    merge::Merge,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, env::VarError};
 use url::Url;
@@ -48,7 +49,7 @@ impl Merge for Sampler {
     fn merge(&mut self, other: Self) {
         match (self, other) {
             (Self::RatioOf(r1), Self::RatioOf(r2)) => {
-                azalia::config::merge::strategy::f64::non_negative(r1, r2);
+                azalia::config::merge::strategy::f64::without_negative(r1, r2);
             }
 
             (Self::Toggle(t1), Self::Toggle(t2)) => {
@@ -64,15 +65,11 @@ impl Merge for Sampler {
 
 impl TryFromEnv for Sampler {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!(SAMPLER) {
+    fn try_from_env() -> Result<Self, Self::Error> {
+        match env::try_parse::<_, String>(SAMPLER) {
+            Ok(value) if value.is_empty() => Ok(Sampler::Toggle(true)),
             Ok(value) => {
-                if value.is_empty() {
-                    return Ok(Sampler::Toggle(true));
-                }
-
                 if let Ok(ratio) = value.parse::<f64>() {
                     return Ok(Sampler::RatioOf(ratio));
                 }
@@ -80,13 +77,8 @@ impl TryFromEnv for Sampler {
                 Ok(Sampler::Toggle(azalia::TRUTHY_REGEX.is_match(&value)))
             }
 
-            Err(VarError::NotPresent) => Ok(Sampler::Toggle(true)),
-            Err(VarError::NotUnicode(_)) => {
-                bail!(
-                    "environment variable `${}` contained invalid unicode characters",
-                    SAMPLER
-                )
-            }
+            Err(TryParseError::System(VarError::NotPresent)) => Ok(Sampler::Toggle(true)),
+            Err(e) => Err(e.into()),
         }
     }
 }
@@ -139,29 +131,17 @@ pub struct Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        Ok(Config {
-            max_attributes_per_event: util::env_from_str(MAX_ATTRIBUTES_PER_EVENT, __maximum())?,
-            max_attributes_per_link: util::env_from_str(MAX_ATTRIBUTES_PER_LINK, __maximum())?,
-            max_attributes_per_span: util::env_from_str(MAX_ATTRIBUTES_PER_SPAN, __maximum())?,
-            max_events_per_span: util::env_from_str(MAX_EVENTS_PER_SPAN, __maximum())?,
-            max_links_per_span: util::env_from_str(MAX_LINKS_PER_SPAN, __maximum())?,
+    fn try_from_env() -> Result<Self, Self::Error> {
+        Ok(Self {
+            max_attributes_per_event: env::try_parse_or_else(MAX_ATTRIBUTES_PER_EVENT, __maximum())?,
+            max_attributes_per_span: env::try_parse_or_else(MAX_ATTRIBUTES_PER_SPAN, __maximum())?,
+            max_attributes_per_link: env::try_parse_or_else(MAX_ATTRIBUTES_PER_LINK, __maximum())?,
+            max_events_per_span: env::try_parse_or_else(MAX_EVENTS_PER_SPAN, __maximum())?,
+            max_links_per_span: env::try_parse_or_else(MAX_LINKS_PER_SPAN, __maximum())?,
             sampler: Sampler::try_from_env()?,
-            labels: util::btreemap_env(LABELS)?,
-            url: match env!(URL) {
-                Ok(url) => Url::parse(&url)?,
-                Err(VarError::NotPresent) => bail!(
-                    "environment variable `${}` is required when environment variable `${}` is set to true",
-                    URL,
-                    ENABLED
-                ),
-
-                Err(VarError::NotUnicode(_)) => {
-                    bail!("environment variable `${}` contained invalid unicode characters", URL)
-                }
-            },
+            labels: env::try_parse_or(LABELS, BTreeMap::new)?,
+            url: env::try_parse(URL)?,
         })
     }
 }

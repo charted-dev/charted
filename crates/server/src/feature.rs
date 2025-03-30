@@ -17,11 +17,7 @@ use crate::Context;
 use axum::Router;
 use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
-use std::{
-    any::{Any, TypeId},
-    collections::HashMap,
-    sync::Arc,
-};
+use std::{any::TypeId, collections::HashMap, sync::Arc};
 use utoipa::openapi::OpenApi;
 
 pub type Collection = HashMap<TypeId, Arc<dyn Feature>>;
@@ -48,40 +44,4 @@ pub trait Feature: AsArcAny + Send + Sync + 'static {
     fn extend_router(&self) -> (&'static str, Router<Context>);
 }
 
-impl dyn Feature {
-    /// Compares if [`self`] is `T`, similar to [`Any::is`].
-    ///
-    /// This method might fail (as in, returns `false`) if `T` doesn't implement
-    /// [`Feature`].
-    ///
-    /// [`Any::is`]: https://doc.rust-lang.org/std/any/trait.Any.html#method.is
-    pub fn is<T: Any>(&self) -> bool {
-        let us = self.type_id();
-        let other = TypeId::of::<T>();
-
-        us == other
-    }
-
-    /// Downcast `self` into type `F`, otherwise `None` is returned if `F` is not `self`.
-    ///
-    /// ## Example
-    /// ```
-    /// # use charted_server::feature::Feature;
-    /// #
-    /// pub struct MyFeature;
-    /// impl Feature for MyFeature {
-    ///     fn extend_router(&self) -> (&'static str, ::axum::routing::Router<charted_server::Context>) { todo!() }
-    /// }
-    ///
-    /// let x: Box<dyn Feature> = Box::new(MyFeature);
-    /// assert!(x.downcast::<MyFeature>().is_some());
-    /// ```
-    pub fn downcast<F: Feature>(&self) -> Option<&F> {
-        if self.is::<F>() {
-            // Safety: we ensured that `self` is `F`.
-            Some(unsafe { &*(self as *const dyn Feature as *const F) })
-        } else {
-            None
-        }
-    }
-}
+azalia::impl_dyn_any!(Feature);

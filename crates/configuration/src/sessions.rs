@@ -16,7 +16,10 @@
 pub mod ldap;
 
 use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv, TryParseError},
+    merge::Merge,
+};
 use eyre::bail;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, env::VarError};
@@ -63,13 +66,12 @@ impl Merge for Backend {
 
 impl TryFromEnv for Backend {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!(BACKEND) {
+    fn try_from_env() -> Result<Self, Self::Error> {
+        match env::try_parse_or_else::<_, String>(BACKEND, Default::default()) {
             Ok(input) => match &*input.to_ascii_lowercase() {
-                "local" | "default" => Ok(Backend::Local),
-                "static" => Ok(Backend::Static(util::btreemap_env(STATIC_USERS)?)),
+                "local" | "default" | "" => Ok(Backend::Local),
+                "static" => Ok(Backend::Static(env::try_parse(STATIC_USERS)?)),
                 "ldap" => Ok(Backend::Ldap(ldap::Config::try_from_env()?)),
                 input => bail!(
                     "unexpected input given from environment variable `${}`: expected `local`, `default`, `static`, or `ldap`; received {} instead",
@@ -78,11 +80,12 @@ impl TryFromEnv for Backend {
                 ),
             },
 
-            Err(VarError::NotPresent) => Ok(Backend::default()),
-            Err(VarError::NotUnicode(_)) => bail!(
+            Err(TryParseError::System(VarError::NotUnicode(_))) => bail!(
                 "environment variable `${}` couldn't be loaded due to invalid unicode",
                 BACKEND
             ),
+
+            Err(e) => Err(e.into()),
         }
     }
 }
@@ -101,9 +104,8 @@ pub const ENABLE_BASIC_AUTH: &str = "CHARTED_SESSIONS_ENABLE_BASIC_AUTH";
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
             enable_basic_auth: util::bool_env(ENABLE_BASIC_AUTH)?,
             backend: Backend::try_from_env()?,

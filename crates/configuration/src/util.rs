@@ -15,7 +15,7 @@
 
 use charted_core::serde::Duration;
 use eyre::{bail, eyre};
-use std::{collections::BTreeMap, env::VarError, fmt::Display, str::FromStr};
+use std::{env::VarError, fmt::Display, str::FromStr};
 
 #[inline(always)]
 pub const fn truthy() -> bool {
@@ -50,22 +50,11 @@ pub fn env_from_result<T>(result: Result<T, VarError>, default: T) -> eyre::Resu
     }
 }
 
-pub fn env_from_result_lazy<T>(
-    result: Result<T, VarError>,
-    default: impl FnOnce() -> eyre::Result<T>,
-) -> eyre::Result<T> {
-    match result {
-        Ok(value) => Ok(value),
-        Err(VarError::NotPresent) => Ok(default()?),
-        Err(VarError::NotUnicode(_)) => bail!("received non-unicode value in environment variable"),
-    }
-}
-
 pub fn env_from_str<F: FromStr>(key: &str, default: F) -> eyre::Result<F>
 where
     F::Err: Display,
 {
-    match azalia::config::env!(key) {
+    match std::env::var(key) {
         Ok(value) => value
             .parse::<F>()
             .map_err(|e| eyre!("failed to parse environment variable `${}`: {}", key, e)),
@@ -76,67 +65,5 @@ where
 }
 
 pub fn bool_env(key: &str) -> eyre::Result<bool> {
-    env_from_result(
-        azalia::config::env!(key).map(|x| azalia::TRUTHY_REGEX.is_match(&x)),
-        false,
-    )
-}
-
-pub fn btreemap_env<K: FromStr + Ord, V: FromStr>(key: &str) -> eyre::Result<BTreeMap<K, V>>
-where
-    K::Err: Display,
-    V::Err: Display,
-{
-    let mut map = azalia::btreemap!(K, V);
-    let result = match azalia::config::env!(key) {
-        Ok(res) => res,
-        Err(VarError::NotPresent) => return Ok(map),
-        Err(VarError::NotUnicode(_)) => bail!("received non-unicode in environment variable `${}`", key),
-    };
-
-    for (i, line) in result.split(',').enumerate() {
-        if let Some((key, val)) = line.split_once('=') {
-            if val.contains('=') {
-                continue;
-            }
-
-            map.insert(
-                match K::from_str(val) {
-                    Ok(v) => v,
-                    Err(e) => bail!(
-                        "failed to parse environment variable `${}`: at index #{}, failed to parse key: {}",
-                        key,
-                        i,
-                        e
-                    ),
-                },
-                match V::from_str(val) {
-                    Ok(v) => v,
-                    Err(e) => bail!(
-                        "failed to parse environment variable `${}`: at index #{}, failed to parse value: {}",
-                        key,
-                        i,
-                        e
-                    ),
-                },
-            );
-        }
-    }
-
-    Ok(map)
-}
-
-pub fn env_optional_from_str<F: FromStr>(key: &str, default: Option<F>) -> eyre::Result<Option<F>>
-where
-    F::Err: Display,
-{
-    match azalia::config::env!(key) {
-        Ok(value) => value
-            .parse::<F>()
-            .map(Some)
-            .map_err(|e| eyre!("failed to parse environment variable `${}`: {}", key, e)),
-
-        Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => Err(eyre!("received non-unicode in `${}` environment variable", key)),
-    }
+    env_from_result(std::env::var(key).map(|x| azalia::TRUTHY_REGEX.is_match(&x)), false)
 }

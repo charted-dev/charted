@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use azalia::config::env::TryFromEnvValue;
 use jiff::{SignedDuration, Span};
 use serde::{Deserialize, Serialize, de};
 use std::{fmt::Display, ops::Deref, str::FromStr};
@@ -131,6 +132,14 @@ impl Deref for Duration {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl TryFromEnvValue for Duration {
+    type Error = jiff::Error;
+
+    fn try_from_env_value(value: String) -> Result<Self, Self::Error> {
+        Duration::from_str(&value)
     }
 }
 

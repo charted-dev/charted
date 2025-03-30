@@ -135,10 +135,9 @@ utoipa = { version = "5.3.1", features = [
 url = "2.5.4"
 
 [workspace.dependencies.azalia]
-version = "0.1.0"
+version = "0.1.1"
 git = "https://github.com/Noelware/azalia"
-rev = "f4600130658cfe523350222717b4530ce4d30123"
-features = ["remi-tracing"]
+features = ["remi+tracing"]
 
 [patch.crates-io]
 # https://github.com/juhaku/utoipa/issues/1335

@@ -20,10 +20,7 @@
 use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
 use charted_types::User;
-use std::{
-    any::{Any, TypeId},
-    borrow::Cow,
-};
+use std::borrow::Cow;
 
 /// Request object for the [`Authenticator::authenticate`] method.
 #[derive(Debug, Clone)]
@@ -45,24 +42,7 @@ pub trait Authenticator: AsArcAny + Send + Sync {
     fn authenticate<'a>(&'a self, request: Request<'a>) -> BoxedFuture<'a, eyre::Result<()>>;
 }
 
-impl dyn Authenticator {
-    /// Compares if [`self`] is a instance of `T`. Similar implementation
-    /// of [`Any::is`].
-    ///
-    /// [`Any::is`]: https://doc.rust-lang.org/std/any/trait.Any.html#method.is
-    pub fn is<T: Any>(&self) -> bool {
-        self.type_id() == TypeId::of::<T>()
-    }
-
-    /// Downcasts `self` to `T`. Returns `None` if `T` is
-    /// not comparable to `self`.
-    pub fn downcast<T: Any>(&self) -> Option<&T> {
-        self.is::<T>().then_some(
-            // Safety: we already checked if `self` is `T`.
-            unsafe { &*(self as *const dyn Authenticator as *const T) },
-        )
-    }
-}
+azalia::impl_dyn_any!(Authenticator);
 
 #[cfg(test)]
 mod tests {

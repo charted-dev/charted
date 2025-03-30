@@ -27,20 +27,20 @@ authors.workspace = true
 [dependencies]
 azalia = { workspace = true, features = [
     "config",
-    "config-derive",
-    "config-url",
+    "config+macros",
+    "config+url",
+    "config+sentry",
 
     "serde",
-    "serde-tracing",
+    "serde+tracing",
 
     "remi",
-    "remi-fs",
-    "remi-s3",
-    "remi-azure",
-    "remi-serde",
+    "remi+fs",
+    "remi+s3",
+    "remi+azure",
+    "remi+serde",
 
     "regex",
-    "lazy",
 ] }
 charted-core.workspace = true
 derive_more = { workspace = true, features = ["display", "deref"] }

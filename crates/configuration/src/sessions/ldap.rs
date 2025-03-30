@@ -14,7 +14,10 @@
 // limitations under the License.
 
 use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use charted_core::serde::Duration;
 use serde::{Deserialize, Serialize};
 
@@ -88,19 +91,18 @@ pub struct Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
             insecure_skip_tls_verify: util::bool_env(INSECURE_SKIP_TLS_VERIFY)?,
             schedule_user_updates: util::bool_env(SCHEDULE_USER_UPDATES)?,
             schedule_new_users: util::bool_env(SCHEDULE_NEW_USERS)?,
-            connect_timeout: util::env_from_str(CONNECT_TIMEOUT, __default_conn_timeout())?,
-            filter_query: util::env_from_result(env!(FILTER_QUERY), __default_filter_query())?,
+            connect_timeout: env::try_parse_or_else(CONNECT_TIMEOUT, __default_conn_timeout())?,
+            filter_query: env::try_parse_or_else(FILTER_QUERY, __default_filter_query())?,
             attributes: Attributes::try_from_env()?,
             starttls: util::bool_env(STARTTLS)?,
-            bind_dn: util::env_from_result(env!(BIND_DN), String::from("uid=%u,dc=domain,dc=com"))?,
-            server: util::env_from_result(env!(SERVER), __default_ldap_server())?,
+            bind_dn: env::try_parse_or_else(BIND_DN, String::from("uid=%u,dc=domain,dc=com"))?,
+            server: env::try_parse_or_else(SERVER, __default_ldap_server())?,
         })
     }
 }
@@ -143,13 +145,12 @@ pub const ATTRIBUTE_EMAIL: &str = "CHARTED_SESSIONS_LDAP_ATTR_EMAIL";
 
 impl TryFromEnv for Attributes {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Attributes {
-            display_name: util::env_from_result(env!(ATTRIBUTE_DISPLAY_NAME), __default_ldap_display_name_attribute())?,
-            username: util::env_from_result(env!(ATTRIBUTE_USERNAME), __default_ldap_username_attribute())?,
-            email: util::env_from_result(env!(ATTRIBUTE_EMAIL), __default_ldap_email_attribute())?,
+            display_name: env::try_parse_or_else(ATTRIBUTE_DISPLAY_NAME, __default_ldap_display_name_attribute())?,
+            username: env::try_parse_or_else(ATTRIBUTE_USERNAME, __default_ldap_username_attribute())?,
+            email: env::try_parse_or_else(ATTRIBUTE_EMAIL, __default_ldap_email_attribute())?,
         })
     }
 }

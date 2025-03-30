@@ -13,8 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use eyre::Context;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -61,17 +63,13 @@ pub struct Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Self {
-            url: env!(URL)
-                .map(|s| Url::parse(&s))
-                .with_context(|| format!("environment variable `${URL}` is required"))??,
-
-            headers: util::btreemap_env(HEADERS)?,
-            fields: util::btreemap_env(FIELDS)?,
-            labels: util::btreemap_env(LABELS)?,
+            url: env::try_parse(URL).with_context(|| format!("environment variable `${URL}` is required"))?,
+            headers: env::try_parse_or(HEADERS, BTreeMap::new)?,
+            fields: env::try_parse_or(FIELDS, BTreeMap::new)?,
+            labels: env::try_parse_or(LABELS, BTreeMap::new)?,
         })
     }
 }

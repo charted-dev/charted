@@ -14,7 +14,10 @@
 // limitations under the License.
 
 use super::common;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -25,6 +28,15 @@ pub enum StringOrPath {
     #[display("{}", _0.display())]
     Path(PathBuf),
     String(String),
+}
+
+impl env::FromEnvValue for StringOrPath {
+    fn from_env_value(value: String) -> Self {
+        value
+            .parse::<PathBuf>()
+            .map(StringOrPath::Path)
+            .unwrap_or(Self::String(value))
+    }
 }
 
 impl Merge for StringOrPath {
@@ -78,12 +90,13 @@ const PATH: &str = "CHARTED_DATABASE_PATH";
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
             common: common::Config::try_from_env()?,
-            path: env!(PATH).map(|p| StringOrPath::Path(p.into())).unwrap_or(__db_path()),
+            path: env::try_parse(PATH)
+                .map(|p: PathBuf| StringOrPath::Path(p))
+                .unwrap_or(__db_path()),
         })
     }
 }

@@ -23,7 +23,10 @@ pub mod storage;
 pub mod tracing;
 pub(crate) mod util;
 
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use sentry_types::Dsn;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -170,16 +173,15 @@ pub const BASE_URL: &str = "CHARTED_BASE_URL";
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Self {
-            jwt_secret_key: util::env_from_result_lazy(env!(JWT_SECRET_KEY), || Ok(String::default()))?,
+            jwt_secret_key: env::try_parse_or_else(JWT_SECRET_KEY, String::default())?,
             registrations: util::bool_env(REGISTRATIONS)?,
             single_user: util::bool_env(SINGLE_USER)?,
             single_org: util::bool_env(SINGLE_ORG)?,
-            sentry_dsn: util::env_optional_from_str(SENTRY_DSN, None)?,
-            base_url: util::env_optional_from_str(BASE_URL, None)?,
+            sentry_dsn: env::try_parse_optional(SENTRY_DSN)?,
+            base_url: env::try_parse_optional(BASE_URL)?,
             database: database::Config::try_from_env()?,
             sessions: sessions::Config::try_from_env()?,
             logging: logging::Config::try_from_env()?,
@@ -226,3 +228,27 @@ I generated one for you here: `{secret}`
 
     Ok(())
 }
+
+macro_rules! impl_enum_based_env_value {
+    ($env:expr, {
+        on match fail: |$input:ident| $error:literal$( [$($arg:expr),*])?;
+
+        $($field:pat => $value:expr;)*
+    }) => {
+        match ::azalia::config::env::try_parse_or_else::<_, ::std::string::String>($env, ::core::default::Default::default()) {
+            Ok($input) => match &*$input.to_ascii_lowercase() {
+                $($field => $value,)*
+
+                _ => ::eyre::bail!($error$(, $($arg),*)?)
+            }
+
+            Err(::azalia::config::env::TryParseError::System(::std::env::VarError::NotUnicode(_))) => {
+                ::eyre::bail!("environment variable `${}` couldn't be loaded due to invalid unicode data", $env)
+            }
+
+            Err(e) => Err(::core::convert::Into::into(e)),
+        }
+    };
+}
+
+pub(crate) use impl_enum_based_env_value;

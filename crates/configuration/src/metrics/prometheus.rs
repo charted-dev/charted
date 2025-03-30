@@ -14,11 +14,13 @@
 // limitations under the License.
 
 use crate::util;
-use azalia::config::{TryFromEnv, env, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use charted_core::serde::Duration;
-use eyre::bail;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, env::VarError};
+use std::collections::BTreeMap;
 
 pub const STANDALONE_HEADERS: &str = "CHARTED_METRICS_PROMETHEUS_STANDALONE_SERVER_HEADERS";
 pub const STANDALONE_HOST: &str = "CHARTED_METRICS_PROMETHEUS_STANDALONE_SERVER_HOST";
@@ -65,22 +67,13 @@ pub struct Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            standalone: match env!(STANDALONE) {
-                Ok(value) if azalia::TRUTHY_REGEX.is_match(&value) => Some(Standalone::try_from_env()?),
-                Ok(_) | Err(VarError::NotPresent) => None,
-                Err(VarError::NotUnicode(_)) => bail!(
-                    "environment variable `${}` contained invalid unicode characters",
-                    STANDALONE
-                ),
-            },
-
-            bucket_duration: util::env_from_str(BUCKET_DURATION, __default_bucket_duration())?,
-            upkeep_interval: util::env_from_str(UPKEEP_INTERVAL, __default_upkeep_interval())?,
-            endpoint: util::env_from_result(env!(ENDPOINT), __default_endpoint())?,
+            standalone: util::bool_env(STANDALONE)?.then_some(Standalone::try_from_env()?),
+            bucket_duration: env::try_parse_or_else(BUCKET_DURATION, __default_bucket_duration())?,
+            upkeep_interval: env::try_parse_or_else(UPKEEP_INTERVAL, __default_upkeep_interval())?,
+            endpoint: env::try_parse_or_else(ENDPOINT, __default_endpoint())?,
         })
     }
 }
@@ -103,13 +96,12 @@ pub struct Standalone {
 
 impl TryFromEnv for Standalone {
     type Error = eyre::Report;
-    type Output = Self;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Standalone {
-            headers: util::btreemap_env(STANDALONE_HEADERS)?,
-            host: util::env_from_result(env!(STANDALONE_HOST), __default_host())?,
-            port: util::env_from_str(STANDALONE_PORT, __default_port())?,
+            headers: env::try_parse(STANDALONE_HEADERS).unwrap_or_default(),
+            host: env::try_parse_or_else(STANDALONE_HOST, __default_host())?,
+            port: env::try_parse_or_else(STANDALONE_PORT, __default_port())?,
         })
     }
 }

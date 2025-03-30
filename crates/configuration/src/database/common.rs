@@ -14,7 +14,10 @@
 // limitations under the License.
 
 use crate::util;
-use azalia::config::{TryFromEnv, merge::Merge};
+use azalia::config::{
+    env::{self, TryFromEnv},
+    merge::Merge,
+};
 use charted_core::serde::Duration;
 use serde::{Deserialize, Serialize};
 
@@ -76,16 +79,15 @@ impl Default for Config {
 
 impl TryFromEnv for Config {
     type Error = eyre::Report;
-    type Output = Config;
 
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
+    fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            max_connections: util::env_from_str(MAX_CONNECTIONS, __max_connections())?,
-            acquire_timeout: util::env_from_str(ACQUIRE_TIMEOUT, __acquire_timeout())?,
-            connect_timeout: util::env_from_str(CONNECT_TIMEOUT, __connect_timeout())?,
+            max_connections: env::try_parse_or_else(MAX_CONNECTIONS, __max_connections())?,
+            acquire_timeout: env::try_parse_or_else(ACQUIRE_TIMEOUT, __acquire_timeout())?,
+            connect_timeout: env::try_parse_or_else(CONNECT_TIMEOUT, __connect_timeout())?,
             run_migrations: util::bool_env(RUN_PENDING_MIGRATIONS)?,
-            idle_timeout: util::env_from_str(IDLE_TIMEOUT, __idle_timeout())?,
-            database: util::env_from_str(DATABASE, __database())?,
+            idle_timeout: env::try_parse_or_else(IDLE_TIMEOUT, __idle_timeout())?,
+            database: env::try_parse_or_else(DATABASE, __database())?,
         })
     }
 }
