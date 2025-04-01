@@ -45,8 +45,8 @@ pub fn init_prometheus(config: &charted_config::metrics::prometheus::Config) -> 
 pub fn init_opentelemetry(
     config: &charted_config::metrics::opentelemetry::Config,
 ) -> eyre::Result<metrics_exporter_opentelemetry::Recorder> {
-    let builder =
-        metrics_exporter_opentelemetry::Recorder::builder("charted-server").with_instrumentation_scope(|builder| {
+    let builder = metrics_exporter_opentelemetry::Recorder::builder("charted-server").with_instrumentation_scope(
+        |builder| {
             builder.with_version(charted_core::version()).with_attributes({
                 let mut attrs = config
                     .labels
@@ -60,7 +60,8 @@ pub fn init_opentelemetry(
 
                 attrs
             })
-        });
+        },
+    );
 
     let exporter = match config.url.scheme() {
         "http" | "https" => opentelemetry_otlp::MetricExporter::builder().with_tonic().build()?,

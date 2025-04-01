@@ -13,207 +13,450 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Context;
-use axum::Router;
+use crate::{
+    Context,
+    extract::Json,
+    extract_refor_t,
+    middleware::authn::{self, JWT_ALGORITHM, JWT_AUD, JWT_ISS, Session},
+    modify_property,
+    openapi::ApiErrorResponse,
+};
+use axum::{Extension, extract::State, http::StatusCode};
+use charted_authz::InvalidPassword;
+use charted_core::api;
+use charted_database::entities::{SessionEntity, UserEntity, session, user};
+use charted_types::{
+    User,
+    payloads::{Login, UserLoginPayload},
+};
+use chrono::{DateTime, TimeZone, Utc, naive::Days};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, errors::ErrorKind};
+use sea_orm::{ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter};
+use serde_json::json;
+use std::{
+    borrow::Cow,
+    collections::{BTreeMap, HashMap},
+};
+use utoipa::{
+    IntoResponses, ToResponse,
+    openapi::{Ref, RefOr, Response},
+};
+use validator::ValidateEmail;
 
-pub fn create_router() -> Router<Context> {
-    Router::new()
+struct LoginR;
+impl IntoResponses for LoginR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "200" => Ref::from_schema_name("SessionResponse"),
+            "403" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("invalid password"));
+
+                response
+            },
+
+            "404" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("user was not found by their username or email"));
+
+                response
+            },
+
+            "406" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("`email` was not formatted properly"));
+
+                response
+            }
+        }
+    }
 }
 
-/*
-/// Creates a new session and returns details about the newly created session.
-#[controller(
-    method = post,
-    tags("Users", "Sessions"),
-    requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("UserLoginPayload"))),
-    response(201, "Successful response", ("application/json", response!("SessionResponse"))),
-    response(400, "Invalid payload received.", ("application/json", response!("ApiErrorResponse"))),
-    response(403, "Invalid password received", ("application/json", response!("ApiErrorResponse"))),
-    response(404, "Unknown User", ("application/json", response!("ApiErrorResponse"))),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+/// Creates a new session.
+#[utoipa::path(
+    post,
+
+    path = "/v1/users/login",
+    tags = ["Users", "Users/Sessions"],
+    operation_id = "login",
+    request_body(
+        content = ref("#/components/schemas/UserLoginPayload"),
+        content_type = "application/json"
+    ),
+    responses(LoginR)
 )]
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn login(
-    State(Instance {
-        controllers,
-        sessions,
-        authz,
-        pool,
-        ..
-    }): State<Instance>,
-    Json(payload): Json<UserLoginPayload>,
-) -> Result<Session> {
-    validate(&payload, UserLoginPayload::validate)?;
-
-    let user = match (payload.username, payload.email) {
-        (Some(ref username), None) => match controllers.users.get_by(username).await {
-            Ok(Some(user)) => user,
-            Ok(None) => {
-                return Err(err(
-                    StatusCode::NOT_FOUND,
-                    (
-                        ErrorCode::EntityNotFound,
-                        "user with username doesn't exist",
-                        json!({"username": username}),
-                    ),
-                ))
+    State(cx): State<Context>,
+    Json(UserLoginPayload { login, password }): Json<UserLoginPayload>,
+) -> api::Result<charted_types::Session> {
+    let Some((model, user)) = (match login {
+        Login::Username(ref name) => UserEntity::find().filter(user::Column::Username.eq(name.clone())),
+        Login::Email(ref email) => {
+            if !email.validate_email() {
+                return Err(api::err(
+                    StatusCode::NOT_ACCEPTABLE,
+                    (api::ErrorCode::ValidationFailed, "invalid email address"),
+                ));
             }
 
-            Err(_) => return Err(internal_server_error()),
-        },
-
-        (None, Some(ref email)) => match sqlx::query_as::<Postgres, _>("select users.* from users where email = $1;")
-            .bind(email)
-            .fetch_optional(&pool)
-            .await
-        {
-            Ok(Some(user)) => user,
-            Ok(None) => {
-                return Err(err(
-                    StatusCode::NOT_FOUND,
-                    (
-                        ErrorCode::EntityNotFound,
-                        "user with username doesn't exist",
-                        json!({"email": email}),
-                    ),
-                ))
-            }
-
-            Err(e) => {
-                error!(error = %e, "unable to query user by email");
-                sentry::capture_error(&e);
-
-                return Err(internal_server_error());
-            }
-        },
-
-        (Some(_), Some(_)) => {
-            return Err(err(
-                StatusCode::BAD_REQUEST,
-                (
-                    ErrorCode::InvalidJsonPayload,
-                    "`username` and `email` are mutually exclusive",
-                ),
-            ))
+            UserEntity::find().filter(user::Column::Email.eq(email.clone()))
         }
-
-        (None, None) => {
-            return Err(err(
-                StatusCode::BAD_REQUEST,
-                (
-                    ErrorCode::InvalidJsonPayload,
-                    "either `username` or `email` needs to be available",
-                ),
-            ))
-        }
+    })
+    .one(&cx.pool)
+    .await
+    .inspect_err(|e| {
+        error!(error = %e, ?login, "failed to query user");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?
+    .map(|model| (model.clone(), Into::<User>::into(model))) else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (api::ErrorCode::EntityNotFound, "user was not found"),
+        ));
     };
 
-    // check if we can authenticate
-    authz
-        .authenticate(user.clone(), payload.password)
-        .await
-        .map_err(|e| match e {
-            authz::Error::InvalidPassword => err(
+    let request = charted_authz::Request {
+        user: user.clone(),
+        model,
+        password: Cow::Owned(password),
+    };
+
+    cx.authz.authenticate(request).await.map_err(|e| {
+        if e.is::<InvalidPassword>() {
+            return api::err(
                 StatusCode::FORBIDDEN,
-                (ErrorCode::InvalidPassword, "password given was not correct"),
-            ),
+                (api::ErrorCode::InvalidPassword, "invalid password given"),
+            );
+        }
 
-            authz::Error::Eyre(e) => {
-                error!(error = %e, user.id, "unable to complete authentication from authz backend");
-                sentry_eyre::capture_report(&e);
+        error!(error = %e, %user.id, "failed to complete authentication from backend");
+        sentry::capture_error(&*e);
 
-                internal_server_error()
-            }
-
-            authz::Error::Ldap(e) => {
-                error!(error = %e, user.id, "unable to complete authentication from LDAP authz backend");
-                sentry::capture_error(&e);
-
-                internal_server_error()
-            }
-        })?;
-
-    let mut sessions = sessions.lock().await;
-    let session = sessions.create(user).await.map_err(|_| internal_server_error())?;
-    sessions.create_task(session.session, std::time::Duration::from_secs(604800));
-
-    Ok(ok(StatusCode::CREATED, session))
-}
-
-/// Destroy the current authenticated session.
-#[controller(
-    method = delete,
-    tags("Users", "Sessions"),
-    response(201, "Session was deleted successfully", ("application/json", response!("EmptyApiResponse"))),
-    response(403, "If the authenticated user didn't provide a session token", ("application/json", response!("ApiErrorResponse"))),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn destroy_session(
-    State(Instance { sessions, .. }): State<Instance>,
-    Extension(crate::server::middleware::session::Session { session, .. }): Extension<
-        crate::server::middleware::session::Session,
-    >,
-) -> Result<()> {
-    let Some(session) = session else {
-        return Err(err(
-            StatusCode::FORBIDDEN,
-            (
-                ErrorCode::SessionOnlyRoute,
-                "this REST route requires only session tokens to be used",
-                json!({"method": "delete", "uri": "/users/sessions/logout"}),
-            ),
-        ));
-    };
-
-    let mut mgr = sessions.lock().await;
-    mgr.kill(session.session)
-        .map(|_| ok(StatusCode::ACCEPTED, ()))
-        .map_err(|e| {
-            sentry_eyre::capture_report(&e);
-            internal_server_error()
-        })
-}
-
-/// Refresh a session with the given refresh token upon creation.
-#[controller(
-    method = post,
-    tags("Users", "Sessions"),
-    response(201, "Session was fully restored with a new one", ("application/json", response!("SessionResponse"))),
-    response(403, "If the authenticated user didn't provide a refresh token", ("application/json", response!("ApiErrorResponse"))),
-    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-)]
-pub async fn refresh_session_token(
-    State(Instance { sessions, .. }): State<Instance>,
-    Extension(crate::server::middleware::session::Session { session, user, .. }): Extension<
-        crate::server::middleware::session::Session,
-    >,
-) -> Result<Session> {
-    let Some(session) = session else {
-        return Err(err(
-            StatusCode::FORBIDDEN,
-            (
-                ErrorCode::SessionOnlyRoute,
-                "this REST route requires only session tokens to be used",
-                json!({"method": "post", "uri": "/users/sessions/refresh"}),
-            ),
-        ));
-    };
-
-    let mut mgr = sessions.lock().await;
-    mgr.kill(session.session).map_err(|e| {
-        sentry_eyre::capture_report(&e);
-        internal_server_error()
+        api::system_failure_from_report(e)
     })?;
 
-    // create a new session since the old one is destroyed
-    mgr.create(user)
+    // create session
+    let id = cx
+        .ulid_generator
+        .generate()
+        .inspect_err(|e| {
+            error!(error = %e, %user.id, "failed to generate session id");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?;
+
+    let now = Utc::now();
+    let access_token = jsonwebtoken::encode(
+        &Header {
+            alg: JWT_ALGORITHM,
+            ..Default::default()
+        },
+        &json!({
+            "iss": JWT_ISS,
+            "aud": JWT_AUD,
+            "uid": user.id,
+            "sid": id,
+            "exp": to_seconds(now + Days::new(2))
+        }),
+        &EncodingKey::from_secret(cx.config.jwt_secret_key.as_ref()),
+    )
+    .inspect_err(|e| {
+        error!(error = %e, session.id = %id, %user.id, "failed to generate refresh token");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?;
+
+    let refresh_token = jsonwebtoken::encode(
+        &Header {
+            alg: JWT_ALGORITHM,
+            ..Default::default()
+        },
+        &json!({
+            "iss": JWT_ISS,
+            "aud": JWT_AUD,
+            "uid": user.id,
+            "sid": id,
+            "exp": to_seconds(now + Days::new(7))
+        }),
+        &EncodingKey::from_secret(cx.config.jwt_secret_key.as_ref()),
+    )
+    .inspect_err(|e| {
+        error!(error = %e, session.id = %id, %user.id, "failed to generate refresh token");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?;
+
+    let model = session::Model {
+        refresh_token,
+        access_token,
+        account: user.id,
+        id: id.into(),
+    };
+
+    SessionEntity::insert(model.clone().into_active_model())
+        .exec(&cx.pool)
         .await
-        .map(|sess| {
-            mgr.create_task(sess.session, std::time::Duration::from_secs(604800));
-            ok(StatusCode::CREATED, sess)
-        })
-        .map_err(|e| {
-            sentry_eyre::capture_report(&e);
-            internal_server_error()
-        })
+        .map_err(api::system_failure)?;
+
+    Ok(api::ok(StatusCode::CREATED, model.into()))
 }
-*/
+
+struct FetchSessionR;
+impl IntoResponses for FetchSessionR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "200" => Ref::from_schema_name("SessionResponse"),
+            "4xx" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("authorization failed for some reason"));
+
+                response
+            }
+        }
+    }
+}
+
+/// Retrieve information about this session.
+///
+/// Useless on its own but useful for testing out session authentication.
+#[utoipa::path(
+    get,
+
+    path = "/v1/users/@me/session",
+    tags = ["Users", "Users/Sessions"],
+    operation_id = "getUserSession",
+    responses(FetchSessionR)
+)]
+pub async fn fetch(Extension(Session { session, .. }): Extension<Session>) -> api::Result<charted_types::Session> {
+    let Some(session) = session else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "authentication didn't use a bearer token",
+            ),
+        ));
+    };
+
+    Ok(api::ok(StatusCode::OK, session.sanitize()))
+}
+
+/// Logs you out from the session and destroys it.
+#[utoipa::path(
+    delete,
+
+    path = "/v1/users/@me/session",
+    tags = ["Users", "Users/Sessions"],
+    operation_id = "logout",
+    responses(LoginR)
+)]
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub async fn logout(
+    State(cx): State<Context>,
+    Extension(Session { session, .. }): Extension<Session>,
+) -> api::Result<()> {
+    let Some(session) = session else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "authentication didn't use a bearer token",
+            ),
+        ));
+    };
+
+    let key = DecodingKey::from_secret(cx.config.jwt_secret_key.as_ref());
+    let decoded = jsonwebtoken::decode::<HashMap<String, serde_json::Value>>(
+        &session.access_token.unwrap(),
+        &key,
+        &Validation::new(JWT_ALGORITHM),
+    )
+    .inspect_err(|e| {
+        error!(error = %e, %session.id, "failed to decode JWT token; entry is severed");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?;
+
+    let sid = authn::extract_sid_from_token(&decoded.claims).map_err(Into::<api::Response>::into)?;
+
+    // sanity check just in case
+    if SessionEntity::find_by_id(sid)
+        .filter(session::Column::Account.eq(session.owner))
+        .one(&cx.pool)
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, %session.id, user.id = %session.owner, from = %sid, "failed to find session");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?
+        .is_none()
+    {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "session with `sid` was not found for user",
+                json!({"sid":sid, "user":session.owner}),
+            ),
+        ));
+    }
+
+    SessionEntity::delete_by_id(sid)
+        .filter(session::Column::Account.eq(session.owner))
+        .exec(&cx.pool)
+        .await
+        .map(|_| api::from_default(StatusCode::ACCEPTED))
+        .inspect_err(|e| {
+            error!(error = %e, %session.id, user.id = %session.owner, from = %sid, "failed to delete session");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)
+}
+
+struct RefreshSessionR;
+impl IntoResponses for RefreshSessionR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "201" => Ref::from_schema_name("SessionResponse"),
+            "4xx" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("authorization failed for some reason"));
+
+                response
+            }
+        }
+    }
+}
+
+/// Refresh a session by destroying the old session and creating a new one.
+#[utoipa::path(
+    post,
+
+    path = "/v1/users/@me/session/refresh",
+    tags = ["Users", "Users/Sessions"],
+    operation_id = "refreshSessionToken",
+    responses(RefreshSessionR)
+)]
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub async fn refresh_session(
+    State(cx): State<Context>,
+    Extension(Session { session, user }): Extension<Session>,
+) -> api::Result<charted_types::Session> {
+    let Some(session) = session else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "authentication didn't use a bearer token",
+            ),
+        ));
+    };
+
+    // Check if the refresh token is still alive.
+    let key = DecodingKey::from_secret(cx.config.jwt_secret_key.as_ref());
+    match jsonwebtoken::decode::<HashMap<String, serde_json::Value>>(
+        session.refresh_token.as_ref().unwrap(),
+        &key,
+        &Validation::new(JWT_ALGORITHM),
+    ) {
+        Ok(_) => {}
+        Err(err) => match err.kind() {
+            ErrorKind::ExpiredSignature => {
+                return Err(api::err(
+                    StatusCode::GONE,
+                    (api::ErrorCode::SessionExpired, "session had expired"),
+                ));
+            }
+
+            _ => {
+                error!(error = %err, %session.id, "failed to decode JWT token");
+                sentry::capture_error(&err);
+
+                return Err(api::system_failure(err));
+            }
+        },
+    }
+
+    // we can still call `logout` since it's just a regular function
+    logout(
+        State(cx.clone()),
+        Extension(Session {
+            session: Some(session.clone()),
+            user: user.clone(),
+        }),
+    )
+    .await?;
+
+    // create session
+    let id = cx
+        .ulid_generator
+        .generate()
+        .inspect_err(|e| {
+            error!(error = %e, %user.id, "failed to generate session id");
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)?;
+
+    let now = Utc::now();
+    let access_token = jsonwebtoken::encode(
+        &Header {
+            alg: JWT_ALGORITHM,
+            ..Default::default()
+        },
+        &json!({
+            "iss": JWT_ISS,
+            "aud": JWT_AUD,
+            "uid": user.id,
+            "sid": id,
+            "exp": to_seconds(now + Days::new(2))
+        }),
+        &EncodingKey::from_secret(cx.config.jwt_secret_key.as_ref()),
+    )
+    .inspect_err(|e| {
+        error!(error = %e, session.id = %id, %user.id, "failed to generate refresh token");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?;
+
+    let refresh_token = jsonwebtoken::encode(
+        &Header {
+            alg: JWT_ALGORITHM,
+            ..Default::default()
+        },
+        &json!({
+            "iss": JWT_ISS,
+            "aud": JWT_AUD,
+            "uid": user.id,
+            "sid": id,
+            authn::JWT_EXP: to_seconds(now + Days::new(7))
+        }),
+        &EncodingKey::from_secret(cx.config.jwt_secret_key.as_ref()),
+    )
+    .inspect_err(|e| {
+        error!(error = %e, session.id = %id, %user.id, "failed to generate refresh token");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?;
+
+    let model = session::Model {
+        refresh_token,
+        access_token,
+        account: user.id,
+        id: id.into(),
+    };
+
+    SessionEntity::insert(model.clone().into_active_model())
+        .exec(&cx.pool)
+        .await
+        .map_err(api::system_failure)?;
+
+    Ok(api::ok(StatusCode::CREATED, model.into()))
+}
+
+fn to_seconds<Tz: TimeZone>(dt: DateTime<Tz>) -> i64 {
+    dt.timestamp_millis()
+        .checked_div(1000)
+        .expect("timestamp overflow occurred or was zero")
+}

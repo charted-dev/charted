@@ -40,6 +40,7 @@ charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-metrics.workspace = true
 charted-types = { workspace = true, features = ["openapi"] }
+chrono.workspace = true
 derive_more = { workspace = true, features = [
     "display",
     "from",

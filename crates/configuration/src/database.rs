@@ -90,7 +90,10 @@ impl TryFromEnv for Config {
                 s => Err(eyre!("unknown variant for `${}`: {}", DRIVER, s)),
             },
 
-            Err(TryParseError::System(VarError::NotPresent)) => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
+            Err(TryParseError::System(VarError::NotPresent)) => {
+                Ok(Config::SQLite(sqlite::Config::try_from_env()?))
+            }
+
             Err(TryParseError::System(VarError::NotUnicode(_))) => {
                 Err(eyre!("received non-unicode in `${}` environment variable", DRIVER))
             }

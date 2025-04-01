@@ -34,9 +34,8 @@ use charted_types::{
     NameOrUlid, User,
     payloads::{CreateUserPayload, PatchUserPayload},
 };
-use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, sqlx::types::chrono,
-};
+use chrono::{self, Utc};
+use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter};
 use serde_json::json;
 use std::{borrow::Cow, collections::BTreeMap};
 use utoipa::{
@@ -95,51 +94,63 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             }
         }
 
-        base.nest("/apikeys", apikeys::create_router(cx))
-            .route(
-                "/repositories",
-                routing::get(
-                    repositories::list_self_user_repositories.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default()
-                            .with_scope(ApiKeyScope::RepoAccess)
-                            .with_scope(ApiKeyScope::UserAccess),
-                    )),
-                )
-                .put(
-                    repositories::create_user_repository.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default()
-                            .with_scope(ApiKeyScope::RepoCreate)
-                            .with_scope(ApiKeyScope::UserAccess),
-                    )),
-                ),
-            )
-            .route(
-                "/avatar",
-                routing::get(avatars::get_self_user_avatar.layer(authn::new(
+        base.route(
+            "/session",
+            routing::get(sessions::fetch.layer(authn::new(cx.to_owned(), Options::default()))).delete(
+                sessions::logout.layer(authn::new(cx.to_owned(), Options {
+                    require_refresh_token: true,
+                    ..Default::default()
+                })),
+            ),
+        )
+        .nest("/apikeys", apikeys::create_router(cx))
+        .route(
+            "/repositories",
+            routing::get(
+                repositories::list_self_user_repositories.layer(authn::new(
                     cx.to_owned(),
-                    Options::default().with_scope(ApiKeyScope::UserAccess),
-                )))
-                .post(
-                    avatars::upload_user_avatar.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default()
-                            .with_scope(ApiKeyScope::UserAccess)
-                            .with_scope(ApiKeyScope::UserAvatarUpdate),
-                    )),
-                ),
+                    Options::default()
+                        .with_scope(ApiKeyScope::RepoAccess)
+                        .with_scope(ApiKeyScope::UserAccess),
+                )),
             )
-            .route(
-                "/avatars/{hash}",
-                routing::get(avatars::get_self_user_avatar_by_hash.layer(authn::new(
+            .put(
+                repositories::create_user_repository.layer(authn::new(
                     cx.to_owned(),
-                    Options::default().with_scope(ApiKeyScope::UserAccess),
-                ))),
-            )
+                    Options::default()
+                        .with_scope(ApiKeyScope::RepoCreate)
+                        .with_scope(ApiKeyScope::UserAccess),
+                )),
+            ),
+        )
+        .route(
+            "/avatar",
+            routing::get(avatars::get_self_user_avatar.layer(authn::new(
+                cx.to_owned(),
+                Options::default().with_scope(ApiKeyScope::UserAccess),
+            )))
+            .post(
+                avatars::upload_user_avatar.layer(authn::new(
+                    cx.to_owned(),
+                    Options::default()
+                        .with_scope(ApiKeyScope::UserAccess)
+                        .with_scope(ApiKeyScope::UserAvatarUpdate),
+                )),
+            ),
+        )
+        .route(
+            "/avatars/{hash}",
+            routing::get(avatars::get_self_user_avatar_by_hash.layer(authn::new(
+                cx.to_owned(),
+                Options::default().with_scope(ApiKeyScope::UserAccess),
+            ))),
+        )
     };
 
-    router.nest("/@me", at_me).nest("/{idOrName}", id_or_name)
+    router
+        .nest("/@me", at_me)
+        .nest("/{idOrName}", id_or_name)
+        .route("/login", routing::post(sessions::login))
 }
 
 /// Entrypoint to the Users API.
@@ -162,28 +173,28 @@ impl IntoResponses for CreateUserR {
             "201" => Ref::from_response_name("UserResponse"),
             "403" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Instance doesn't allow registrations"));
+                modify_property!(response.description("Instance doesn't allow registrations"));
 
                 response
             },
 
             "406" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Session backend required the `password` field or `email` was not a valid, proper email address"));
+                modify_property!(response.description("Session backend required the `password` field or `email` was not a valid, proper email address"));
 
                 response
             },
 
             "409" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("If a user already has the `username` or `email` taken."));
+                modify_property!(response.description("If a user already has the `username` or `email` taken."));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -325,8 +336,8 @@ pub async fn create(
         gravatar_email: None,
         description: None,
         avatar_hash: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
         password,
         username,
         email,
@@ -355,14 +366,14 @@ impl IntoResponses for FetchUserR {
             "200" => Ref::from_response_name("UserResponse"),
             "400" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Invalid ID or name specified"));
+                modify_property!(response.description("Invalid ID or name specified"));
 
                 response
             },
 
             "404" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("User not found"));
+                modify_property!(response.description("User not found"));
 
                 response
             }
@@ -427,7 +438,7 @@ impl IntoResponses for FetchSelfR {
             "200" => Ref::from_response_name("UserResponse"),
             "4XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("The occurrence when authentication fails"));
+                modify_property!(response.description("The occurrence when authentication fails"));
 
                 response
             }
@@ -457,14 +468,14 @@ impl IntoResponses for PatchUserR {
         azalia::btreemap! {
             "204" => {
                 let mut response = extract_refor_t!(EmptyApiResponse::response().1);
-                modify_property!(response; description("Patch was successful"));
+                modify_property!(response.description("Patch was successful"));
 
                 response
             },
 
             "4XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Any occurrence when authentication fails or if the patch couldn't be applied"));
+                modify_property!(response.description("Any occurrence when authentication fails or if the patch couldn't be applied"));
 
                 response
             }
@@ -638,7 +649,10 @@ pub async fn patch(
         )
     )
 )]
-pub async fn delete(State(cx): State<Context>, Extension(Session { user, .. }): Extension<Session>) -> api::Result<()> {
+pub async fn delete(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+) -> api::Result<()> {
     UserEntity::delete_by_id(user.id)
         .exec(&cx.pool)
         .await

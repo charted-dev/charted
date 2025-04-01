@@ -40,7 +40,9 @@ pub(in crate::middleware::authn::tests) async fn consume_body<T: DeserializeOwne
     serde_json::from_slice(&bytes).unwrap()
 }
 
-pub(in crate::middleware::authn::tests) async fn create_context(config_override: impl FnOnce(&mut Config)) -> Context {
+pub(in crate::middleware::authn::tests) async fn create_context(
+    config_override: impl FnOnce(&mut Config),
+) -> Context {
     Context::for_testing(config_override).await.unwrap()
 }
 

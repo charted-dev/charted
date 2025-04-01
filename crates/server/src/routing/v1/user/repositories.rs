@@ -35,9 +35,8 @@ use azalia::remi::core::UploadRequest;
 use charted_core::{api, clamp};
 use charted_database::entities::{RepositoryEntity, UserEntity, repository, user};
 use charted_types::{NameOrUlid, Repository, User, payloads::CreateRepositoryPayload};
-use sea_orm::{
-    ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder, sqlx::types::chrono,
-};
+use chrono::Utc;
+use sea_orm::{ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder};
 use serde_json::json;
 use std::{cmp, collections::BTreeMap};
 use utoipa::{
@@ -52,7 +51,7 @@ impl IntoResponses for ListRepositoriesR {
             "200" => Ref::from_response_name("ListRepositoryResponse"),
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -209,14 +208,14 @@ impl IntoResponses for CreateRepositoryR {
             "201" => Ref::from_response_name("RepositoryResponse"),
             "409" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("repository already exists"));
+                modify_property!(response.description("repository already exists"));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -300,7 +299,7 @@ pub async fn create_user_repository(
         })
         .map_err(api::system_failure)?;
 
-    let now = chrono::Utc::now();
+    let now = Utc::now();
     let model = repository::Model {
         description,
         deprecated: false,

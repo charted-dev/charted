@@ -44,7 +44,10 @@ impl FromStr for Owner {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.split_once(':') {
-            Some((_, name)) if name.contains(':') => bail!("cannot parse owner: received more than one ':'"),
+            Some((_, name)) if name.contains(':') => {
+                bail!("cannot parse owner: received more than one ':'")
+            }
+
             Some((kind, name)) => match &*kind.to_ascii_lowercase() {
                 "user" => Ok(Owner::User(name.parse()?)),
                 "org" => Ok(Owner::Organization(name.parse()?)),

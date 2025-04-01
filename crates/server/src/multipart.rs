@@ -104,11 +104,17 @@ impl Rejection {
     fn err_message(&self) -> Cow<'static, str> {
         match self {
             Rejection::NoContentTypeAvaliable => Cow::Borrowed("missing `content-type` header"),
-            Rejection::InvalidUtf8ForBoundary => Cow::Borrowed("received invalid utf-8 in multipart boundary decoding"),
+            Rejection::InvalidUtf8ForBoundary => {
+                Cow::Borrowed("received invalid utf-8 in multipart boundary decoding")
+            }
+
             Rejection::NoBoundary => Cow::Borrowed("missing multipart boundary"),
             Rejection::Multer(err) => match err {
                 multer::Error::UnknownField { .. } => Cow::Borrowed("received unknown field"),
-                multer::Error::IncompleteFieldData { .. } => Cow::Borrowed("received incomplete field data in request"),
+                multer::Error::IncompleteFieldData { .. } => {
+                    Cow::Borrowed("received incomplete field data in request")
+                }
+
                 multer::Error::ReadHeaderFailed(_) => Cow::Borrowed("was unable to read multipart header"),
                 multer::Error::NoBoundary => Cow::Borrowed("was missing a multipart boundary"),
                 multer::Error::NoMultipart => Cow::Borrowed("missing `multipart/form-data` contents"),
@@ -166,7 +172,9 @@ impl Display for Rejection {
             Rejection::Multer(err) => Display::fmt(err, f),
             Rejection::NoContentTypeAvaliable => f.write_str("no `content-type` header was specified"),
             Rejection::NoBoundary => f.write_str("received no multipart boundary"),
-            Rejection::InvalidUtf8ForBoundary => f.write_str("received invalid utf-8 in multipart boundary decoding"),
+            Rejection::InvalidUtf8ForBoundary => {
+                f.write_str("received invalid utf-8 in multipart boundary decoding")
+            }
         }
     }
 }

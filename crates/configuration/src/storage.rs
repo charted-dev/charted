@@ -60,7 +60,7 @@ impl TryFromEnv for Config {
             on match fail: |input| "environment variable `${}` is not invalid: expected `filesystem`, `s3`, or `azure`, received `{}` instead" [SERVICE, input];
 
             "filesystem" | "fs" | "" => Ok(Config::Filesystem(remi::fs::StorageConfig {
-                directory: env::try_parse(filesystem::DIRECTORY)?
+                directory: env::try_parse(filesystem::DIRECTORY).unwrap_or(PathBuf::from("./data"))
             }));
 
             "azure" => Ok(Config::Azure(azure::create_config()?));
@@ -177,8 +177,11 @@ pub(crate) mod s3 {
             app_name: env::try_parse_optional(APP_NAME)?,
             endpoint: env::try_parse_optional(ENDPOINT)?,
             prefix: env::try_parse_optional(PREFIX)?,
-            region: env::try_parse_or_else::<_, RegionEnv>(REGION, RegionEnv(Region::new(Cow::Borrowed("us-east-1"))))
-                .map(|s| Some(s.0))?,
+            region: env::try_parse_or_else::<_, RegionEnv>(
+                REGION,
+                RegionEnv(Region::new(Cow::Borrowed("us-east-1"))),
+            )
+            .map(|s| Some(s.0))?,
 
             bucket: env::try_parse_optional(BUCKET)?.unwrap_or(String::from("charted")),
         })

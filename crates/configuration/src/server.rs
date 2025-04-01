@@ -71,7 +71,7 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
-            headers: env::try_parse(HEADERS)?,
+            headers: env::try_parse(HEADERS).unwrap_or_else(|_| Default::default()),
             host: env::try_parse_or_else(HOST[0], env::try_parse_or_else(HOST[1], __default_host())?)?,
             port: env::try_parse_or_else(PORT[0], env::try_parse_or_else(PORT[1], __default_port())?)?,
             ssl: match util::bool_env(ssl::ENABLED) {

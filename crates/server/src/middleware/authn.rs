@@ -40,13 +40,22 @@ use std::{borrow::Cow, collections::HashMap, str::FromStr};
 use tower_http::auth::{AsyncAuthorizeRequest, AsyncRequireAuthorizationLayer};
 
 /// The `iss` field value.
+///
+/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.1>
 pub const JWT_ISS: &str = "Noelware";
 
 /// The `aud` field value.
+///
+/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.3>
 pub const JWT_AUD: &str = "charted-server";
 
 /// JWT algorithm to use.
 pub const JWT_ALGORITHM: Algorithm = Algorithm::HS512;
+
+/// JWT claim for the expiration.
+///
+/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.4>
+pub const JWT_EXP: &str = "exp";
 
 /// Claim name for a user ID.
 pub const JWT_UID_FIELD: &str = "uid";
@@ -220,13 +229,16 @@ impl Handler {
         token: String,
     ) -> Result<Request<Body>, Response> {
         let key = DecodingKey::from_secret(ctx.config.jwt_secret_key.as_ref());
-        let decoded = jsonwebtoken::decode::<HashMap<String, Value>>(&token, &key, &Validation::new(JWT_ALGORITHM))
+        let validation = create_validation();
+        let decoded = jsonwebtoken::decode::<HashMap<String, Value>>(&token, &key, &validation)
             .inspect_err(|e| {
                 error!(error = %e, "failed to decode JWT token");
                 sentry::capture_error(e);
             })
             .map_err(Error::Jwt)
             .map_err(as_response)?;
+
+        trace!("JWT claims: {:?}", decoded.claims);
 
         // All tokens created by us will always have `uid` and `sid` fields.
         let uid = decoded
@@ -244,20 +256,7 @@ impl Handler {
             .map_err(Error::DecodeUlid)
             .map_err(as_response)?;
 
-        let sid = decoded
-            .claims
-            .get(JWT_SID_FIELD)
-            .filter(|x| matches!(x, Value::String(_)))
-            .and_then(Value::as_str)
-            .map(Ulid::new)
-            .ok_or_else(|| {
-                as_response(Error::msg(
-                    format!("missing `{}` JWT claim", JWT_SID_FIELD),
-                    Some(api::ErrorCode::InvalidJwtClaim),
-                ))
-            })?
-            .map_err(Error::DecodeUlid)
-            .map_err(as_response)?;
+        let sid = extract_sid_from_token(&decoded.claims).map_err(as_response)?;
 
         let Some(session) = SessionEntity::find_by_id(sid)
             .filter(session::Column::Account.eq(uid))
@@ -407,7 +406,9 @@ impl AsyncAuthorizeRequest<Body> for Handler {
 
             Some((ty, value)) => match ty.parse::<AuthType>() {
                 Ok(ty) => (ty, value),
-                Err(e) => return Box::pin(async { Err(as_response(Error::UnknownAuthType(Cow::Owned(e)))) }),
+                Err(e) => {
+                    return Box::pin(async { Err(as_response(Error::UnknownAuthType(Cow::Owned(e)))) });
+                }
             },
 
             None => {
@@ -471,6 +472,34 @@ impl FromStr for AuthType {
 
 async fn noop(request: Request<Body>) -> Result<Request<Body>, Response<Body>> {
     Ok(request)
+}
+
+/// Extracts the `sid` field, which in returns the session ID.
+// while the lint is correct, in this case, we can't do `Box<...>`
+// since that's not the signature that we expect
+#[allow(clippy::result_large_err)]
+pub fn extract_sid_from_token(claims: &HashMap<String, Value>) -> Result<Ulid, Error> {
+    claims
+        .get(JWT_SID_FIELD)
+        .filter(|x| matches!(x, Value::String(_)))
+        .and_then(Value::as_str)
+        .map(Ulid::new)
+        .ok_or_else(|| {
+            Error::msg(
+                format!("missing `{}` JWT claim", JWT_SID_FIELD),
+                Some(api::ErrorCode::InvalidJwtClaim),
+            )
+        })?
+        .map_err(Error::DecodeUlid)
+}
+
+pub fn create_validation() -> Validation {
+    let mut validation = Validation::new(JWT_ALGORITHM);
+    validation.set_audience(&[JWT_AUD]);
+    validation.set_issuer(&[JWT_ISS]);
+    validation.set_required_spec_claims(&[JWT_EXP, "aud", "iss"]);
+
+    validation
 }
 
 #[inline(never)]

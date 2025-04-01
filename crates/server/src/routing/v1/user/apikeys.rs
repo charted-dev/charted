@@ -36,9 +36,9 @@ use charted_types::{
     ApiKey, NameOrUlid,
     payloads::{CreateApiKeyPayload, PatchApiKeyPayload},
 };
+use chrono::Utc;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder,
-    sqlx::types::chrono,
 };
 use serde_json::json;
 use std::{cmp, collections::BTreeMap};
@@ -72,7 +72,7 @@ impl IntoResponses for AllApiKeysR {
             "200" => Ref::from_response_name("ListApiKeyResponse"),
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -143,14 +143,14 @@ impl IntoResponses for SingleApiKeyR {
             "200" => Ref::from_response_name("ApiKeyResponse"),
             "404" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("API key was not found."));
+                modify_property!(response.description("API key was not found."));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -202,14 +202,14 @@ impl IntoResponses for CreateApiKeyR {
             "201" => Ref::from_response_name("ApiKeyResponse"),
             "409" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("API key already exists"));
+                modify_property!(response.description("API key already exists"));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -273,7 +273,7 @@ pub async fn create(
         })
         .map_err(api::system_failure)?;
 
-    let now = chrono::Utc::now();
+    let now = Utc::now();
     let token = rand_string(32);
     let model = apikey::Model {
         display_name,
@@ -308,14 +308,14 @@ impl IntoResponses for PatchApiKeyR {
             "204" => Ref::from_response_name("EmptyApiResponse"),
             "409" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Failed to apply patches"));
+                modify_property!(response.description("Failed to apply patches"));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }
@@ -409,14 +409,14 @@ impl IntoResponses for DeleteApiKeyR {
             "204" => Ref::from_response_name("EmptyApiResponse"),
             "404" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("API key by ID or name was not found"));
+                modify_property!(response.description("API key by ID or name was not found"));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }

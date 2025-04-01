@@ -77,7 +77,10 @@ impl Backend {
 
 impl Authenticator for Backend {
     #[instrument(name = "charted.authz.static.authenticate", skip_all, fields(%user.username))]
-    fn authenticate<'a>(&'a self, Request { user, password, .. }: Request<'a>) -> BoxedFuture<'a, eyre::Result<()>> {
+    fn authenticate<'a>(
+        &'a self,
+        Request { user, password, .. }: Request<'a>,
+    ) -> BoxedFuture<'a, eyre::Result<()>> {
         Box::pin(async move {
             let Some(hashed) = self.0.get(user.username.as_str()) else {
                 bail!("user {} doesn't exist in static mapping", user.username);

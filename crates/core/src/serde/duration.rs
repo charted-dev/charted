@@ -148,7 +148,9 @@ const _: () = {
     use std::borrow::Cow;
     use utoipa::{
         PartialSchema, ToSchema,
-        openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType},
+        openapi::{
+            KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType,
+        },
     };
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]

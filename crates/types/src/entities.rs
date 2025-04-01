@@ -362,16 +362,16 @@ pub struct Session {
     /// [`GET /users/@me/sessions/refresh`]: #
     /// [`refresh_token`]: #
     /// [`access_token`]: #
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "openapi", schema(read_only))]
     pub refresh_token: Option<String>,
 
     /// The token that is used to send API requests.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "openapi", schema(read_only))]
     pub access_token: Option<String>,
 
-    /// reference to the [`User`] that owns this api key
+    /// reference to the [`User`] that owns this session
     pub owner: Ulid,
 
     /// the api key's unique identifier.

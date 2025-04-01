@@ -51,14 +51,14 @@ impl IntoResponses for GetUserAvatarR {
 
             "404" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Avatar by hash was not found"));
+                modify_property!(response.description("Avatar by hash was not found"));
 
                 response
             },
 
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Error"));
+                modify_property!(response.description("Internal Server Error"));
 
                 response
             }
@@ -229,7 +229,7 @@ impl IntoResponses for UpdateAvatarR {
             "201" => Ref::from_response_name("UrlResponse"),
             "5XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response; description("Internal Server Failure"));
+                modify_property!(response.description("Internal Server Failure"));
 
                 response
             }

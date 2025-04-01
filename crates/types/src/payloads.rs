@@ -203,6 +203,29 @@ mk_payload_structs! {
     }
 }
 
+/// Login representation, fields are mutually exclusive.
+#[derive(Debug, Clone, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "lowercase")]
+pub enum Login {
+    /// Logs into the registry via their username ahead-of-time.
+    Username(Name),
+
+    /// Logs into the registry via their registered email address.
+    Email(String),
+}
+
+/// Request body for creating a session.
+#[derive(Debug, Clone, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct UserLoginPayload {
+    #[serde(flatten)]
+    pub login: Login,
+
+    /// password to login as.
+    pub password: String,
+}
+
 mk_payload_structs! {
     Repository;
 

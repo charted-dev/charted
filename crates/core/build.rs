@@ -91,7 +91,9 @@ fn main() {
             rustc_env!("CHARTED_DISTRIBUTION_KIND" = "from_source");
         }
 
-        Err(std::env::VarError::NotUnicode(_)) => panic!("env $CHARTED_DISTRIBUTION_KIND was not valid unicode"),
+        Err(std::env::VarError::NotUnicode(_)) => {
+            panic!("env $CHARTED_DISTRIBUTION_KIND was not valid unicode")
+        }
     }
 
     match which("git") {

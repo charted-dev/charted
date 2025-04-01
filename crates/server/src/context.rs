@@ -121,7 +121,11 @@ impl Context {
     }
 
     async fn start_api_server(&self, router: Router) -> eyre::Result<()> {
-        async fn start_https(config: &server::Config, ssl: &server::ssl::Config, router: Router) -> eyre::Result<()> {
+        async fn start_https(
+            config: &server::Config,
+            ssl: &server::ssl::Config,
+            router: Router,
+        ) -> eyre::Result<()> {
             info!(target: "charted_server", "starting HTTP service with TLS enabled");
 
             let handle = Handle::new();
@@ -244,7 +248,9 @@ impl Context {
                 azure.to_owned(),
             )?)),
 
-            storage::Config::S3(s3) => Ok(StorageService::S3(azalia::remi::s3::StorageService::new(s3.to_owned()))),
+            storage::Config::S3(s3) => {
+                Ok(StorageService::S3(azalia::remi::s3::StorageService::new(s3.to_owned())))
+            }
         }
     }
 

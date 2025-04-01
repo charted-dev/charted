@@ -90,7 +90,9 @@ pub fn create_router(ctx: &Context) -> Router<Context> {
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub(crate) async fn prometheus_scrape(Extension(handle): Extension<Option<PrometheusHandle>>) -> impl IntoResponse {
+pub(crate) async fn prometheus_scrape(
+    Extension(handle): Extension<Option<PrometheusHandle>>,
+) -> impl IntoResponse {
     let Some(handle) = handle else {
         unreachable!()
     };

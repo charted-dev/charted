@@ -27,7 +27,10 @@ pub struct Backend {
 
 impl Authenticator for Backend {
     #[instrument(name = "charted.authz.local.authenticate", skip_all, fields(%user.username, %user.id))]
-    fn authenticate<'a>(&'a self, Request { user, password, model }: Request<'a>) -> BoxedFuture<'a, eyre::Result<()>> {
+    fn authenticate<'a>(
+        &'a self,
+        Request { user, password, model }: Request<'a>,
+    ) -> BoxedFuture<'a, eyre::Result<()>> {
         Box::pin(async move {
             let Some(ref pass) = model.password else {
                 bail!("missing `password` field for user, did you migrate all users from previous backends?")

@@ -136,7 +136,6 @@ url = "2.5.4"
 
 [workspace.dependencies.azalia]
 version = "0.1.1"
-git = "https://github.com/Noelware/azalia"
 features = ["remi+tracing"]
 
 [patch.crates-io]

@@ -60,7 +60,9 @@ where
             .map_err(|e| eyre!("failed to parse environment variable `${}`: {}", key, e)),
 
         Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => bail!("received non-unicode in environment variable `${}`", key),
+        Err(VarError::NotUnicode(_)) => {
+            bail!("received non-unicode in environment variable `${}`", key)
+        }
     }
 }
 

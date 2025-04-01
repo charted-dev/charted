@@ -29,7 +29,16 @@ use serde::{Deserialize, Serialize};
     doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
 )]
 #[derive(
-    Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord, derive_more::Display, derive_more::From, derive_more::Deref,
+    Debug,
+    Clone,
+    Serialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    derive_more::Display,
+    derive_more::From,
+    derive_more::Deref,
 )]
 pub struct Version(semver::Version);
 impl Version {
@@ -193,7 +202,15 @@ const _: () = {
     doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
 )]
 #[derive(
-    Debug, Clone, Serialize, Deserialize, PartialEq, Eq, derive_more::Display, derive_more::From, derive_more::Deref,
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    derive_more::Display,
+    derive_more::From,
+    derive_more::Deref,
 )]
 pub struct VersionReq(semver::VersionReq);
 impl VersionReq {

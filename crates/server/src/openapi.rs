@@ -16,7 +16,7 @@
 mod modifiers;
 
 use crate::routing::v1::{Entrypoint, features::Features, main::Main};
-use charted_types::{ApiKey, Organization, OrganizationMember, Repository, RepositoryMember, User};
+use charted_types::{ApiKey, Organization, OrganizationMember, Repository, RepositoryMember, Session, User};
 use modifiers::*;
 use serde_json::Value;
 use std::{borrow::Cow, marker::PhantomData};
@@ -120,6 +120,8 @@ impl ToSchema for Url {
             charted_types::VersionReq,
             charted_types::Version,
 
+            charted_types::payloads::UserLoginPayload,
+
             crate::routing::v1::main::Main,
             crate::routing::v1::features::Features,
 
@@ -134,6 +136,7 @@ impl ToSchema for Url {
 
             ApiResponse<Entrypoint>,
             ApiResponse<Features>,
+            ApiResponse<Session>,
             ApiResponse<ApiKey>,
             ApiResponse<User>,
             ApiResponse<Main>,
@@ -141,6 +144,11 @@ impl ToSchema for Url {
         )
     ),
     paths(
+        crate::routing::v1::user::sessions::login,
+        crate::routing::v1::user::sessions::logout,
+        crate::routing::v1::user::sessions::fetch,
+        crate::routing::v1::user::sessions::refresh_session,
+
         crate::routing::v1::user::avatars::get_self_user_avatar_by_hash,
         crate::routing::v1::user::avatars::get_user_avatar_by_hash,
         crate::routing::v1::user::avatars::get_self_user_avatar,
@@ -336,7 +344,8 @@ impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
         utoipa::openapi::RefOr<utoipa::openapi::response::Response>,
     ) {
         let name = T::name();
-        let RefOr::T(Schema::Object(response_schema)) = <charted_core::api::Response<()> as PartialSchema>::schema()
+        let RefOr::T(Schema::Object(response_schema)) =
+            <charted_core::api::Response<()> as PartialSchema>::schema()
         else {
             unreachable!()
         };
@@ -377,7 +386,8 @@ impl<T> Default for ListApiResponse<T> {
 impl<'r, T: ToSchema> ToResponse<'r> for ListApiResponse<T> {
     fn response() -> (Cow<'r, str>, RefOr<Response>) {
         let name = T::name();
-        let RefOr::T(Schema::Object(response_schema)) = <charted_core::api::Response<()> as PartialSchema>::schema()
+        let RefOr::T(Schema::Object(response_schema)) =
+            <charted_core::api::Response<()> as PartialSchema>::schema()
         else {
             unreachable!()
         };
@@ -409,8 +419,43 @@ impl<'r, T: ToSchema> ToResponse<'r> for ListApiResponse<T> {
 }
 #[cfg(test)]
 mod tests {
+    use super::Document;
+    use utoipa::OpenApi;
+
     /// A sanity check for all tests if all the references that are
     /// used are all correct and avaliable.
     #[test]
     fn sanity_check_if_all_references_are_correct() {}
+
+    #[test]
+    fn sanity_check_if_all_tags_are_correct() {
+        let doc = Document::openapi();
+
+        // we already know we have tags already -- we shouldn't have to add a
+        // panic path here.
+        let tags = unsafe { doc.tags.unwrap_unchecked() };
+
+        for (path, item) in doc.paths.paths {
+            for (method, op) in [
+                ("get", item.get),
+                ("put", item.put),
+                ("post", item.post),
+                ("patch", item.patch),
+                ("delete", item.delete),
+            ] {
+                let Some(op) = op else {
+                    continue;
+                };
+
+                if let Some(optags) = op.tags {
+                    for tag in optags {
+                        assert!(
+                            tags.iter().any(|x| x.name == tag),
+                            "operation {method} {path}: tag '{tag}' doesn't exist in openapi document"
+                        );
+                    }
+                }
+            }
+        }
+    }
 }

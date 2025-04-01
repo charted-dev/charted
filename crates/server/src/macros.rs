@@ -31,7 +31,7 @@ macro_rules! extract_refor_t {
 
 #[macro_export]
 macro_rules! modify_property {
-    ($($val:expr; $field:ident($arg:expr))*) => {
+    ($($val:ident.$field:ident($arg:expr))*) => {
         $($val.$field = From::from($arg);)*
     };
 }

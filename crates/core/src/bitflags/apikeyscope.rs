@@ -240,7 +240,9 @@ impl<'de> Deserialize<'de> for ApiKeyScope {
 const _: () = {
     use utoipa::{
         PartialSchema, ToSchema,
-        openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType},
+        openapi::{
+            KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType,
+        },
     };
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]

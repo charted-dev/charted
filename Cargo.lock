@@ -757,7 +757,8 @@ dependencies = [
 [[package]]
 name = "azalia"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc80e8b8e2dc01a289c59cd668c7bb64898321f09771ef9005188c60faabc2c8"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -770,7 +771,8 @@ dependencies = [
 [[package]]
 name = "azalia-config"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f718780fea527100eb93cde69626fc83d00c9effcf7341c951ed873702ca7889"
 dependencies = [
  "azalia-config-macros",
  "sentry-types",
@@ -780,7 +782,8 @@ dependencies = [
 [[package]]
 name = "azalia-config-macros"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbeb94823023c14554651b3596b3d245827f2165b137ebc3b4bd3781ae7cd8f5"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -791,7 +794,8 @@ dependencies = [
 [[package]]
 name = "azalia-log"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc0c61acb7ea2bee654782a2c4535a48b1624b4ab8652bcfdcfa958155803d10"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -805,7 +809,8 @@ dependencies = [
 [[package]]
 name = "azalia-remi"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16b6a52cb88494c2c31c58620288a5dd97b1fd13a41aaea90280d760a71e0efa"
 dependencies = [
  "remi",
  "remi-azure",
@@ -818,7 +823,8 @@ dependencies = [
 [[package]]
 name = "azalia-serde"
 version = "0.1.1"
-source = "git+https://github.com/Noelware/azalia#56ca99e58c50287419901039d759d8a8dc49a3c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01fd205f6fc589fa07de9c8061ee24e1dffd7ce22869b88b0a4dbe3a91e1d4bc"
 dependencies = [
  "serde",
  "tracing",
@@ -1365,6 +1371,7 @@ dependencies = [
  "charted-helm-types",
  "charted-metrics",
  "charted-types",
+ "chrono",
  "derive_more 2.0.1",
  "eyre",
  "futures-util",
