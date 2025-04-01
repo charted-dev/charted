@@ -1075,6 +1075,254 @@
                 }
             }
         },
+        "/users/@me/session": {
+            "get": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Retrieve information about this session.",
+                "description": "Useless on its own but useful for testing out session authentication.",
+                "operationId": "getUserSession",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "4xx": {
+                        "description": "authorization failed for some reason",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Logs you out from the session and destroys it.",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by their username or email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "`email` was not formatted properly",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/session/refresh": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Refresh a session by destroying the old session and creating a new one.",
+                "operationId": "refreshSessionToken",
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "4xx": {
+                        "description": "authorization failed for some reason",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Creates a new session.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by their username or email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "`email` was not formatted properly",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -2434,6 +2682,254 @@
                 }
             }
         },
+        "/v1/users/@me/session": {
+            "get": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Retrieve information about this session.",
+                "description": "Useless on its own but useful for testing out session authentication.",
+                "operationId": "getUserSession",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "4xx": {
+                        "description": "authorization failed for some reason",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Logs you out from the session and destroys it.",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by their username or email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "`email` was not formatted properly",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/session/refresh": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Refresh a session by destroying the old session and creating a new one.",
+                "operationId": "refreshSessionToken",
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "4xx": {
+                        "description": "authorization failed for some reason",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/login": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Creates a new session.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by their username or email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "`email` was not formatted properly",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -3402,6 +3898,33 @@
                     }
                 }
             },
+            "Login": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "description": "Logs into the registry via their username ahead-of-time.",
+                        "required": ["username"],
+                        "properties": {
+                            "username": {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "Logs into the registry via their username ahead-of-time."
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "description": "Logs into the registry via their registered email address.",
+                        "required": ["email"],
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "description": "Logs into the registry via their registered email address."
+                            }
+                        }
+                    }
+                ],
+                "description": "Login representation, fields are mutually exclusive."
+            },
             "Main": {
                 "type": "object",
                 "required": ["distribution", "build_info"],
@@ -3871,7 +4394,7 @@
                     "owner": {
                         "type": "string",
                         "format": "ulid",
-                        "description": "reference to the [`User`] that owns this api key"
+                        "description": "reference to the [`User`] that owns this session"
                     },
                     "refresh_token": {
                         "type": ["string", "null"],
@@ -4002,6 +4525,24 @@
                         "readOnly": true
                     }
                 }
+            },
+            "UserLoginPayload": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Login"
+                    },
+                    {
+                        "type": "object",
+                        "required": ["password"],
+                        "properties": {
+                            "password": {
+                                "type": "string",
+                                "description": "password to login as."
+                            }
+                        }
+                    }
+                ],
+                "description": "Request body for creating a session."
             },
             "Version": {
                 "type": "string",
@@ -4257,6 +4798,33 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/Main"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "SessionResponse": {
+                "description": "Response datatype that returns a `Session` object",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Session"
                                 },
                                 "errors": {
                                     "type": "array",
