@@ -36,11 +36,8 @@ in
     src = ../../.;
 
     cargoBuildFlags = ["--bin" "charted"];
-    cargoLock = {
-      inherit (common) outputHashes;
-
-      lockFile = ../../Cargo.lock;
-    };
+    useFetchCargoVendor = true;
+    cargoHash = "sha256-bvhzN8qjR50vEJ4nES1m9a5W/QvsEjIz1L1aKKIB/oA=";
 
     nativeBuildInputs = [pkg-config installShellFiles];
     buildInputs =

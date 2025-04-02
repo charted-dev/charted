@@ -14,11 +14,6 @@
 # limitations under the License.
 {
   cargoTOML = builtins.fromTOML (builtins.readFile ../Cargo.toml);
-  outputHashes = {
-    "azalia-0.1.0" = "sha256-y0crnoet3Jg1+UA86K6ucPb6tv98f895vyjt02dgAAE=";
-    "utoipa-5.3.1" = "sha256-ws0Xqzdsrqs4Rrt5V9RcudHP55zRXzHpV1ew2QooDdk=";
-  };
-
   rustflags = stdenv:
     if stdenv.isLinux
     then ''-C linker=clang -C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
