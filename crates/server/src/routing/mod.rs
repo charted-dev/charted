@@ -41,12 +41,10 @@ macro_rules! mk_router(
             );
 
         $(
-            router = router
-                .clone()
-                .nest(
-                    concat!("/", stringify!($version)),
-                    $crate::routing::$version::create_router($cx)
-                );
+            router = router.nest(
+                concat!("/", stringify!($version)),
+                $crate::routing::$version::create_router($cx)
+            );
         )*
 
         router

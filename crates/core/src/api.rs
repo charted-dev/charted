@@ -566,6 +566,7 @@ pub fn system_failure<E: std::error::Error>(error: E) -> Response {
                 ErrorCode::SystemFailure,
                 format!("system failure occurred: {error}"),
                 json!({
+                    "error_type": std::any::type_name::<E>(),
                     "caused_by": errors,
                     "backtrace": backtrace,
                 }),

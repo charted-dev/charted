@@ -144,6 +144,9 @@ impl ToSchema for Url {
         )
     ),
     paths(
+        crate::routing::v1::repository::fetch,
+        crate::routing::v1::repository::main,
+
         crate::routing::v1::user::sessions::login,
         crate::routing::v1::user::sessions::logout,
         crate::routing::v1::user::sessions::fetch,

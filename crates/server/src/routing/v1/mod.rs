@@ -68,6 +68,7 @@ impl IntoResponses for EntrypointResponse {
 
 pub fn create_router(ctx: &Context) -> Router<Context> {
     let mut router = Router::new()
+        .nest("/repositories", repository::create_router(ctx))
         .nest("/users", user::create_router(ctx))
         .route("/indexes/{idOrName}", routing::get(index::fetch))
         .route("/openapi.json", routing::get(openapi::get))
