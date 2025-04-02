@@ -146,6 +146,88 @@
                 }
             }
         },
+        "/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Entrypoint handler to the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            }
+        },
+        "/repositories/{owner}/{repo}": {
+            "get": {
+                "tags": ["Users"],
+                "operationId": "getRepositoryByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "400": {
+                        "description": "Invalid ID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Repository not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "tags": ["Users"],
@@ -1728,6 +1810,88 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Entrypoint handler to the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            }
+        },
+        "/v1/repositories/{owner}/{repo}": {
+            "get": {
+                "tags": ["Users"],
+                "operationId": "getRepositoryByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "400": {
+                        "description": "Invalid ID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Repository not found",
                         "content": {
                             "application/json": {
                                 "schema": {
