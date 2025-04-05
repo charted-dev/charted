@@ -69,8 +69,12 @@ impl MigrationTrait for Impl {
             )
             .await?;
 
-        manager
-            .drop_type(Type::drop().name(ChartType::name()).cascade().to_owned())
-            .await
+        if manager.get_connection().get_database_backend() == DatabaseBackend::Postgres {
+            manager
+                .drop_type(Type::drop().name(ChartType::name()).cascade().to_owned())
+                .await?;
+        }
+
+        Ok(())
     }
 }

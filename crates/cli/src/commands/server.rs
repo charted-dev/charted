@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Tokio;
 use crate::install_eyre_hook;
 use azalia::{
     config::env::TryFromEnv,
@@ -41,12 +42,8 @@ pub struct Args {
     #[arg(long, short = 'c', env = "CHARTED_CONFIG_FILE")]
     config: Option<PathBuf>,
 
-    /// Number of Tokio workers to use.
-    ///
-    /// By default, this will use the number of avaliable CPU cores on the system
-    /// itself.
-    #[arg(long, short = 'w', env = "TOKIO_WORKER_THREADS", default_value_t = num_cpus::get())]
-    pub workers: usize,
+    #[command(flatten)]
+    pub tokio: Tokio,
 }
 
 pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {

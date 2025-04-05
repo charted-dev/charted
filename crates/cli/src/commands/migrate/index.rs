@@ -15,6 +15,7 @@
 
 #![allow(dead_code)]
 
+use crate::commands::Tokio;
 use charted_core::ResultExt;
 use charted_helm_types::ChartIndex;
 use charted_types::name::Name;
@@ -84,17 +85,13 @@ pub struct Args {
     #[arg(long, short = 's')]
     server: Url,
 
-    /// Number of Tokio workers to use.
-    ///
-    /// By default, this will use the number of avaliable CPU cores on the system
-    /// itself.
-    #[arg(long, short = 'w', env = "TOKIO_WORKER_THREADS", default_value_t = num_cpus::get())]
-    pub workers: usize,
-
     /// Flag that only create the repositories for the names in this list. Otherwise,
     /// all charts in the index will be created on the server.
     #[arg(long)]
     only: Vec<String>,
+
+    #[command(flatten)]
+    pub tokio: Tokio,
 }
 
 // Credit for the `spawn_handler` code:
@@ -146,7 +143,7 @@ fn build_http_client() -> eyre::Result<reqwest::Client> {
 }
 
 pub async fn run(mut args: Args) -> eyre::Result<()> {
-    build_rayon_pool(args.workers)?;
+    build_rayon_pool(args.tokio.workers)?;
 
     let http = build_http_client()?;
     let chart: ChartIndex = match args.url.scheme() {

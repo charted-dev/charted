@@ -15,7 +15,7 @@
 
 use charted_cli::{
     Program,
-    commands::{Subcommand, migrate, server},
+    commands::{Subcommand, Tokio, migrate, server, worker},
     install_eyre_hook,
 };
 use clap::Parser;
@@ -34,7 +34,10 @@ fn main() -> eyre::Result<()> {
 
     let program = Program::parse();
     let runtime = match program.command {
-        Subcommand::Server(server::Args { workers, .. }) => {
+        Subcommand::Server(server::Args {
+            tokio: Tokio { workers },
+            ..
+        }) => {
             let mut builder = Builder::new_multi_thread();
             builder.worker_threads(workers);
             configure_runtime(&mut builder);
@@ -43,8 +46,25 @@ fn main() -> eyre::Result<()> {
         }
 
         Subcommand::Migrate(migrate::Subcommand::Index(ref args)) => {
-            let workers = args.workers;
+            let workers = args.tokio.workers;
 
+            program.init_logger();
+
+            let mut builder = Builder::new_multi_thread();
+            builder.worker_threads(workers);
+            configure_runtime(&mut builder);
+
+            builder.build()?
+        }
+
+        Subcommand::Worker(worker::Subcmd::ApiKey(worker::apikey::Args {
+            tokio: Tokio { workers },
+            ..
+        })) |
+        Subcommand::Worker(worker::Subcmd::Storage(worker::storage::Args {
+            tokio: Tokio { workers },
+            ..
+        })) => {
             program.init_logger();
 
             let mut builder = Builder::new_multi_thread();

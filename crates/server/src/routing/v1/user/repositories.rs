@@ -14,35 +14,76 @@
 // limitations under the License.
 
 use crate::{
-    Context,
+    Context, commit_patch,
     extract::{Json, Path, Query},
     extract_refor_t,
-    middleware::authn::Session,
+    middleware::authn::{self, Options, Session},
     modify_property,
-    openapi::ApiErrorResponse,
+    openapi::{ApiErrorResponse, EmptyApiResponse},
     pagination::{Ordering, PaginationRequest},
     util::{self, BuildLinkHeaderOpts},
 };
 use axum::{
-    Extension,
+    Extension, Router,
     extract::State,
+    handler::Handler,
     http::{
         StatusCode,
         header::{self, HeaderValue},
     },
+    routing,
 };
-use azalia::remi::core::UploadRequest;
-use charted_core::{api, clamp};
+use azalia::remi::{
+    core::{StorageService as _, UploadRequest},
+    fs,
+};
+use charted_core::{api, bitflags::ApiKeyScope, clamp};
 use charted_database::entities::{RepositoryEntity, UserEntity, repository, user};
-use charted_types::{NameOrUlid, Repository, User, payloads::CreateRepositoryPayload};
+use charted_types::{
+    NameOrUlid, Repository, User,
+    payloads::{CreateRepositoryPayload, PatchRepositoryPayload},
+};
 use chrono::Utc;
-use sea_orm::{ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter,
+    QueryOrder,
+};
 use serde_json::json;
-use std::{cmp, collections::BTreeMap};
+use std::{borrow::Cow, cmp, collections::BTreeMap};
 use utoipa::{
     IntoResponses, ToResponse,
     openapi::{Ref, RefOr, Response},
 };
+
+pub fn create_router(cx: &Context) -> Router<Context> {
+    Router::new()
+        .route(
+            "/repositories",
+            routing::get(
+                list_self_user_repositories.layer(authn::new(
+                    cx.to_owned(),
+                    Options::default()
+                        .with_scope(ApiKeyScope::RepoAccess)
+                        .with_scope(ApiKeyScope::UserAccess),
+                )),
+            )
+            .put(
+                create_user_repository.layer(authn::new(
+                    cx.to_owned(),
+                    Options::default()
+                        .with_scope(ApiKeyScope::RepoCreate)
+                        .with_scope(ApiKeyScope::UserAccess),
+                )),
+            ),
+        )
+        .route(
+            "/repositories/{idOrName}",
+            routing::patch(patch_user_repository.layer(authn::new(
+                cx.to_owned(),
+                Options::default().with_scope(ApiKeyScope::RepoUpdate),
+            ))),
+        )
+}
 
 struct ListRepositoriesR;
 impl IntoResponses for ListRepositoriesR {
@@ -167,7 +208,6 @@ pub async fn list_self_user_repositories(
     let per_page = clamp(per_page, 10, 100).unwrap_or(10);
     let paginator = RepositoryEntity::find()
         .filter(repository::Column::Owner.eq(user.id))
-        .filter(repository::Column::Private.eq(true))
         .order_by(repository::Column::Id, match order_by {
             Ordering::Ascending => Order::Asc,
             Ordering::Descending => Order::Desc,
@@ -348,4 +388,227 @@ pub async fn create_user_repository(
     }
 
     Ok(api::ok(StatusCode::CREATED, model.into()))
+}
+
+struct PatchRepoR;
+impl IntoResponses for PatchRepoR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "204" => {
+                let mut response = extract_refor_t!(EmptyApiResponse::response().1);
+                modify_property!(response.description("Patch was successful"));
+
+                response
+            },
+
+            "4XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response.description("Any occurrence when authentication fails or if the patch couldn't be applied"));
+
+                response
+            }
+        }
+    }
+}
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[utoipa::path(
+    patch,
+
+    path = "/v1/users/@me/repositories/{idOrName}",
+    operation_id = "patchRepository",
+    tag = "Users",
+    request_body(
+        content_type = "application/json",
+        description = "Payload object for patching repository metadata",
+        content = ref("#/components/schemas/PatchRepositoryPayload")
+    ),
+    responses(PatchRepoR),
+    params(NameOrUlid),
+    security(
+        ("ApiKey" = ["repo:update"])
+    )
+)]
+pub async fn patch_user_repository(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id_or_name): Path<NameOrUlid>,
+    Json(PatchRepositoryPayload {
+        description,
+        private,
+        readme,
+        name,
+        ty,
+    }): Json<PatchRepositoryPayload>,
+) -> api::Result<()> {
+    let (mut model, repo) = match id_or_name {
+        NameOrUlid::Name(ref name) => match RepositoryEntity::find()
+            .filter(repository::Column::Name.eq(name.clone()))
+            .filter(repository::Column::Owner.eq(user.id))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+        {
+            Some(repo) => (repo.clone().into_active_model(), Repository::from(repo)),
+            None => {
+                return Err(api::err(
+                    StatusCode::NOT_FOUND,
+                    (
+                        api::ErrorCode::EntityNotFound,
+                        "repository with name doesn't exist",
+                        json!({"idOrName":id_or_name}),
+                    ),
+                ));
+            }
+        },
+
+        NameOrUlid::Ulid(id) => match RepositoryEntity::find_by_id(id)
+            .filter(repository::Column::Owner.eq(user.id))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+        {
+            Some(repo) => (repo.clone().into_active_model(), Repository::from(repo)),
+            None => {
+                return Err(api::err(
+                    StatusCode::NOT_FOUND,
+                    (
+                        api::ErrorCode::EntityNotFound,
+                        "repository with id doesn't exist",
+                        json!({"idOrName":id_or_name}),
+                    ),
+                ));
+            }
+        },
+    };
+
+    let mut errors = Vec::new();
+    commit_patch!(model of string?: old.description => description; validate that len < 140 [errors]);
+    commit_patch!(model of bool: old.private => private; [repo]);
+
+    if let Some(name) = name {
+        if RepositoryEntity::find()
+            .filter(repository::Column::Name.eq(name.clone()))
+            .filter(repository::Column::Owner.eq(user.id))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .is_some()
+        {
+            errors.push(api::Error {
+                code: api::ErrorCode::EntityAlreadyExists,
+                message: Cow::Borrowed("an existing repository already exists with that name"),
+                details: Some(json!({
+                    "path": "name",
+                    "repository": &name
+                })),
+            });
+        } else {
+            model.name = ActiveValue::set(name);
+        }
+    }
+
+    commit_patch!(model of bool: old.type_ => ty; [repo]);
+
+    if let Some(readme) = readme.as_deref() {
+        // if it exceeds 16kib, don't allow it
+        if readme.len() >= 16382 {
+            errors.push(api::Error::from((
+                api::ErrorCode::InvalidBody,
+                "readme exceeds 16kib of data",
+            )));
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(api::Response {
+            headers: axum::http::HeaderMap::new(),
+            success: false,
+            status: StatusCode::CONFLICT,
+            errors,
+            data: None::<()>,
+        });
+    }
+
+    model.updated_at = ActiveValue::set(Utc::now());
+
+    if let Err(e) = model.update(&cx.pool).await {
+        error!(error = %e, repository.name = %repo.name, repository.owner = %user.id, "failed to commit changes");
+        sentry::capture_error(&e);
+
+        return Err(api::system_failure(e));
+    }
+
+    if let Some(readme) = readme {
+        let ct = fs::default_resolver(readme.as_bytes());
+
+        if let Err(e) = cx
+            .storage
+            .upload(
+                format!("./repositories/{}/README", repo.id),
+                UploadRequest::default().with_content_type(Some(ct)).with_data(readme),
+            )
+            .await
+        {
+            error!(error = %e, repository.name = %repo.name, repository.owner = %user.id, "failed to upload README; will be tried again on next request of /repositories/{}/readme", repo.id);
+            sentry::capture_error(&e);
+        }
+    }
+
+    Ok(api::from_default(StatusCode::ACCEPTED))
+}
+
+/// Deletes this repository.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[utoipa::path(
+    delete,
+
+    path = "/v1/users/@me/repositories/{idOrName}",
+    operation_id = "deleteRepository",
+    tags = ["Users", "Repositories"],
+    params(NameOrUlid),
+    responses(
+        (
+            status = 204,
+            description = "Repository has been deleted",
+            body = EmptyApiResponse,
+            content_type = "application/json"
+        )
+    )
+)]
+pub async fn delete(
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id_or_name): Path<NameOrUlid>,
+) -> api::Result<()> {
+    let repository = (match id_or_name {
+        NameOrUlid::Name(ref name) => RepositoryEntity::find().filter(repository::Column::Name.eq(name.clone())),
+        NameOrUlid::Ulid(id) => RepositoryEntity::find_by_id(id),
+    })
+    .filter(repository::Column::Owner.eq(user.id))
+    .one(&cx.pool)
+    .await
+    .inspect_err(|e| {
+        error!(error = %e, repository = %id_or_name, owner = %user.id, "failed to query repository");
+        sentry::capture_error(e);
+    })
+    .map_err(api::system_failure)?
+    .ok_or_else(|| {
+        api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "repository with id or name doesn't exist",
+                json!({"idOrName": id_or_name}),
+            ),
+        )
+    })?;
+
+    // Delete the repository
+    RepositoryEntity::delete_by_id(repository.id)
+        .exec(&cx.pool)
+        .await
+        .map_err(api::system_failure)?;
+
+    Ok(api::from_default(StatusCode::ACCEPTED))
 }

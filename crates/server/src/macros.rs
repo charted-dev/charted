@@ -63,10 +63,10 @@ macro_rules! commit_patch {
 
     ($model:ident of string?: old.$oldf:ident => $newf:expr; validate that len < $len:literal [$errors:ident]) => {
         if let ::core::option::Option::Some(field) = ($newf).as_deref() {
-            if field.len() < $len {
+            if !(field.len() <= $len) {
                 ::std::vec::Vec::push(&mut $errors, ::charted_core::api::Error {
                     code: ::charted_core::api::ErrorCode::ValidationFailed,
-                    message: ::std::borrow::Cow::Borrowed(concat!("expected to be less than ", $len, "characters")),
+                    message: ::std::borrow::Cow::Borrowed(concat!("expected to be less than ", $len, " characters")),
                     details: ::core::option::Option::Some(::serde_json::json!({
                         "path": stringify!($oldf),
                         "expected": $len,
@@ -96,16 +96,3 @@ macro_rules! commit_patch {
         }
     };
 }
-
-/*
-            let len = description.len();
-            errors.push(api::Error {
-                code: api::ErrorCode::ValidationFailed,
-                message: Cow::Borrowed("expected to be less than 140 characters"),
-                details: Some(json!({
-                    "path": "description",
-                    "expected": 140,
-                    "received": [len - 140, len]
-                })),
-            });
-*/

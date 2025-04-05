@@ -104,25 +104,7 @@ pub fn create_router(cx: &Context) -> Router<Context> {
             ),
         )
         .nest("/apikeys", apikeys::create_router(cx))
-        .route(
-            "/repositories",
-            routing::get(
-                repositories::list_self_user_repositories.layer(authn::new(
-                    cx.to_owned(),
-                    Options::default()
-                        .with_scope(ApiKeyScope::RepoAccess)
-                        .with_scope(ApiKeyScope::UserAccess),
-                )),
-            )
-            .put(
-                repositories::create_user_repository.layer(authn::new(
-                    cx.to_owned(),
-                    Options::default()
-                        .with_scope(ApiKeyScope::RepoCreate)
-                        .with_scope(ApiKeyScope::UserAccess),
-                )),
-            ),
-        )
+        .nest("/repositories", repositories::create_router(cx))
         .route(
             "/avatar",
             routing::get(avatars::get_self_user_avatar.layer(authn::new(

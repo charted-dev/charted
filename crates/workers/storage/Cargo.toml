@@ -14,7 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-config"
+name = "charted-storage-worker"
+description = "🐻‍❄️📦 Worker to cleanup resources from tombstone data"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -23,33 +24,3 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
-
-[dependencies]
-azalia = { workspace = true, features = [
-    "config",
-    "config+macros",
-    "config+url",
-    "config+sentry",
-
-    "serde",
-    "serde+tracing",
-
-    "remi",
-    "remi+fs",
-    "remi+s3",
-    "remi+azure",
-    "remi+serde",
-
-    "regex",
-] }
-charted-core.workspace = true
-derive_more = { workspace = true, features = ["display", "deref"] }
-eyre.workspace = true
-sentry-types = "0.37.0"
-serde.workspace = true
-toml.workspace = true
-tracing.workspace = true
-url = { workspace = true, features = ["serde"] }
-
-[dev-dependencies]
-derive_more = { workspace = true, features = ["deref"] }
