@@ -164,7 +164,16 @@
                 "operationId": "getRepositoryByIdOrName",
                 "parameters": [
                     {
-                        "name": "idOrName",
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
                         "in": "path",
                         "description": "Queries this resource by the entity's ID or name.",
                         "required": true,
@@ -1853,7 +1862,16 @@
                 "operationId": "getRepositoryByIdOrName",
                 "parameters": [
                     {
-                        "name": "idOrName",
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
                         "in": "path",
                         "description": "Queries this resource by the entity's ID or name.",
                         "required": true,
