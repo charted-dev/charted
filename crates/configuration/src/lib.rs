@@ -22,6 +22,7 @@ pub mod sessions;
 pub mod storage;
 pub mod tracing;
 pub(crate) mod util;
+pub mod workers;
 
 use azalia::config::{
     env::{self, TryFromEnv},

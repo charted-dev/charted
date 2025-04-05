@@ -208,7 +208,6 @@ mod tests {
     // $CHARTED_DATABASE_MAX_CONNECTIONS = 30
     // $CHARTED_DATABASE_RUN_PENDING_MIGRATIONS = true
     #[test]
-    #[ignore = "MultipleEnvGuard has issues at the moment and needs to be resolved"]
     fn merge_sqlite_to_sqlite() {
         let mut c1 = Config::default();
         let c2 = Config::SQLite(sqlite::Config {
@@ -279,7 +278,6 @@ mod tests {
     // A test that is similar to `merge sqlite -> sqlite` but uses
     // the actual system environment variables via `MultipleEnvGuard`
     #[test]
-    #[ignore = "MultipleEnvGuard has issues at the moment and needs to be resolved"]
     fn merge_psql_to_psql_via_environment_variables() {
         let _guard = MultipleEnvGuard::enter([
             (DRIVER, "postgres"),
