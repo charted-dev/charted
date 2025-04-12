@@ -17,8 +17,6 @@
   pkg-config,
   installShellFiles,
   openssl,
-  sqlite,
-  postgresql,
   darwin,
   stdenv,
   rust-bin,
@@ -37,11 +35,11 @@ in
 
     cargoBuildFlags = ["--bin" "charted"];
     useFetchCargoVendor = true;
-    cargoHash = "sha256-bvhzN8qjR50vEJ4nES1m9a5W/QvsEjIz1L1aKKIB/oA=";
+    cargoHash = "sha256-QmHAUdG/0Vlrt+JtDFV0dDZ65ANoqpZVg3KCjEQRkg0=";
 
     nativeBuildInputs = [pkg-config installShellFiles];
     buildInputs =
-      [openssl sqlite postgresql]
+      [openssl]
       ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
         CoreFoundation
         Security
