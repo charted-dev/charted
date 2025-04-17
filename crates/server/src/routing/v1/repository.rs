@@ -18,6 +18,7 @@ pub mod releases;
 use super::Entrypoint;
 use crate::{
     Context,
+    ext::OwnerExt,
     extract::Path,
     extract_refor_t,
     middleware::authn::{self, Options},
@@ -31,24 +32,30 @@ use charted_core::{
     bitflags::{ApiKeyScope, ApiKeyScopes},
 };
 use charted_database::entities::{RepositoryEntity, repository};
-use charted_types::{NameOrUlid, Repository};
+use charted_types::{NameOrUlid, Owner, Repository};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde_json::json;
 use std::collections::BTreeMap;
 use utoipa::{
     IntoParams, IntoResponses, ToResponse,
-    openapi::{Ref, RefOr, Response},
+    openapi::{
+        Ref, RefOr, Response,
+        path::{Parameter, ParameterIn},
+    },
 };
 
 pub fn create_router(cx: &Context) -> Router<Context> {
-    Router::new().route("/", routing::get(main)).route(
-        "/{owner}/{repo}",
-        routing::get(fetch.layer(authn::new(cx.to_owned(), Options {
-            allow_unauthorized: true,
-            scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
-            require_refresh_token: false,
-        }))),
-    )
+    Router::new()
+        .route("/", routing::get(main))
+        .route(
+            "/{owner}/{repo}",
+            routing::get(fetch.layer(authn::new(cx.to_owned(), Options {
+                allow_unauthorized: true,
+                scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
+                require_refresh_token: false,
+            }))),
+        )
+        .nest("/{owner}/{repo}/releases", releases::create_router(cx))
 }
 
 /// Entrypoint handler to the Repositories API.
@@ -63,6 +70,7 @@ pub fn create_router(cx: &Context) -> Router<Context> {
 pub async fn main() -> api::Response<Entrypoint> {
     api::ok(StatusCode::OK, Entrypoint::new("Repositories"))
 }
+
 struct FetchRepoR;
 impl IntoResponses for FetchRepoR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
@@ -87,11 +95,9 @@ impl IntoResponses for FetchRepoR {
 
 pub struct OwnerRepoP;
 impl IntoParams for OwnerRepoP {
-    fn into_params(
-        parameter_in_provider: impl Fn() -> Option<utoipa::openapi::path::ParameterIn>,
-    ) -> Vec<utoipa::openapi::path::Parameter> {
+    fn into_params(parameter_in_provider: impl Fn() -> Option<ParameterIn>) -> Vec<Parameter> {
         vec![
-            utoipa::openapi::path::Parameter::builder()
+            Parameter::builder()
                 .name("owner")
                 .required(utoipa::openapi::Required::True)
                 .parameter_in(parameter_in_provider().unwrap_or_default())
@@ -100,7 +106,7 @@ impl IntoParams for OwnerRepoP {
                     utoipa::openapi::Ref::from_schema_name("NameOrUlid"),
                 )))
                 .build(),
-            utoipa::openapi::path::Parameter::builder()
+            Parameter::builder()
                 .name("repo")
                 .required(utoipa::openapi::Required::True)
                 .parameter_in(parameter_in_provider().unwrap_or_default())
@@ -127,11 +133,24 @@ pub async fn fetch(
     State(cx): State<Context>,
     Path((owner, repo)): Path<(NameOrUlid, NameOrUlid)>,
 ) -> api::Result<Repository> {
-    let user = super::user::fetch(State(cx.clone()), Path(owner)).await?.data.unwrap();
+    let Some(owner) = Owner::query_by_id_or_name(&cx, owner.clone())
+        .await
+        .map_err(api::system_failure)?
+    else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "user or organization by either id or name was not found",
+                json!({"idOrName":owner}),
+            ),
+        ));
+    };
+
     match repo {
         NameOrUlid::Name(ref name) => match RepositoryEntity::find()
             .filter(repository::Column::Name.eq(name.clone()))
-            .filter(repository::Column::Owner.eq(user.id))
+            .filter(repository::Column::Owner.eq(owner.id()))
             .filter(repository::Column::Private.eq(false))
             .one(&cx.pool)
             .await
@@ -150,7 +169,7 @@ pub async fn fetch(
         },
 
         NameOrUlid::Ulid(id) => match RepositoryEntity::find_by_id(id)
-            .filter(repository::Column::Owner.eq(user.id))
+            .filter(repository::Column::Owner.eq(owner.id()))
             .filter(repository::Column::Private.eq(false))
             .one(&cx.pool)
             .await

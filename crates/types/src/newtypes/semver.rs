@@ -96,11 +96,15 @@ cfg_openapi! {
     use utoipa::{
         PartialSchema,
         ToSchema,
+        IntoParams,
         openapi::{
+            Required,
             RefOr,
             Schema,
             ObjectBuilder,
             Type,
+            Ref,
+            path::{ParameterIn, Parameter},
             schema::SchemaType
         }
     };
@@ -121,6 +125,20 @@ cfg_openapi! {
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
     impl ToSchema for Version {}
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl IntoParams for Version {
+        fn into_params(in_provider: impl Fn() -> Option<ParameterIn>) -> Vec<Parameter> {
+            [
+                Parameter::builder()
+                    .name("version")
+                    .required(Required::True)
+                    .parameter_in(in_provider().unwrap_or_default())
+                    .schema(Some(RefOr::Ref(Ref::from_schema_name("Version"))))
+                    .build()
+            ].to_vec()
+        }
+    }
 }
 
 cfg_jsonschema! {

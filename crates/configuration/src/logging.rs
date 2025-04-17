@@ -33,7 +33,6 @@ pub struct Config {
     /// level, the more verbose messages you'll get. For production environments, the
     /// default (`INFO`) is fine.
     #[serde(with = "azalia::serde::tracing")]
-    #[merge(strategy = __merge_level)]
     pub level: Level,
 
     /// whether or not emit the log information as JSON blobs or not.
@@ -61,31 +60,13 @@ impl TryFromEnv for Config {
     fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
             json: util::bool_env(JSON)?,
-            level: match env::try_parse_or_else(LEVEL, String::from("info")) {
-                Ok(val) => match &*val.to_ascii_lowercase() {
-                    "trace" => Level::TRACE,
-                    "debug" => Level::DEBUG,
-                    "error" => Level::ERROR,
-                    "warn" => Level::WARN,
-                    "info" => Level::INFO,
-                    _ => Level::INFO,
-                },
-
-                Err(e) => return Err(e.into()),
-            },
-
+            level: env::try_parse_or(LEVEL, __default_level)?,
             loki: match util::bool_env(loki::ENABLE) {
                 Ok(true) => Some(loki::Config::try_from_env()?),
                 Ok(false) => None,
                 Err(e) => return Err(e),
             },
         })
-    }
-}
-
-fn __merge_level(level: &mut Level, other: Level) {
-    if *level != other {
-        *level = other;
     }
 }
 

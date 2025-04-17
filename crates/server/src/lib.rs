@@ -18,6 +18,7 @@
 #[macro_use]
 extern crate tracing;
 
+pub mod ext;
 pub mod extract;
 pub mod feature;
 pub mod middleware;

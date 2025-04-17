@@ -27,8 +27,18 @@ pub enum Ordering {
     Descending,
 }
 
+impl Ordering {
+    pub fn into_sea_orm(self) -> sea_orm::Order {
+        match self {
+            Ordering::Ascending => sea_orm::Order::Asc,
+            Ordering::Descending => sea_orm::Order::Desc,
+        }
+    }
+}
+
 /// A pagination request.
 #[derive(Debug, Clone, Deserialize, ToSchema, IntoParams)]
+#[into_params(parameter_in = Query)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginationRequest {
     /// Amount of entries per page.

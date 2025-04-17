@@ -13,16 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod datetime;
-mod nameorulid;
-mod owner;
-mod semver;
+#![cfg_attr(test, feature(decl_macro))]
 
-#[path = "newtypes/ulid.rs"]
-mod ulid_;
+/// Accepted content types that are allowed to be sent as a tarball
+pub(crate) const ACCEPTABLE_CONTENT_TYPES: &[&str] = &["application/gzip", "application/tar+gzip"];
 
-pub use datetime::*;
-pub use nameorulid::*;
-pub use owner::*;
-pub use semver::*;
-pub use ulid_::{Ulid, ulid};
+/// Exempted files that aren't usually in a Helm chart, but they are allowed to be in one.
+pub(crate) const EXEMPTED_FILES: &[&str] = &["values.schema.json", "README.md", "LICENSE"];
+pub(crate) const ALLOWED_FILES: &[&str] = &["README.md", "LICENSE", "values.yaml", "Chart.yaml", "Chart.lock"];
+
+mod functions;
+pub use functions::*;

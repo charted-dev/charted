@@ -90,7 +90,7 @@ impl<S: Send + Sync, T: DeserializeOwned + Send + Sync> FromRequestParts<S> for 
                             }
 
                             ErrorKind::Message(msg) => {
-                                tracing::warn!(msg);
+                                tracing::warn!("{}", msg);
                                 return api::internal_server_error();
                             },
 

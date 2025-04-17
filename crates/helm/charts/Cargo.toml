@@ -24,13 +24,11 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
-[lib]
-path = "lib.rs"
-
 [dependencies]
 azalia = { workspace = true, features = ["remi", "remi+fs"] }
-charted-types.workspace = true
+charted-core.workspace = true
 charted-helm-types.workspace = true
+charted-types.workspace = true
 eyre.workspace = true
 flate2 = "1.0.32"
 itertools = "0.14.0"

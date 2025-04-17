@@ -13,16 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod datetime;
-mod nameorulid;
-mod owner;
-mod semver;
+use super::Ulid;
+use crate::{Organization, User};
 
-#[path = "newtypes/ulid.rs"]
-mod ulid_;
+/// Representation of a repository owner.
+#[derive(Debug, Clone)]
+pub enum Owner {
+    /// A single user owns this repository.
+    User(User),
 
-pub use datetime::*;
-pub use nameorulid::*;
-pub use owner::*;
-pub use semver::*;
-pub use ulid_::{Ulid, ulid};
+    /// A organization owns this repository.
+    Organization(Organization),
+}
+
+impl Owner {
+    /// Returns the [`Ulid`] of this owner.
+    pub const fn id(&self) -> Ulid {
+        match *self {
+            Self::User(ref user) => user.id,
+            Self::Organization(ref org) => org.id,
+        }
+    }
+}

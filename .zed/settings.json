@@ -1,8 +1,10 @@
 {
     "remove_trailing_whitespace_on_save": true,
     "ensure_final_newline_on_save": true,
+    "show_completions_on_input": true,
     "format_on_save": "on",
     "formatter": "auto",
+    "hard_tabs": false,
     "languages": {
         "TOML": {
             "formatter": "language_server"
@@ -24,21 +26,17 @@
             "initialization_options": {
                 "showUnlinkedFileNotification": false,
                 "checkOnSave": true,
-                "check": {
-                    "command": "clippy"
-                }
-            }
-        },
-        "nil": {
-            "settings": {
-                "formatting": {
-                    "command": ["nix", "fmt", "--", "--"]
+                "cargo": {
+                    "targetDir": "target/rust-analyzer"
                 },
-                "nix": {
-                    "maxMemoryMB": 4120,
-                    "flake": {
-                        "autoArchive": true,
-                        "autoEvalInputs": true
+                "check": {
+                    "command": "clippy",
+                    "workspace": true
+                },
+                "runnables": {
+                    "extraEnv": {
+                        "INTEGTEST_LOG": "trace",
+                        "RUST_BACKTRACE": "full"
                     }
                 }
             }

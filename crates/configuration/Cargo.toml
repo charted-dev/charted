@@ -30,6 +30,7 @@ azalia = { workspace = true, features = [
     "config+macros",
     "config+url",
     "config+sentry",
+    "config+tracing",
 
     "serde",
     "serde+tracing",

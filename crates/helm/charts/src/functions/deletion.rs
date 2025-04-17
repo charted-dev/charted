@@ -13,16 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod datetime;
-mod nameorulid;
-mod owner;
-mod semver;
+use azalia::remi::{StorageService, core::StorageService as _};
+use charted_core::ResultExt;
 
-#[path = "newtypes/ulid.rs"]
-mod ulid_;
+pub async fn delete_chart(
+    storage: &StorageService,
+    owner: u64,
+    repo: u64,
+    version: impl AsRef<str> + Send,
+) -> eyre::Result<()> {
+    storage
+        .delete(format!("./repositories/{owner}/{repo}/{}.tgz", version.as_ref()))
+        .await
+        .map(|_| ())
+        .into_report()
+}
 
-pub use datetime::*;
-pub use nameorulid::*;
-pub use owner::*;
-pub use semver::*;
-pub use ulid_::{Ulid, ulid};
+pub async fn delete_chart_prov(
+    storage: &StorageService,
+    owner: u64,
+    repo: u64,
+    version: impl AsRef<str> + Send,
+) -> eyre::Result<()> {
+    storage
+        .delete(format!("./repositories/{owner}/{repo}/{}.prov.tgz", version.as_ref()))
+        .await
+        .map(|_| ())
+        .into_report()
+}

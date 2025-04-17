@@ -144,6 +144,15 @@ impl ToSchema for Url {
         )
     ),
     paths(
+        crate::routing::v1::repository::releases::fetch_releases,
+        crate::routing::v1::repository::releases::get_single_release,
+        crate::routing::v1::repository::releases::get_single_release_provenance,
+        crate::routing::v1::repository::releases::upload_release_tarball,
+        crate::routing::v1::repository::releases::upload_release_provenance_tarball,
+        crate::routing::v1::repository::releases::create,
+        crate::routing::v1::repository::releases::patch,
+        crate::routing::v1::repository::releases::delete,
+
         crate::routing::v1::repository::fetch,
         crate::routing::v1::repository::main,
 
