@@ -15,7 +15,7 @@
 
 [workspace]
 resolver = "2"
-default-members = ["src/charted"]
+default-members = ["src/charted", "src/internals"]
 members = [
     "crates/authz",
     "crates/authz/*",
