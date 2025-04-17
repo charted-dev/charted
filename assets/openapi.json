@@ -237,6 +237,317 @@
                 }
             }
         },
+        "/repositories/{owner}/{repo}/releases": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Lists all the avaliable releases for this repository.",
+                "operationId": "listRepositoryReleases",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Creates a repository release.",
+                "description": "This will not upload a chart tarball, use the **POST\n/repositories/{owner}/{repo}/releases/{version}/tarball** endpoint.",
+                "operationId": "createRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{versionOrId}": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a single repository release.",
+                "operationId": "getRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Deletes this repository release.",
+                "operationId": "deleteRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "patch": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Patch a repository release's metadata.",
+                "operationId": "patchRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{versionOrId}/provenance": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a repository release's provenance file, if one was provided\nwith `helm charted upload --sign`.",
+                "operationId": "getRepositoryReleaseProvenance",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Publish a chart's provenance file that is linked with this release.",
+                "description": "This method will fail if **PUT /repositories/{owner}/{repo}/releases** was\nnot called first.",
+                "operationId": "pushRepositoryReleaseProvenanceFile",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{versionOrId}/tarball": {
+            "post": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Publish a chart that is linked with this release.",
+                "description": "This method will fail if **PUT /repositories/{owner}/{repo}/releases** was\nnot called first.",
+                "operationId": "publishRepositoryReleaseChartTarball",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/users": {
             "get": {
                 "tags": ["Users"],
@@ -493,9 +804,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -503,18 +814,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -1039,9 +1350,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -1049,18 +1360,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -1669,9 +1980,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -1679,18 +1990,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -1933,6 +2244,317 @@
                         }
                     }
                 }
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Lists all the avaliable releases for this repository.",
+                "operationId": "listRepositoryReleases",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Creates a repository release.",
+                "description": "This will not upload a chart tarball, use the **POST\n/repositories/{owner}/{repo}/releases/{version}/tarball** endpoint.",
+                "operationId": "createRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{versionOrId}": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a single repository release.",
+                "operationId": "getRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Deletes this repository release.",
+                "operationId": "deleteRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "patch": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Patch a repository release's metadata.",
+                "operationId": "patchRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{versionOrId}/provenance": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a repository release's provenance file, if one was provided\nwith `helm charted upload --sign`.",
+                "operationId": "getRepositoryReleaseProvenance",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Publish a chart's provenance file that is linked with this release.",
+                "description": "This method will fail if **PUT /repositories/{owner}/{repo}/releases** was\nnot called first.",
+                "operationId": "pushRepositoryReleaseProvenanceFile",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{versionOrId}/tarball": {
+            "post": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Publish a chart that is linked with this release.",
+                "description": "This method will fail if **PUT /repositories/{owner}/{repo}/releases** was\nnot called first.",
+                "operationId": "publishRepositoryReleaseChartTarball",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
             }
         },
         "/v1/users": {
@@ -2191,9 +2813,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -2201,18 +2823,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -2737,9 +3359,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -2747,18 +3369,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -3367,9 +3989,9 @@
                 "parameters": [
                     {
                         "name": "perPage",
-                        "in": "path",
+                        "in": "query",
                         "description": "Amount of entries per page.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
@@ -3377,18 +3999,18 @@
                     },
                     {
                         "name": "orderBy",
-                        "in": "path",
+                        "in": "query",
                         "description": "Ordering of the data.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "$ref": "#/components/schemas/Ordering"
                         }
                     },
                     {
                         "name": "page",
-                        "in": "path",
+                        "in": "query",
                         "description": "The page to go towards, default is `1`.",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "integer",
                             "minimum": 0
