@@ -338,7 +338,7 @@ fn systemd_notify_ready() {
 fn systemd_notify_stopping() {
     if libsystemd::daemon::booted() {
         if let Err(e) = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Stopping]) {
-            warn!(error = %e, "received error when notifying systemd that we're ready!");
+            warn!(error = %e, "received error when notifying systemd that we are being shut down");
         }
     }
 }

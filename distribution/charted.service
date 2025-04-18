@@ -14,21 +14,29 @@
 # limitations under the License.
 
 [Unit]
-Description=Free and open Helm chart registry
-After=network.target
-
-# If running PostgreSQL, we can wait for the service to be launched
-# before running charted-server:
-#
-# After=postgresql.target
+Description=Free, open, and reliable Helm chart registry
+Documentation=https://charts.noelware.org/docs/server/latest
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/usr/local/bin/charted
 
 [Service]
+WorkingDirectory=/etc/noelware/charted/server
 User=charted
 Group=charted
-ExecStart=/usr/bin/charted server --config=/etc/noelware/charted/server/config.toml
+EnvironmentFile=/etc/default/charted-server
+ExecStart=/usr/local/bin/charted server --config=/etc/noelware/charted/server/config.toml
 
-# `charted server` supports calling `READY=1` via sd_notify(3).
+# All of Noelware's distributions always uses SD_NOTIFY to let systemd that we are ready,
+# other distributions might not, so it's safe if you know it doesn't emit `SD_READY=1`.
 Type=notify
+
+# Ensure that systemd restart this service always!
+Restart=always
+
+# Disable timeout logic and wait until process is stopped
+TimeoutStopSec=infinity
+SendSIGKILL=no
 
 [Install]
 WantedBy=multi-user.target
