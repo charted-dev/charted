@@ -58,8 +58,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y bash tini curl li
 WORKDIR /app/noelware/charted/server
 
 COPY --from=build /build/target/release/charted /app/noelware/charted/server/bin/charted
-COPY distribution/charted/docker/scripts        /app/noelware/charted/server/scripts
-COPY distribution/charted/docker/config         /app/noelware/charted/server/config
+COPY distribution/docker/scripts                /app/noelware/charted/server/scripts
+COPY distribution/docker/config                 /app/noelware/charted/server/config
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker
 EXPOSE 3651

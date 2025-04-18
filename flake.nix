@@ -46,6 +46,45 @@
     overlays = [
       (import rust-overlay)
       (import noelware)
+
+      (final: prev: {
+        # as of nixpkgs/nixpkgs-unstable@8bc6cf8907b5f38851c7c0a7599bfa2ccf0a29eb (14-04-2025),
+        # bun is still at v1.2.8 and we need v1.2.9 for `S3Client.list`, which charted-server uses in
+        # the src/ci/other/buildVersionJson.js script.
+        #
+        # TODO(@auguwu/@spotlightishere): remove this overlay once bun 1.2.9 is on nixpkgs-unstable
+        bun = let
+          inherit (prev) fetchurl stdenvNoCC;
+
+          version = "1.2.10";
+          sources = {
+            aarch64-darwin = fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-aarch64.zip";
+              hash = "sha256-B4le8PtmEkm4awtyO2WxzEeQx/NoW2PNqQEisAKZlyw=";
+            };
+
+            aarch64-linux = fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-aarch64.zip";
+              hash = "sha256-VFkv0CN+PskaKTPf8BXhWniYnZcjQELn1TNKTArVBgM=";
+            };
+
+            x86_64-darwin = fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-x64-baseline.zip";
+              hash = "sha256-wkFtHbo9P80XYa1ytpXaUPFElJbGrQNeadQkp4ZEEUQ=";
+            };
+
+            x86_64-linux = fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
+              hash = "sha256-aKFU/xvpaFG00ah8xRl/An74Crea+j1FhxUPrlw0w24=";
+            };
+          };
+        in
+          prev.bun.overrideAttrs (old: {
+            inherit version;
+
+            src = sources.${stdenvNoCC.hostPlatform.system} or (throw "unsupported system: ${stdenvNoCC.hostPlatform.system}");
+          });
+      })
     ];
 
     nixpkgsFor = system:

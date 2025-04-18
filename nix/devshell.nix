@@ -49,6 +49,7 @@
 
       (common.mkRustPlatform pkgs.rust-bin)
       openssl
+      bun
       git
     ]
     ++ (lib.optional stdenv.isLinux [glibc]);

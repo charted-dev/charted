@@ -50,6 +50,7 @@ jobs:
             CARGOFLAGS: -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic_immediate_abort,backtrace
         steps:
             - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
             - uses: Swatinem/rust-cache@v2
             - uses: auguwu/git-tag-action@master
               id: tag
@@ -80,7 +81,7 @@ jobs:
                   CARGOFLAGS: ${{env.CARGOFLAGS}}
 
             - name: Upload (/charted/server/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.2.7
+              uses: Noelware/s3-action@2.3.1
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -93,7 +94,7 @@ jobs:
                   bucket: august
 
             - name: Upload (/charted/server/latest)
-              uses: Noelware/s3-action@2.2.7
+              uses: Noelware/s3-action@2.3.1
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -104,10 +105,15 @@ jobs:
                   region: us-east-1
                   prefix: /noelware/artifacts
                   bucket: august
+
+            - name: Make `versions.json` file
+              run: src/ci/other/buildVersionsJson.js
     docker:
-        name: 'Docker / `charted` [${{matrix.platform}} / ${{matrix.kind}}]'
+        name: 'Docker / Build [${{matrix.kind}}]'
         runs-on: ${{matrix.runner}}
         if: ${{github.repository == 'charted-dev/charted'}}
+        outputs:
+            docker-meta: ${{steps.meta.outputs.json}}
         strategy:
             fail-fast: true
             matrix:
@@ -115,15 +121,16 @@ jobs:
                 kind: [alpine, debian]
                 include:
                     - runner: ubuntu-24.04
-                      platform: linux/amd64
                       arch: amd64
                     - runner: linux-aarch64
-                      platform: linux/arm64/v8
                       arch: arm64
         steps:
             - uses: actions/checkout@v4
             - uses: auguwu/git-tag-action@master
               id: tag
+            - name: Get commit hash
+              id: commit-hash
+              run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
 
             - uses: docker/setup-buildx-action@v3
             - uses: docker/login-action@v3
@@ -132,88 +139,110 @@ jobs:
                   username: noelbot
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - uses: docker/build-push-action@v6
+            - uses: docker/metadata-action@v5
+              id: meta
               with:
-                  provenance: false
-                  platforms: ${{matrix.platform}}
-                  context: .
-                  file: ./distribution/charted/${{matrix.kind}}.Dockerfile
-                  push: true
+                  flavor: |
+                      latest=true
+                      suffix=${{matrix.kind == 'alpine' && 'alpine-'}}${{matrix.arch}}
                   tags: |
-                      docker.noelware.org/charted/server:${{steps.tag.outputs.version}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
-                      docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
-                      docker.noelware.org/charted/server:${{steps.tag.outputs.major}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
-                      docker.noelware.org/charted/server:latest${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}}
+                      type=semver,pattern={{version}}
+                      type=semver,pattern={{major}}.{{minor}}
+                      type=semver,pattern={{major}}
+                  images: |
+                      docker.noelware.org/charted/server
+                  labels: |
+                      org.opencontainers.image.title=charted-server
+                      org.opencontainers.image.description="🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+                      org.opencontainers.image.version=${{steps.tag.outputs.version}}
+                      org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+                      org.opencontainers.image.licenses=Apache-2.0
+                      org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+                      org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}
+            - uses: docker/bake-action@v6
+              with:
+                  targets: ${{matrix.kind}}-${{matrix.arch == 'amd64' && 'x86_64' || 'aarch64'}}
+                  files: |
+                      ./docker-bake.hcl
+                      cwd://${{steps.meta.outputs.bake-file}}
     manifests:
-        name: 'Docker / Manifests (`charted`)'
-        runs-on: ubuntu-24.04
+        name: 'Docker / Manifests'
+        runs-on: ubuntu-latest
         needs: [docker]
         if: ${{github.repository == 'charted-dev/charted'}}
         steps:
-            - uses: auguwu/git-tag-action@master
-              id: tag
-
+            - uses: docker/setup-buildx-action@v3
             - uses: docker/login-action@v3
               with:
                   registry: docker.noelware.org
                   username: noelbot
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - name: 'docker.noelware.org/charted/server:latest'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:latest
-                  inputs: docker.noelware.org/charted/server:latest-amd64,docker.noelware.org/charted/server:latest-arm64
-                  push: true
+    #     steps:
+    #         - uses: auguwu/git-tag-action@master
+    #           id: tag
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-arm64
-                  push: true
+    #         - uses: docker/login-action@v3
+    #           with:
+    #               registry: docker.noelware.org
+    #               username: noelbot
+    #               password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:latest'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:latest
+    #               inputs: docker.noelware.org/charted/server:latest-amd64,docker.noelware.org/charted/server:latest-arm64
+    #               push: true
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-arm64
+    #               push: true
 
-            - name: 'docker.noelware.org/charted/server:alpine'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:alpine
-                  inputs: docker.noelware.org/charted/server:alpine-amd64,docker.noelware.org/charted/server:alpine-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
+    #               push: true
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-arm64
+    #               push: true
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:alpine'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:alpine
+    #               inputs: docker.noelware.org/charted/server:alpine-amd64,docker.noelware.org/charted/server:alpine-arm64
+    #               push: true
 
-            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine'
-              uses: Noelware/docker-manifest-action@0.4.3
-              with:
-                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine
-                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-arm64
-                  push: true
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-arm64
+    #               push: true
+
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
+    #               push: true
+
+    #         - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine'
+    #           uses: Noelware/docker-manifest-action@0.4.3
+    #           with:
+    #               images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine
+    #               inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-arm64
+    #               push: true
     sentry:
         name: Sentry
         runs-on: ubuntu-24.04
@@ -229,4 +258,4 @@ jobs:
                   SENTRY_URL: https://sentry.noelware.org
               with:
                   environment: production
-                  version: ${{steps.tag.outputs.version}}
+                  release: ${{steps.tag.outputs.version}}
