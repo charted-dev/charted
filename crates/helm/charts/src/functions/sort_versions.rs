@@ -73,8 +73,6 @@ crate::functions::tests::testcases! {
     test_sort_versions(storage) {
         use azalia::remi::core::UploadRequest;
 
-        crate::init(&storage).await.unwrap();
-
         let fixture = crate::functions::tests::fixture!("youtrack.tgz");
         let contents = tokio::fs::read(&fixture).await.unwrap();
 
