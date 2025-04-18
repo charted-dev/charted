@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {
+  outputHashes = {
+    "utoipa-5.3.1" = "sha256-ws0Xqzdsrqs4Rrt5V9RcudHP55zRXzHpV1ew2QooDdk=";
+  };
+
   cargoTOML = builtins.fromTOML (builtins.readFile ../Cargo.toml);
   rustflags = stdenv:
     if stdenv.isLinux
