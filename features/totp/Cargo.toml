@@ -15,6 +15,7 @@
 
 [package]
 name = "charted-feature-totp"
+description = "🐻‍❄️📦 Provides multi-factor authentication to sessions."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true

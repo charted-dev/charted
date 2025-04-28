@@ -14,47 +14,61 @@
 // limitations under the License.
 
 use crate::{ACCEPTABLE_CONTENT_TYPES, ALLOWED_FILES, EXEMPTED_FILES};
+use axum::http::StatusCode;
 use azalia::remi::{
     StorageService,
     core::{StorageService as _, UploadRequest},
 };
-use charted_core::ResultExt;
+use charted_core::api;
 use charted_types::{Ulid, Version};
-use eyre::{Context, bail, eyre};
 use flate2::bufread::MultiGzDecoder;
 use multer::Multipart;
 use tar::Archive;
 use tracing::{info, instrument, trace};
 
-#[instrument(name = "charted.helm.charts.upload", skip_all, fields(%owner, %repo, version = version.as_ref()))]
-pub async fn upload_helm_chart<'m, V: AsRef<str>>(
+#[instrument(name = "charted.helm.charts.upload", skip_all, fields(%owner, %repo, %version))]
+pub async fn upload_helm_chart<'m>(
     mut multipart: Multipart<'m>,
     storage: &StorageService,
     owner: Ulid,
     repo: Ulid,
-    version: V,
-) -> eyre::Result<()> {
-    let version = Version::parse(version.as_ref())?;
-    let field = match multipart.next_field().await? {
+    version: Version,
+) -> api::Result<()> {
+    let field = match multipart.next_field().await.map_err(api::system_failure)? {
         Some(field) => field,
         None => {
-            return Err(multer::Error::IncompleteFieldData {
-                field_name: Some("{first field}".into()),
-            }
-            .into());
+            return Err(api::err(
+                StatusCode::PRECONDITION_FAILED,
+                (
+                    api::ErrorCode::MissingMultipartField,
+                    "no fields were ever sent or parsed",
+                ),
+            ));
         }
     };
 
     let Some(ct) = field.content_type() else {
-        bail!("missing content type from field")
+        return Err(api::err(
+            StatusCode::PRECONDITION_FAILED,
+            (
+                api::ErrorCode::MissingContentType,
+                "missing `Content-Type` header in field",
+            ),
+        ));
     };
 
     if !ACCEPTABLE_CONTENT_TYPES.contains(&ct.as_ref()) {
-        bail!(
-            "invalid content type received [{}]: wanted: {}",
-            ct,
-            ACCEPTABLE_CONTENT_TYPES.join(", ")
-        )
+        return Err(api::err(
+            StatusCode::PRECONDITION_FAILED,
+            (
+                api::ErrorCode::InvalidHttpHeaderValue,
+                format!(
+                    "invalid `Content-Type` header: {}; wanted either: {}",
+                    ct,
+                    ACCEPTABLE_CONTENT_TYPES.join(", ")
+                ),
+            ),
+        ));
     }
 
     let ct = ct.clone();
@@ -72,16 +86,16 @@ pub async fn upload_helm_chart<'m, V: AsRef<str>>(
     //    --> values.yaml
     //    --> values.schema.json
 
-    let bytes = field.bytes().await?;
+    let bytes = field.bytes().await.map_err(api::system_failure)?;
     let mut r = bytes.as_ref();
 
     let mut archive = Archive::new(MultiGzDecoder::new(&mut r));
-    let entries = archive.entries()?;
+    let entries = archive.entries().map_err(api::system_failure)?;
 
     for entry in entries.into_iter() {
-        let entry = entry.context("failed to validate tar entry")?;
+        let entry = entry.map_err(api::system_failure)?;
         let hdr = entry.header();
-        let path = entry.path().context("expected to get a valid path")?;
+        let path = entry.path().map_err(api::system_failure)?;
 
         trace!(path = %path.display(), "validating tar archive path");
         if hdr.entry_type().is_dir() {
@@ -89,22 +103,43 @@ pub async fn upload_helm_chart<'m, V: AsRef<str>>(
                 continue;
             }
 
-            bail!(
-                "expected either 'charts/' or 'templates/' to be avaliable, received {:?} instead",
-                path
-            )
+            return Err(api::err(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                (
+                    api::ErrorCode::InvalidInput,
+                    format!(
+                        "expected either a `charts/` or `templates/` directory to be avaliable, received {} instead",
+                        path.display()
+                    ),
+                ),
+            ));
         }
 
         if !hdr.entry_type().is_file() {
-            bail!("expected file in path {:?}", path)
+            return Err(api::err(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                (
+                    api::ErrorCode::InvalidInput,
+                    format!("excepted a file in path {}", path.display()),
+                ),
+            ));
         }
 
-        let name = path
-            .file_name()
-            .ok_or_else(|| eyre!("path was relative -- wanted a valid absolute path"))?;
+        let name = path.file_name().ok_or_else(|| {
+            api::err(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                (api::ErrorCode::InvalidInput, "path was not valid utf-8"),
+            )
+        })?;
 
         if !EXEMPTED_FILES.iter().any(|x| name == *x) || !ALLOWED_FILES.iter().any(|x| name == *x) {
-            bail!("unknown file: {:?}", name)
+            return Err(api::err(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                (
+                    api::ErrorCode::AccessNotPermitted,
+                    format!("path '{}' is not allowed", path.display()),
+                ),
+            ));
         }
     }
 
@@ -117,8 +152,8 @@ pub async fn upload_helm_chart<'m, V: AsRef<str>>(
     storage
         .upload(format!("./repositories/{owner}/{repo}/tarballs/{version}.tgz"), request)
         .await
-        .map(|_| ())
-        .into_report()
+        .map(|_| api::no_content())
+        .map_err(api::system_failure)
 }
 
 #[cfg(test)]

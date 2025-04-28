@@ -1318,6 +1318,7 @@ version = "0.1.0"
 name = "charted-helm-charts"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "azalia",
  "charted-core",
  "charted-helm-types",

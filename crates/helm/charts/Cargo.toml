@@ -25,6 +25,7 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+axum.workspace = true
 azalia = { workspace = true, features = ["remi", "remi+fs"] }
 charted-core.workspace = true
 charted-helm-types.workspace = true

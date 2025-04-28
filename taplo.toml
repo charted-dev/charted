@@ -13,7 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+exclude = ["**/.direnv", "data", "target"]
+
 [formatting]
 align_comments = false
 trailing_newline = true
 crlf = false
+
+[[rule]]
+include = ["**/Cargo.toml"]
+keys = [
+    "workspace",
+    "dependencies",
+    "build-dependencies",
+    "target.*.dependencies",
+    "dev-dependencies",
+]
+[rule.formatting]
+reorder_arrays = true

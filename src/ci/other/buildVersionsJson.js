@@ -61,22 +61,27 @@ const PREFIX = 'artifacts/charted/server';
 // versions        => object of "version" -> information
 const versions = {
     $lastModifiedAt: new Date().toISOString(),
-    versions: {}
+    versions: {},
+    latest: {}
 };
 
 const objects = await client
-    .list({ prefix: PREFIX, maxKeys: 43 })
+    .list({ prefix: PREFIX })
     .then((m) => m.contents || []);
 
 for (const { key } of objects) {
+    if (key.endsWith('versions.json')) {
+        continue;
+    }
+
     const [version, binary] = key.replace(PREFIX, '').split('/').slice(1);
     if (!Object.hasOwn(versions.versions, version)) {
         versions.versions[version] = {};
     }
 
-    // all binaries are formatted as 'ume-linux-x86_64'
-    //                                ^^^ ^^^^^ ^^^^^^
-    //                               name   os   arch
+    // all binaries are formatted as 'charted-linux-x86_64'
+    //                                ^^^^^^^ ^^^^^ ^^^^^^
+    //                                  name   os   arch
 
     const [_, os, arch] = binary.split('-');
     const osInfoKey = `${os}/${arch

@@ -17,6 +17,7 @@ use crate::{
     Context,
     extract::{Path, Query},
     middleware::authn::{self, Options},
+    multipart::Multipart,
     pagination::PaginationRequest,
     routing::v1::repository::OwnerRepoP,
     util::{self, BuildLinkHeaderOpts},
@@ -365,7 +366,42 @@ pub async fn get_chart_tarball(
     tags = ["Repositories", "Repository/Releases"],
     params(OwnerRepoP, VersionOrUlid)
 )]
-pub async fn upload_release_tarball() {}
+pub async fn upload_release_tarball(
+    State(cx): State<Context>,
+    Path((owner, repo, version)): Path<(NameOrUlid, NameOrUlid, VersionOrUlid)>,
+    Multipart(multipart): Multipart,
+) -> api::Result<()> {
+    let repository = super::fetch(State(cx.clone()), Path((owner.clone(), repo.clone())))
+        .await?
+        .data
+        .unwrap();
+
+    let Some(release) = (match version {
+        VersionOrUlid::Version(ref version) => RepositoryReleaseEntity::find()
+            .filter(release::Column::Repository.eq(repository.id))
+            .filter(release::Column::Tag.eq(version.clone())),
+
+        VersionOrUlid::Ulid(id) => {
+            RepositoryReleaseEntity::find_by_id(id).filter(release::Column::Repository.eq(repository.id))
+        }
+    })
+    .one(&cx.pool)
+    .await
+    .map_err(api::system_failure)?
+    .map(Into::<RepositoryRelease>::into) else {
+        return Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "repository release with version or ulid was not found",
+                json!({"versionOrUlid":version}),
+            ),
+        ));
+    };
+
+    charted_helm_charts::upload_helm_chart(multipart, &cx.storage, repository.owner, repository.id, release.tag)
+        .await
+}
 
 /// Publish a chart's provenance file that is linked with this release.
 ///

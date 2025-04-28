@@ -26,7 +26,7 @@ use std::{borrow::Cow, fmt::Display, ops::DerefMut};
 /// `Multipart` is an Axum extractor that implements [`FromRequest`], so it has to be
 /// the last parameter in a REST controller.
 #[derive(Debug, derive_more::Deref)]
-pub struct Multipart(multer::Multipart<'static>);
+pub struct Multipart(pub multer::Multipart<'static>);
 
 impl DerefMut for Multipart {
     fn deref_mut(&mut self) -> &mut Self::Target {
