@@ -13,31 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::remi::{StorageService, core::StorageService as _};
-use charted_core::ResultExt;
+use charted_serverv2::Metadata;
 
-pub async fn delete_chart(
-    storage: &StorageService,
-    owner: u64,
-    repo: u64,
-    version: impl AsRef<str> + Send,
-) -> eyre::Result<()> {
-    storage
-        .delete(format!("./repositories/{owner}/{repo}/{}.tgz", version.as_ref()))
-        .await
-        .map(|_| ())
-        .into_report()
-}
+/// Metadata about this feature.
+pub const METADATA: Metadata = Metadata {
+    name: "Repository/Organization Members",
+    config_key: "members",
+    description: env!("CARGO_PKG_DESCRIPTION"),
+    authors: &["Noelware, LLC. <team@noelware.org>"],
+    since: "0.1.0",
+    deprecated: None,
+};
 
-pub async fn delete_chart_prov(
-    storage: &StorageService,
-    owner: u64,
-    repo: u64,
-    version: impl AsRef<str> + Send,
-) -> eyre::Result<()> {
-    storage
-        .delete(format!("./repositories/{owner}/{repo}/{}.prov.tgz", version.as_ref()))
-        .await
-        .map(|_| ())
-        .into_report()
+#[derive(Debug, Clone)]
+pub struct Feature;
+impl charted_serverv2::Feature for Feature {
+    fn metadata(&self) -> Metadata {
+        METADATA
+    }
 }

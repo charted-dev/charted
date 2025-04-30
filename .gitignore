@@ -683,7 +683,7 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-!crates/helm/charts/__fixtures__/*.tgz
+!crates/helm/charts/__fixtures__/**/*.tgz
 !nix/packages/*.nix
 !Cargo.lock
 config.toml

@@ -27,11 +27,14 @@ authors.workspace = true
 [dependencies]
 axum.workspace = true
 azalia = { workspace = true, features = ["remi", "remi+fs"] }
-charted-core.workspace = true
+charted-core = { workspace = true, features = ["axum"] }
+charted-datastore.workspace = true
 charted-helm-types.workspace = true
-charted-types.workspace = true
+charted-types = { workspace = true, features = ["openapi"] }
+derive_more = { workspace = true, features = ["deref", "display"] }
 eyre.workspace = true
 flate2 = "1.0.32"
+futures-util = "0.3.31"
 itertools = "0.14.0"
 multer.workspace = true
 sentry.workspace = true
@@ -39,9 +42,19 @@ serde_yaml_ng.workspace = true
 tar = "0.4.41"
 tokio = { workspace = true, features = ["io-std", "io-util"] }
 tracing.workspace = true
+utoipa.workspace = true
 
 [dev-dependencies]
-remi-fs.workspace = true
+azalia = { workspace = true, features = [
+    "log",
+    "log+tracing-log",
+    "log+writers",
+] }
+bollard = "0.18.1"
+charted-config.workspace = true
 semver.workspace = true
 tempfile.workspace = true
-tokio = { workspace = true, features = ["rt", "macros"] }
+testcontainers = "0.23.3"
+tokio = { workspace = true, features = ["macros", "rt"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }

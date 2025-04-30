@@ -1,0 +1,91 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "charted-serverv2"
+description = "🐻‍❄️📦 Official implementation of the charted REST specification"
+version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+azalia.workspace = true
+charted-core = { workspace = true, features = ["axum", "openapi"] }
+sea-orm.workspace = true
+sea-orm-migration.workspace = true
+utoipa.workspace = true
+
+# [dependencies]
+# argon2.workspace = true
+# axum = { workspace = true, features = ["matched-path"] }
+# axum-server = { version = "0.7.1", features = ["tls-rustls", "tokio-rustls"] }
+# azalia = { workspace = true, features = ["remi"] }
+# base64.workspace = true
+# charted-authz.workspace = true
+# charted-authz-local.workspace = true
+# charted-authz-static.workspace = true
+# charted-config.workspace = true
+# charted-core = { workspace = true, features = ["openapi", "axum"] }
+# charted-database.workspace = true
+# charted-helm-charts.workspace = true
+# charted-helm-types = { workspace = true, features = ["openapi"] }
+# charted-metrics.workspace = true
+# charted-types = { workspace = true, features = ["openapi"] }
+# chrono.workspace = true
+# derive_more = { workspace = true, features = [
+#     "display",
+#     "from",
+#     "error",
+#     "deref",
+# ] }
+# eyre.workspace = true
+# futures-util = "0.3.31"
+# hex = "0.4.3"
+# jsonwebtoken = "9.3.1"
+# md5 = "0.7.0"
+# metrics-exporter-prometheus.workspace = true
+# mime = "0.3.17"
+# multer.workspace = true
+# reqwest.workspace = true
+# sea-orm.workspace = true
+# sentry.workspace = true
+# sentry-tower = { version = "0.37.0", features = ["axum", "axum-matched-path"] }
+# serde.workspace = true
+# serde_json.workspace = true
+# serde_path_to_error = "0.1.16"
+# serde_yaml_ng.workspace = true
+# tokio = { workspace = true, features = ["net", "signal"] }
+# tower = "0.5.2"
+# tower-http = { version = "0.6.2", features = [
+#     "auth",
+#     "catch-panic",
+#     "compression-gzip",
+#     "cors",
+# ] }
+# tracing.workspace = true
+# url.workspace = true
+# utoipa.workspace = true
+# validator = "0.20.0"
+
+# [dev-dependencies]
+# tokio = { workspace = true, features = ["rt", "macros"] }
+
+# [target.'cfg(target_os = "linux")'.dependencies]
+# libsystemd = { version = "0.7.0", optional = true }

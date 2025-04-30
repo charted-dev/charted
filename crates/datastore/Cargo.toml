@@ -13,22 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[build]
-rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable"]
+[package]
+name = "charted-datastore"
+description = "🐻‍❄️📦 Centeralised crate for charted's datastore that holds metadata not avaliable in database"
+version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
-[target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+[lib]
+path = "lib.rs"
 
-[target.aarch64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+[dependencies]
+charted-config.workspace = true
+charted-core.workspace = true
+eyre.workspace = true
+tracing.workspace = true
 
-[alias]
-internals = "run --release --bin internals --all-features --"
+[dependencies.azalia-remi]
+version = "0.1.5"
+features = ["azure", "fs", "s3", "serde", "tracing"]
 
-server-rel = "cli-rel server"
-server = "cli server"
-
-cli-rel = "run --bin charted --release --"
-cli = "run --bin charted --"
+[dev-dependencies]
+tokio-test = "0.4.4"

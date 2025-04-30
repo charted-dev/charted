@@ -584,6 +584,7 @@ pub fn system_failure<E: std::error::Error>(error: E) -> Response {
 }
 
 #[cfg(all(debug_assertions, feature = "collect-backtrace-frames"))]
+#[allow(unused)]
 #[inline(never)]
 #[cold] // system failures should theorically never happen
 fn collect_backtrace() -> Value {

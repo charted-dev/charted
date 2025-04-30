@@ -23,10 +23,12 @@ members = [
     "crates/configuration",
     "crates/core",
     "crates/database",
+    "crates/datastore",
     "crates/helm/charts",
     "crates/helm/types",
     "crates/metrics",
     "crates/server",
+    "crates/serverv2",
     "crates/types",
 
     "crates/workers/apikeys",
@@ -35,6 +37,8 @@ members = [
     "src/charted",
     "src/internals",
 
+    "features/garbage-collection",
+    "features/members",
     "features/totp",
 ]
 
@@ -54,19 +58,20 @@ repository = "https://github.com/charted-dev/charted"
 rust-version = "1.85"
 
 [workspace.dependencies]
-charted-authz = { path = "./crates/authz" }
-charted-authz-local = { path = "./crates/authz/local" }
-charted-authz-static = { path = "./crates/authz/static" }
-charted-cli = { path = "./crates/cli" }
-charted-config = { path = "./crates/configuration" }
+charted-authz.path = "./crates/authz"
+charted-authz-local.path = "./crates/authz/local"
+charted-authz-static.path = "./crates/authz/static"
+charted-cli.path = "./crates/cli"
+charted-config.path = "./crates/configuration"
 charted-core = { path = "./crates/core", version = "0.1.0", features = [
     "collect-backtrace-frames",
 ] }
-charted-database = { path = "./crates/database" }
-charted-helm-charts = { path = "./crates/helm/charts" }
-charted-helm-types = { path = "./crates/helm/types" }
-charted-metrics = { path = "./crates/metrics" }
-charted-server = { path = "./crates/server" }
+charted-database.path = "./crates/database"
+charted-datastore.path = "./crates/datastore"
+charted-helm-charts.path = "./crates/helm/charts"
+charted-helm-types = { path = "./crates/helm/types", version = "0.1.0" }
+charted-metrics.path = "./crates/metrics"
+charted-server.path = "./crates/server"
 charted-types = { path = "./crates/types", version = "0.1.0" }
 
 argon2 = "0.5.3"
@@ -86,7 +91,6 @@ mimalloc = "0.1.46"
 multer = { version = "3.1.0", features = ["log", "tokio"] }
 num_cpus = "1.16.0"
 rand = "0.9.0"
-remi-fs = { version = "0.10.1", features = ["tracing"] }
 reqwest = { version = "0.12.15", default-features = false, features = [
     "__rustls",
     "charset",
@@ -143,7 +147,7 @@ utoipa = { version = "5.3.1", features = [
 url = "2.5.4"
 
 [workspace.dependencies.azalia]
-version = "0.1.5"
+version = "0.1.6"
 features = ["remi+tracing"]
 
 [patch.crates-io]

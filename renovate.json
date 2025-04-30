@@ -2,7 +2,11 @@
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "enabled": true,
     "automerge": true,
-    "extends": ["config:base", "default:timezone(America/Los_Angeles)", "docker:disableMajor"],
+    "extends": [
+        "config:base",
+        "default:timezone(America/Los_Angeles)",
+        "docker:disableMajor"
+    ],
     "assignees": ["auguwu", "spotlightishere"],
     "addLabels": ["deps"],
     "vulnerabilityAlerts": {
@@ -12,9 +16,10 @@
         {
             "customType": "regex",
             "description": "Update Docker tags in any Rust module",
-            "fileMatch": ["^(\\w+).rs$"],
+            "fileMatch": ["(\\w+).rs$"],
+            "datasourceTemplate": "docker",
             "matchStrings": [
-                "\/\/\\s?renovate: datasource=(?<datasource>[a-z-]+)(?: rev=(?<depName>.+))\\sconst .+: &str = \"(?<currentValue>.+?)\";"
+                "//\\s?renovate: image=(?<depName>.+)\\sconst .+: &str = \"(?<currentValue>.+?)\";"
             ]
         }
     ]

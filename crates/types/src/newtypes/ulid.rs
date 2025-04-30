@@ -50,8 +50,11 @@ impl Ulid {
     /// Forwards to the [`Ulid::from_string`] method to create this newtype wrapper.
     ///
     /// [`Ulid::from_string`]: https://docs.rs/ulid/*/ulid/struct.Ulid.html#method.from_string
-    pub fn new(id: &str) -> Result<Ulid, ulid::DecodeError> {
-        ::ulid::Ulid::from_string(id).map(Self)
+    pub const fn new(id: &str) -> Result<Ulid, ulid::DecodeError> {
+        match ::ulid::Ulid::from_string(id) {
+            Ok(ulid) => Ok(Ulid(ulid)),
+            Err(e) => Err(e),
+        }
     }
 
     pub fn as_str(&self) -> String {

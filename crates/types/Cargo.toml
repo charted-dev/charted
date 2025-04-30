@@ -39,8 +39,8 @@ __internal_db = ["dep:sea-orm"]
 
 [dependencies]
 chrono.workspace = true
-charted-core.workspace = true
-derive_more = { workspace = true, features = ["display", "from", "deref"] }
+charted-core = { workspace = true, features = ["openapi"] }
+derive_more = { workspace = true, features = ["deref", "display", "from"] }
 paste = "1.0.15"
 schemars = { workspace = true, optional = true }
 sea-orm = { workspace = true, optional = true }

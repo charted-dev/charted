@@ -13,22 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[build]
-rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable"]
+[profile.ci]
+# Do not cancel the test run on the first failure.
+fail-fast = false
 
-[target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+[test-groups]
+# Allows running tests in sequential form when dealing with the
+# system environment variables. Used in `charted-config`
+envtests = { max-threads = 1 }
 
-[target.aarch64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+# The `charted-helm-charts` crate depends on Docker for running
+# Azurite and Minio for testing S3 and Azure usage.
+#
+# On each test, a Docker container will be created without a volume
+# since it's volatile data we don't need.
+ds-docker = { max-threads = 1 }
 
-[alias]
-internals = "run --release --bin internals --all-features --"
-
-server-rel = "cli-rel server"
-server = "cli server"
-
-cli-rel = "run --bin charted --release --"
-cli = "run --bin charted --"
+[[profile.default.overrides]]
+platform = "cfg(unix)"
+retries = 2
+filter = 'package(charted-helm-charts)'

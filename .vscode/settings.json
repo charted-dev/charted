@@ -16,7 +16,7 @@
 
     "rust-analyzer.runnables.extraEnv": {
         // Allows to run integration tests with logging enabled
-        "INTEGTEST_LOG": "trace",
+        "INTEGTEST_LOG": "trace,aws_smithy_runtime=info,hyper_util=info",
 
         // Generate a full backtrace when tests error out
         "RUST_BACKTRACE": "full"
