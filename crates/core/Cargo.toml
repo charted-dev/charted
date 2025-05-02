@@ -35,6 +35,7 @@ default = []
 collect-backtrace-frames = ["dep:backtrace", "dep:sentry-backtrace"]
 openapi = ["dep:utoipa"]
 axum = ["dep:axum"]
+yaml = ["dep:serde_yaml_ng"]
 
 [dependencies]
 azalia = { workspace = true, features = ["config"] }
@@ -53,6 +54,7 @@ serde_repr = "0.1.19"
 serde-untagged = "0.1.7"
 utoipa = { workspace = true, optional = true }
 ulid.workspace = true
+serde_yaml_ng = { workspace = true, optional = true }
 
 [build-dependencies]
 chrono.workspace = true

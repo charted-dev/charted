@@ -13,22 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_serverv2::feature::Metadata;
+use libsystemd::daemon::{self, NotifyState};
 
-/// Metadata about this feature.
-pub const METADATA: Metadata = Metadata {
-    name: "Garbage Collection",
-    config_key: "gc",
-    description: env!("CARGO_PKG_DESCRIPTION"),
-    authors: &["Noelware, LLC. <team@noelware.org>"],
-    since: "0.1.0",
-    deprecated: None,
-};
+/// Notifies **systemd** that charted-server is ready.
+pub fn notify_ready() {
+    if !daemon::booted() {
+        return;
+    }
 
-#[derive(Debug, Clone)]
-pub struct Feature;
-impl charted_serverv2::feature::Feature for Feature {
-    fn metadata(&self) -> Metadata {
-        METADATA
+    if let Err(e) = daemon::notify(false, &[NotifyState::Ready]) {
+        warn!(error = %e, "unable to notify systemd that we are ready");
+    }
+}
+
+/// Notifies **systemd** that charted-server is shutting down.
+pub fn notify_shutdown() {
+    if !daemon::booted() {
+        return;
+    }
+
+    if let Err(e) = daemon::notify(false, &[NotifyState::Stopping]) {
+        warn!(error = %e, "unable to notify systemd that we are stopping");
     }
 }

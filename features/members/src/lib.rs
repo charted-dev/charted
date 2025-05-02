@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_serverv2::Metadata;
+use charted_serverv2::feature::Metadata;
 
 /// Metadata about this feature.
 pub const METADATA: Metadata = Metadata {
@@ -27,7 +27,7 @@ pub const METADATA: Metadata = Metadata {
 
 #[derive(Debug, Clone)]
 pub struct Feature;
-impl charted_serverv2::Feature for Feature {
+impl charted_serverv2::feature::Feature for Feature {
     fn metadata(&self) -> Metadata {
         METADATA
     }

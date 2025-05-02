@@ -1338,6 +1338,7 @@ dependencies = [
  "serde-untagged",
  "serde_json",
  "serde_repr",
+ "serde_yaml_ng",
  "ulid",
  "utoipa",
  "which 7.0.3",
@@ -1506,10 +1507,27 @@ dependencies = [
 name = "charted-serverv2"
 version = "0.1.0"
 dependencies = [
+ "argon2",
+ "axum",
+ "axum-server",
  "azalia",
+ "charted-authz",
+ "charted-authz-local",
+ "charted-authz-static",
+ "charted-config",
  "charted-core",
+ "charted-database",
+ "charted-datastore",
+ "charted-helm-charts",
+ "charted-helm-types",
+ "charted-metrics",
+ "charted-types",
+ "eyre",
+ "libsystemd",
  "sea-orm",
  "sea-orm-migration",
+ "tokio",
+ "tracing",
  "utoipa",
 ]
 

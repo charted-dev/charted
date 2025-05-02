@@ -12,13 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+//
 //! Types that are used with the API server.
+
+pub mod backtrace;
+mod yaml;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::borrow::Cow;
+#[cfg(feature = "yaml")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "yaml")))]
+pub use yaml::Yaml;
 
 /// Specification version for charted's HTTP specification.
 #[derive(
@@ -558,7 +564,7 @@ pub fn system_failure<E: std::error::Error>(error: E) -> Response {
             errors.push(Value::String(err.to_string()));
         }
 
-        let backtrace = collect_backtrace();
+        let backtrace = backtrace::collect();
 
         return err(
             axum::http::StatusCode::INTERNAL_SERVER_ERROR,
@@ -574,98 +580,8 @@ pub fn system_failure<E: std::error::Error>(error: E) -> Response {
         );
     }
 
-    #[cfg(not(debug_assertions))]
-    const _: serde_json::Value = collect_backtrace();
-
     err(
         axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         (ErrorCode::SystemFailure, "system failure occurred"),
     )
-}
-
-#[cfg(all(debug_assertions, feature = "collect-backtrace-frames"))]
-#[allow(unused)]
-#[inline(never)]
-#[cold] // system failures should theorically never happen
-fn collect_backtrace() -> Value {
-    use backtrace::Backtrace;
-    use serde_json::json;
-
-    /// A list of functions to skip since they don't really matter.
-    const FUNCTIONS_TO_SKIP: &[&str] = &[
-        "<core::pin::Pin",
-        "<futures_util::future::",
-        "<alloc::boxed::Box",
-        "core::ops::function::Fn",
-        "std::sys::pal",
-        "<unknown>",
-        "start_thread",
-        "__GI",
-        "std::thread::Builder::spawn_",
-        "__rust_try",
-        "std::panicking::try::do_call",
-        "<core::panic::unwind_safe::",
-        "tokio::runtime",
-        "<tokio::runtime",
-        "tokio::loom",
-        "std::thread::local",
-        "<axum::serve",
-        "<core::future",
-        "<hyper_util",
-        "hyper_util",
-        "<hyper",
-        "hyper",
-        "<axum::routing",
-        "<tower",
-        "<tower_http",
-        "<F as futures_core::future::TryFuture>",
-        "<sentry_core::futures",
-        "<sentry_tower::http",
-        "<axum::middleware::from_fn",
-        "axum::middleware::from_fn",
-        "<tracing::instrument::Instrumented",
-        "<axum::handler::future",
-        "<F as axum::handler::Handler",
-        "std::panic",
-    ];
-
-    let bt = Backtrace::new();
-    let mut stack = match sentry_backtrace::backtrace_to_stacktrace(&bt) {
-        Some(bt) => bt,
-        None => return Value::Null,
-    };
-
-    stack.frames.reverse();
-
-    let iter = stack.frames.iter().skip(1).filter(|f| {
-        let Some(ref f) = f.function else {
-            return false;
-        };
-
-        !FUNCTIONS_TO_SKIP.iter().any(|p| f.starts_with(p))
-    });
-
-    let mut data = Vec::with_capacity(iter.size_hint().0);
-    for frame in iter {
-        let Some(ref f) = frame.function.as_ref() else {
-            continue;
-        };
-
-        data.push(json!({
-            "function": f,
-            "file": frame.abs_path,
-            "line": frame.lineno
-        }));
-    }
-
-    Value::Array(data)
-}
-
-// Don't attempt to collect one if we don't have `nightly-backtrace-frames`.
-#[cfg(not(all(debug_assertions, feature = "collect-backtrace-frames")))]
-#[cfg_attr(debug_assertions, allow(unused))]
-#[inline(never)]
-#[cold]
-const fn collect_backtrace() -> Value {
-    Value::Null
 }

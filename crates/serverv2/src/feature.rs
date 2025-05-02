@@ -12,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! Allows building server features.
 
 use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
@@ -20,13 +22,13 @@ use std::{
     any::{self, TypeId},
     collections::HashMap,
     fmt::Debug,
-    marker::PhantomData,
     sync::Arc,
 };
 use utoipa::openapi::OpenApi;
 
+/// Newtype wrapper for holding a collection of [`Feature`]s.
 #[derive(Clone, Default)]
-pub(crate) struct Collection(HashMap<TypeId, Arc<dyn Feature>>);
+pub struct Collection(HashMap<TypeId, Arc<dyn Feature>>);
 
 impl Debug for Collection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -41,6 +43,11 @@ impl Debug for Collection {
 }
 
 impl Collection {
+    /// Builds a new, empty feature collection.
+    pub fn new() -> Self {
+        Collection(HashMap::new())
+    }
+
     /// Returns `true` if the feature is enabled.
     pub fn has<T: Feature + 'static>(&self) -> bool {
         // cloning the features has a minimal performance hit since it just increments
@@ -70,6 +77,11 @@ impl Collection {
 
         None
     }
+
+    pub(crate) fn add<F: Feature>(&mut self, feat: F) {
+        let type_id = TypeId::of::<F>();
+        self.0.insert(type_id, Arc::new(feat));
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -86,7 +98,7 @@ impl MigratorTrait for NoMigratorAvaliable {
 /// of a feature regardless if it's enabled or not. The `/features` endpoint will
 /// return if this feature is enabled or not alongside its metadata as: `[enabled,
 /// metadata]`.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Metadata {
     pub name: &'static str,
     pub config_key: &'static str,
@@ -97,7 +109,7 @@ pub struct Metadata {
 }
 
 /// Deprecation of this feature and why it was deprecated.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Deprecation {
     /// What version since this feature is deprecated.
     pub since: &'static str,
@@ -148,3 +160,45 @@ pub trait Feature: AsArcAny + Send + Sync {
 }
 
 azalia::impl_dyn_any!(Feature);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct AFeature;
+    impl Feature for AFeature {
+        fn metadata(&self) -> Metadata {
+            const METADATA: Metadata = Metadata {
+                name: "AFeature",
+                config_key: "<none>",
+                description: "a test feature, why are you looking at this?",
+                authors: &["Noel Towa <cutie@floofy.dev>"],
+                since: "0.0.0-devel.0",
+                deprecated: None,
+            };
+
+            METADATA
+        }
+    }
+
+    #[test]
+    fn collection() {
+        let mut features = Collection::new();
+
+        features.add(AFeature);
+        assert!(features.has::<AFeature>());
+
+        let Some(x) = features.get::<AFeature>() else {
+            panic!("failed to get `AFeature`");
+        };
+
+        assert_eq!(x.metadata(), Metadata {
+            name: "AFeature",
+            config_key: "<none>",
+            description: "a test feature, why are you looking at this?",
+            authors: &["Noel Towa <cutie@floofy.dev>"],
+            since: "0.0.0-devel.0",
+            deprecated: None,
+        });
+    }
+}
