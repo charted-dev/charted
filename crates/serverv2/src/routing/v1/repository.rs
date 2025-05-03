@@ -12,35 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//! # 🐻‍❄️📦 `charted-server`
-//! This crate is the official implementation of the [charted REST Specification].
-//!
-//! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api
-
-#![feature(let_chains, impl_trait_in_bindings)]
-
-#[macro_use]
-extern crate tracing;
-
-mod macros;
-
-mod env;
-pub use env::Env;
-
-mod ext;
-pub use ext::OwnerExt;
-
-pub mod extract;
-pub mod feature;
-pub mod middleware;
-pub mod openapi;
-pub mod ops;
-pub mod routing;
-
-// Private module to aid in macro development
-#[doc(hidden)]
-pub mod __macro_support {
-    pub use paste::paste;
-    pub use utoipa;
-}

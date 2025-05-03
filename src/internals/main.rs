@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use azalia::log::writers;
-use charted_server::openapi::Document;
+use charted_serverv2::openapi::Document;
 use std::{
     env,
     fs::{self, File, OpenOptions},

@@ -47,6 +47,7 @@ charted-metrics.workspace = true
 charted-types = { workspace = true, features = ["openapi"] }
 derive_more = { workspace = true, features = ["deref", "deref_mut"] }
 eyre.workspace = true
+futures-util = "0.3.31"
 jsonwebtoken = "9.3.1"
 mime = "0.3.17"
 multer.workspace = true

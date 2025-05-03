@@ -111,7 +111,8 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
     }
 }
 
-macro_rules! gen_api_response_types {
+#[macro_export]
+macro_rules! mk_api_response_types {
     ($($Ty:ty)+) => {$(
         $crate::__macro_support::paste! {
             #[doc = concat!("Response datatype for object `", stringify!($Ty), "`.")]
@@ -132,6 +133,7 @@ macro_rules! gen_api_response_types {
                             Response,
                             Content,
                             Object,
+                            Ref,
                         }
                     };
 
@@ -185,7 +187,7 @@ macro_rules! gen_api_response_types {
     )+};
 }
 
-gen_api_response_types! {
+mk_api_response_types! {
     Organization
     Repository
     ApiKey

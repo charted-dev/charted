@@ -17,9 +17,18 @@
 //!
 //! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api/v1
 
+pub mod features;
+pub mod healthz;
+pub mod indexes;
+pub mod main;
+pub mod openapi;
+pub mod organization;
+pub mod repository;
+pub mod user;
+
 use crate::Env;
-use axum::Router;
+use axum::{Router, routing};
 
 pub fn create_router(_: &Env) -> Router<Env> {
-    todo!()
+    Router::new().route("/", routing::get(main::main))
 }

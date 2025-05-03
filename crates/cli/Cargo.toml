@@ -27,20 +27,20 @@ authors.workspace = true
 [features]
 default = ["libsystemd"]
 
-libsystemd = ["charted-server/libsystemd"]
+libsystemd = ["charted-serverv2/libsystemd"]
 
 [dependencies]
 argon2.workspace = true
 azalia = { workspace = true, features = [
     "log",
-    "log+writers",
     "log+tracing-log",
+    "log+writers",
 ] }
 charted-core.workspace = true
 charted-config.workspace = true
 charted-database.workspace = true
 charted-helm-types.workspace = true
-charted-server.workspace = true
+charted-serverv2 = { version = "0.1.0", path = "../serverv2" }
 charted-types.workspace = true
 clap.workspace = true
 clap_complete.workspace = true

@@ -19,7 +19,7 @@ mod prometheus;
 #[cfg(all(feature = "libsystemd", target_os = "linux"))]
 mod systemd;
 
-use crate::feature;
+use crate::{feature, routing};
 use axum::extract::FromRef;
 use axum_server::Handle;
 use charted_authz::Authenticator;
@@ -90,8 +90,13 @@ impl Env {
 
     /// Starts the API server.
     pub async fn drive(&self) -> eyre::Result<()> {
-        //let metrics = self.config.metrics.clone();
-        Ok(())
+        let router = routing::create_router(self).with_state(self.clone());
+
+        crate::env::apiserver::start(self, router).await
+
+        // futures_util::try_join!(crate::env::apiserver::start(&self, router))
+        //     .map(|(..)| ())
+        //     .into_report()
     }
 }
 
@@ -145,18 +150,40 @@ pub(in crate::env) async fn shutdown_signal(handle: Option<Handle>) {
         use tokio::signal::unix::{SignalKind, signal};
 
         signal(SignalKind::terminate())
+            .expect("failed to install SIGTERM handler")
+            .recv()
+            .await
+    };
+
+    #[cfg(unix)]
+    let sigint = async {
+        use tokio::signal::unix::{SignalKind, signal};
+
+        signal(SignalKind::interrupt())
+            .expect("failed to install SIGINT handler")
+            .recv()
+            .await
     };
 
     #[cfg(not(unix))]
     let termination = std::future::pending::<()>();
+
+    #[cfg(not(unix))]
+    let sigint = std::future::pending::<()>();
 
     tokio::select! {
         _ = ctrl_c => {
             warn!("received CTRL+C :3");
         }
 
-        _ = termination => {
+        res = termination => {
             warn!("received SIGTERM termination signal :3");
+            trace!("result = {res:?}");
+        }
+
+        res = sigint => {
+            warn!("received SIGINT termination signal :3");
+            trace!("result = {res:?}");
         }
     }
 

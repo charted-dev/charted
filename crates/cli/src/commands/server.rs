@@ -21,7 +21,7 @@ use azalia::{
 };
 use charted_config::Config;
 use charted_core::{Distribution, ResultExt};
-use charted_server::Context;
+use charted_serverv2::Env;
 use eyre::bail;
 use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
 use opentelemetry_otlp::SpanExporter;
@@ -64,12 +64,12 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     init_logger(&config)?;
     info!("Hello world!");
 
-    let context = Context::new(config).await?;
-    if let Err(e) = context.start().await {
+    let env = Env::new(config).await?;
+    if let Err(e) = env.drive().await {
         tracing::error!(%e, "failed to run HTTP service");
     }
 
-    context.close().await
+    env.close().await
 }
 
 pub(in crate::commands) fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {
@@ -121,7 +121,7 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
     })()?;
 
     let filter = (|| -> eyre::Result<Option<EnvFilter>> {
-        let Some(filter) = config.logging.filter.as_ref() else {
+        let Some(filter) = config.logging.filter.clone() else {
             return Ok(None);
         };
 

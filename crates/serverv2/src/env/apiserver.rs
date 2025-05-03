@@ -22,7 +22,12 @@ use charted_core::ResultExt;
 use tokio::net::TcpListener;
 
 /// Starts the API server.
-pub async fn start(_: &Env) {}
+pub async fn start(env: &Env, router: Router) -> eyre::Result<()> {
+    match env.config.server.ssl {
+        Some(ref ssl) => start_https(&env.config.server, ssl, router).await,
+        None => start_http(&env.config.server, router).await,
+    }
+}
 
 async fn start_https(config: &server::Config, ssl: &ssl::Config, router: Router) -> eyre::Result<()> {
     info!("starting API server with TLS enabled");

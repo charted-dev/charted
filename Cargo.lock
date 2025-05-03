@@ -682,9 +682,9 @@ dependencies = [
 
 [[package]]
 name = "axum"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de45108900e1f9b9242f7f2e254aa3e2c029c921c258fe9e6b4217eeebd54288"
+checksum = "021e862c184ae977658b36c4500f7feac3221ca5da43e3f25bd04ab6c79a29b5"
 dependencies = [
  "axum-core",
  "axum-macros",
@@ -1257,7 +1257,7 @@ dependencies = [
  "charted-core",
  "charted-database",
  "charted-helm-types",
- "charted-server",
+ "charted-serverv2",
  "charted-types",
  "clap",
  "clap_complete",
@@ -1435,7 +1435,7 @@ name = "charted-internals"
 version = "0.0.0-devel.0"
 dependencies = [
  "azalia",
- "charted-server",
+ "charted-serverv2",
  "color-eyre",
  "eyre",
  "tracing",
@@ -1526,6 +1526,7 @@ dependencies = [
  "charted-types",
  "derive_more 2.0.1",
  "eyre",
+ "futures-util",
  "jsonwebtoken",
  "libsystemd",
  "mime",
