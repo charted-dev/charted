@@ -13,10 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod authn;
-mod log;
-mod request_id;
+use charted_types::User;
 
-pub use log::log;
-pub(in crate::middleware) use request_id::XRequestId;
-pub use request_id::request_id;
+/// `Session` is a Axum extractor avaliable when a route has its session middleware
+/// configured.
+#[derive(Debug, Clone)]
+pub struct Session {
+    /// Session data, if this is `Bearer`. Otherwise, `None` is returned.
+    pub session: Option<charted_types::Session>,
+
+    /// User that is executing this route; always avaliable
+    pub user: User,
+}

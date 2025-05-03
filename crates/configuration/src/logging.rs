@@ -17,18 +17,71 @@ pub mod loki;
 
 use crate::util;
 use azalia::config::{
-    env::{self, TryFromEnv},
+    env::{self, TryFromEnv, TryFromEnvValue},
     merge::Merge,
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use tracing::Level;
+use tracing_subscriber::{EnvFilter, filter};
 
+const FILTER: &str = "CHARTED_LOG_FILTER";
 const LEVEL: &str = "CHARTED_LOG_LEVEL";
 const JSON: &str = "CHARTED_LOG_JSON";
+
+/// A parsed filter for logs to be filtered out.
+#[derive(Debug, Clone, Merge, Serialize)]
+pub struct Filter(#[merge(strategy = azalia::config::merge::strategy::string::overwrite_empty)] String);
+impl Filter {
+    /// Builds a new [`EnvFilter`] from this filter.
+    pub fn to_env_filter(&self) -> Result<EnvFilter, filter::ParseError> {
+        EnvFilter::try_new(&self.0)
+    }
+
+    /// Builds a new [`EnvFilter`] from this filter.
+    pub fn into_env_filter(self) -> Result<EnvFilter, filter::ParseError> {
+        EnvFilter::try_new(self.0)
+    }
+
+    /// Checks if this filter only contains a single level and nothing else.
+    ///
+    /// It'll check for the possible variants of [`Level`](tracing::Level) and `off`.
+    pub fn is_only_level_filter(&self) -> bool {
+        let me = self.0.to_string().to_ascii_lowercase();
+        matches!(&*me, "info" | "debug" | "trace" | "warn" | "error" | "warning" | "off")
+    }
+}
+
+impl<'de> Deserialize<'de> for Filter {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+
+        let filter = Filter(String::deserialize(deserializer)?);
+        filter.to_env_filter().map(|_| filter).map_err(D::Error::custom)
+    }
+}
+
+impl TryFromEnvValue for Filter {
+    type Error = filter::ParseError;
+
+    fn try_from_env_value(value: String) -> Result<Self, Self::Error> {
+        let filter = Filter(value);
+        filter.to_env_filter().map(|_| filter)
+    }
+}
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
+    /// A filter in the style of [`tracing-subscriber`](tracing_subscriber)'s [`EnvFilter`](tracing_subscriber::filter::EnvFilter).
+    ///
+    /// While we allow directives for only setting the log level (i.e, `filter = "info"`), this will ignore the
+    /// filter. This is only recommended to either make or suppress log levels from spans, events, or modules.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filter: Option<Filter>,
+
     /// Configures the log level of the API server's logging capabilities. The higher the
     /// level, the more verbose messages you'll get. For production environments, the
     /// default (`INFO`) is fine.
@@ -47,6 +100,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Config {
         Config {
+            filter: None,
             level: __default_level(),
             json: false,
             loki: None,
@@ -59,6 +113,7 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self, Self::Error> {
         Ok(Config {
+            filter: env::try_parse_optional(FILTER)?,
             json: util::bool_env(JSON)?,
             level: env::try_parse_or(LEVEL, __default_level)?,
             loki: match util::bool_env(loki::ENABLE) {

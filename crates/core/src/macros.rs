@@ -39,6 +39,73 @@ macro_rules! assert_into_response {
     };
 }
 
+/// Assertion macro that expects the response is a OK response.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+#[macro_export]
+macro_rules! assert_response_ok {
+    ($res:expr, $message:literal $(,)?) => {
+        ::core::assert!(($res).status().is_success(), $message);
+    };
+
+    ($res:expr, $message:literal, $($arg:tt),*) => {
+        ::core::assert!(($res).status().is_success(), $message, $($arg),*);
+    };
+
+    ($res:expr) => {
+        ::core::assert!(($res).status().is_success());
+    };
+}
+
+/// Assertion macro that expects the response is a error response that
+/// the user that made this request.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+#[macro_export]
+macro_rules! assert_response_is_client_error {
+    ($res:expr, $message:literal $(,)?) => {
+        ::core::assert!(($res).status().is_client_error(), $message);
+    };
+
+    ($res:expr, $message:literal, $($arg:tt),*) => {
+        ::core::assert!(($res).status().is_client_error(), $message, $($arg),*);
+    };
+
+    ($res:expr) => {
+        ::core::assert!(($res).status().is_client_error());
+    };
+}
+
+/// Assertion macro that expects the response to return a specific status code
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+#[macro_export]
+macro_rules! assert_status_code {
+    ($res:expr, $code:ident) => {
+        ::core::assert_eq!(($res).status(), ::axum::http::StatusCode::$code);
+    };
+
+    ($res:expr, $code:ident, $message:literal $(,)?) => {
+        ::core::assert_eq!(($res).status(), ::axum::http::StatusCode::$code, $message);
+    };
+
+    ($res:expr, $code:ident, $message:literal, $($arg:tt),*) => {
+        ::core::assert_eq!(($res).status(), ::axum::http::StatusCode::$code, $message, $($arg),*);
+    };
+
+    ($res:expr, $code:expr) => {
+        ::core::assert_eq!(($res).status(), $code);
+    };
+
+    ($res:expr, $code:expr, $message:literal $(,)?) => {
+        ::core::assert_eq!(($res).status(), $code, $message);
+    };
+
+    ($res:expr, $code:expr, $message:literal, $($arg:tt),*) => {
+        ::core::assert_eq!(($res).status(), $code, $message, $($arg),*);
+    };
+}
+
 /// Asserts that 1..N of types implement [`Send`].
 ///
 /// ## Example

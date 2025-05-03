@@ -61,7 +61,7 @@ impl<T> Yaml<T> {
     }
 
     /// Replace the data that will be transmitted.
-    pub fn with_data(mut self, data: T) -> Self {
+    pub fn with_data(mut self, data: impl Into<T>) -> Self {
         self.data = data.into();
         self
     }

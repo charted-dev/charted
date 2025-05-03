@@ -150,10 +150,6 @@ url = "2.5.4"
 version = "0.1.6"
 features = ["remi+tracing"]
 
-[patch.crates-io]
-# https://github.com/juhaku/utoipa/issues/1335
-utoipa = { git = "https://github.com/Noelware/utoipa", branch = "toresponse-cow" }
-
 [profile.release]
 codegen-units = 1 # use a single codegen unit
 opt-level = "s" # optimize for size

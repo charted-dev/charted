@@ -313,6 +313,10 @@ pub enum ErrorCode {
     /// the server had failed to validate the path parameter's content.
     ParsingFailedInPathParam,
 
+    /// unsupported authorization scheme, i.e, using `Basic` when the
+    /// instance has it disabled.
+    UnsupportedAuthorizationKind,
+
     // ~ QUERY PARAMETERS
     /// failed to parse query parameters specified in the uri of the request
     ParsingQueryParamsFailed,

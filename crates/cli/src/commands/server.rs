@@ -20,7 +20,7 @@ use azalia::{
     log::{WriteLayer, writers},
 };
 use charted_config::Config;
-use charted_core::Distribution;
+use charted_core::{Distribution, ResultExt};
 use charted_server::Context;
 use eyre::bail;
 use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
@@ -33,7 +33,7 @@ use std::{
     path::PathBuf,
 };
 use tracing::{info, level_filters::LevelFilter};
-use tracing_subscriber::{filter, prelude::*};
+use tracing_subscriber::{EnvFilter, filter, prelude::*};
 
 /// Runs the API server.
 #[derive(Debug, clap::Parser)]
@@ -120,6 +120,14 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
         }
     })()?;
 
+    let filter = (|| -> eyre::Result<Option<EnvFilter>> {
+        let Some(filter) = config.logging.filter.as_ref() else {
+            return Ok(None);
+        };
+
+        filter.into_env_filter().map(Some).into_report()
+    })()?;
+
     tracing_subscriber::registry()
         .with(
             if config.logging.json {
@@ -135,13 +143,14 @@ fn init_logger(config: &Config) -> eyre::Result<()> {
             })),
         )
         .with(sentry_tracing::layer())
+        .with(loki_layer)
         .with(tracer.map(|tracer| {
             tracing_opentelemetry::layer()
                 .with_tracer(tracer)
                 .with_filter(LevelFilter::from_level(config.logging.level))
         }))
         .with(tracing_error::ErrorLayer::default())
-        .with(loki_layer)
+        .with(filter)
         .try_init()
         .map_err(Into::into)
 }

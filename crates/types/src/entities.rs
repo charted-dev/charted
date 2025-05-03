@@ -343,7 +343,7 @@ impl ApiKey {
     /// Sanitizes the output of this [`ApiKey`] by setting the [`token`] field to
     /// [`None`].
     ///
-    /// [`token`]: #
+    /// [`token`]: #structfield.token
     pub fn sanitize(self) -> Self {
         Self { token: None, ..self }
     }

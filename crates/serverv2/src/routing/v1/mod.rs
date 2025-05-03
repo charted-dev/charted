@@ -12,11 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! Implementation of version **1** of the [charted REST Specification].
+//!
+//! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api/v1
 
-pub mod authn;
-mod log;
-mod request_id;
+use crate::Env;
+use axum::Router;
 
-pub use log::log;
-pub(in crate::middleware) use request_id::XRequestId;
-pub use request_id::request_id;
+pub fn create_router(_: &Env) -> Router<Env> {
+    todo!()
+}

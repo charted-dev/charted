@@ -33,26 +33,50 @@ argon2.workspace = true
 axum = { workspace = true, features = ["matched-path"] }
 axum-server = { version = "0.7.1", features = ["tls-rustls", "tokio-rustls"] }
 azalia.workspace = true
+base64.workspace = true
 charted-authz.workspace = true
 charted-authz-local.workspace = true
 charted-authz-static.workspace = true
 charted-config.workspace = true
-charted-core = { workspace = true, features = ["axum", "openapi"] }
+charted-core = { workspace = true, features = ["axum", "openapi", "yaml"] }
 charted-database.workspace = true
 charted-datastore.workspace = true
 charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-metrics.workspace = true
 charted-types = { workspace = true, features = ["openapi"] }
+derive_more = { workspace = true, features = ["deref", "deref_mut"] }
 eyre.workspace = true
+jsonwebtoken = "9.3.1"
+mime = "0.3.17"
+multer.workspace = true
+paste = "1.0.15"
 sea-orm.workspace = true
 sea-orm-migration.workspace = true
+sentry.workspace = true
+sentry-tower = { version = "0.37.0", features = ["axum", "http"] }
+serde.workspace = true
+serde_json.workspace = true
+serde_path_to_error = "0.1.17"
 tokio = { workspace = true, features = ["net", "signal"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.2", features = [
+    "auth",
+    "catch-panic",
+    "compression-gzip",
+    "cors",
+] }
 tracing.workspace = true
-utoipa.workspace = true
+utoipa = { workspace = true, features = ["url"] }
 
 [dev-dependencies]
+azalia = { workspace = true, features = [
+    "log",
+    "log+tracing-log",
+    "log+writers",
+] }
 tokio = { workspace = true, features = ["macros", "rt"] }
+tracing-subscriber.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libsystemd = { version = "0.7.0", optional = true }

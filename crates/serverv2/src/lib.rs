@@ -18,7 +18,7 @@
 //!
 //! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api
 
-#![feature(let_chains)]
+#![feature(let_chains, impl_trait_in_bindings)]
 
 #[macro_use]
 extern crate tracing;
@@ -26,7 +26,20 @@ extern crate tracing;
 pub mod feature;
 
 mod env;
-pub use env::*;
+pub use env::Env;
 
 mod ext;
-pub use ext::*;
+pub use ext::OwnerExt;
+
+pub mod extract;
+pub mod middleware;
+pub mod openapi;
+pub mod ops;
+pub mod routing;
+
+// Private module to aid in macro development
+#[doc(hidden)]
+pub mod __macro_support {
+    pub use paste::paste;
+    pub use utoipa;
+}

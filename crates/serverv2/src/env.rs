@@ -112,49 +112,6 @@ impl Context {
         .into_report()
     }
 
-    /// Creates a [`Context`] object for testing purposes.
-    pub async fn for_testing<'s, F: FnOnce(&mut Config) + 's>(config_override: F) -> eyre::Result<Self> {
-        use charted_config::{
-            database, metrics,
-            sessions::{self, Backend},
-        };
-        use url::Url;
-
-        // so that sessions are "consistent" enough between tests
-        const JWT_SECRET_KEY: &str =
-            "ahashthatshouldbeavalidhashfromopensslbutidontwanttodothatandnooneshouldusethisvaluetobeginwithuwu";
-
-        let mut config = Config {
-            jwt_secret_key: String::from(JWT_SECRET_KEY),
-            registrations: true,
-            single_user: false,
-            single_org: false,
-            sentry_dsn: None,
-            base_url: Some(Url::parse("http://localhost:3651")?),
-            logging: Default::default(),
-            storage: Default::default(),
-            tracing: None,
-            metrics: metrics::Config::Disabled,
-            server: Default::default(),
-
-            sessions: sessions::Config {
-                enable_basic_auth: false,
-                backend: Backend::Static(azalia::btreemap! {
-                    // echo "noeliscutieuwu" | cargo cli admin authz hash-password --stdin
-                    "noel" => "$argon2id$v=19$m=19456,t=2,p=1$gIcVA4mVHgr8ZWkmDrtJlw$sb5ypFAvphFCGrJXy9fRI1Gb/2vGIH1FTzDax458+xY"
-                }),
-            },
-
-            database: database::Config::SQLite(database::sqlite::Config {
-                common: Default::default(),
-                path: String::from(":memory:").into(),
-            }),
-        };
-
-        config_override(&mut config);
-        Self::new(config).await
-    }
-
     fn init_prometheus_handle(config: &metrics::Config) -> eyre::Result<Option<PrometheusHandle>> {
         match config {
             metrics::Config::Disabled => Ok(None),
