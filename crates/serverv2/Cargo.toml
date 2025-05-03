@@ -68,7 +68,7 @@ tower-http = { version = "0.6.2", features = [
     "cors",
 ] }
 tracing.workspace = true
-utoipa = { workspace = true, features = ["url"] }
+utoipa = { workspace = true, features = ["debug", "url"] }
 
 [dev-dependencies]
 azalia = { workspace = true, features = [

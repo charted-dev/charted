@@ -150,7 +150,7 @@ macro_rules! mk_api_response_types {
 
                     // Safety: the derive macro for `api::Response` will always have
                     // a `success` field.
-                    let success = unsafe { response.properties.get("sucesss").unwrap_unchecked() };
+                    let success = unsafe { response.properties.get("success").unwrap_unchecked() };
                     let errors = unsafe { response.properties.get("errors").unwrap_unchecked() };
 
                     (
