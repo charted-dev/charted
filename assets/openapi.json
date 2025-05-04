@@ -30,6 +30,1325 @@
     ],
     "paths": {},
     "components": {
+        "schemas": {
+            "ApiKey": {
+                "type": "object",
+                "description": "Resource for personal-managed API tokens that is created by a [`User`].\n\nUser API keys are useful for command-line tools or scripts that might need\nto interact with the API server.",
+                "required": ["created_at", "updated_at", "owner", "name", "id"],
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this api key was created.",
+                        "readOnly": true
+                    },
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "short and concise description about this api key."
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "the api key's display name."
+                    },
+                    "expires_in": {
+                        "type": ["string", "null"],
+                        "format": "date-time",
+                        "description": "datetime of when this api key should be deleted from the server\nand can no longer be used.",
+                        "readOnly": true
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the api key's unique identifier."
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "the name of the api key"
+                    },
+                    "owner": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "reference to the [`User`] that owns this api key"
+                    },
+                    "scopes": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "the list of permissions that this api key has as a [bitfield] data structure.\n\n[bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure"
+                    },
+                    "token": {
+                        "type": ["string", "null"],
+                        "description": "The token itself. When querying API tokens, they're set to `null`and not\nserialized for security reasons, this is only a non-null value if the API key\nwas first created."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this api key was last modified.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "ApiKeyScope": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "description": "A humane name of the scope. This allows to determine the scope without knowing the integer representation of it.",
+                        "enum": [
+                            "admin:orgs:delete",
+                            "admin:orgs:update",
+                            "admin:stats",
+                            "admin:users:create",
+                            "admin:users:delete",
+                            "admin:users:update",
+                            "apikeys:create",
+                            "apikeys:delete",
+                            "apikeys:list",
+                            "apikeys:update",
+                            "apikeys:view",
+                            "org:access",
+                            "org:create",
+                            "org:delete",
+                            "org:members:invites",
+                            "org:members:kick",
+                            "org:members:list",
+                            "org:members:update",
+                            "org:update",
+                            "org:webhooks:create",
+                            "org:webhooks:delete",
+                            "org:webhooks:events:delete",
+                            "org:webhooks:events:list",
+                            "org:webhooks:list",
+                            "org:webhooks:update",
+                            "repo:access",
+                            "repo:create",
+                            "repo:delete",
+                            "repo:icon:update",
+                            "repo:members:invites:access",
+                            "repo:members:invites:delete",
+                            "repo:members:kick",
+                            "repo:members:list",
+                            "repo:members:update",
+                            "repo:releases:create",
+                            "repo:releases:delete",
+                            "repo:releases:update",
+                            "repo:update",
+                            "repo:webhooks:create",
+                            "repo:webhooks:delete",
+                            "repo:webhooks:events:access",
+                            "repo:webhooks:events:delete",
+                            "repo:webhooks:list",
+                            "repo:webhooks:update",
+                            "user:access",
+                            "user:avatar:update",
+                            "user:connections",
+                            "user:delete",
+                            "user:sessions:list",
+                            "user:update"
+                        ]
+                    },
+                    {
+                        "type": "number",
+                        "format": "u-int64",
+                        "description": "The actual representation of the scope. This is the repsentation the server checks and stores as AND is used when comparing permissions",
+                        "maximum": 562949953421312,
+                        "minimum": 1
+                    }
+                ],
+                "description": "Representation of a API key scope. A scope determines a permission between an API key"
+            },
+            "BuildInfo": {
+                "type": "object",
+                "description": "A structure defining the build information of **charted-server**.",
+                "required": [
+                    "version",
+                    "commit_hash",
+                    "build_timestamp",
+                    "rustc"
+                ],
+                "properties": {
+                    "build_timestamp": {
+                        "type": "string",
+                        "description": "RFC3339-formatted date of when charted-server was last built at.",
+                        "readOnly": true
+                    },
+                    "commit_hash": {
+                        "type": "string",
+                        "description": "Returns the Git commit hash from the charted-server repository that\nthis build was built off from.",
+                        "readOnly": true
+                    },
+                    "rustc": {
+                        "type": "string",
+                        "description": "Returns the version of the Rust compiler that charted-server\nwas compiled on, used for diagnostics.",
+                        "readOnly": true
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "The current version of **charted-server**.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "Chart": {
+                "type": "object",
+                "description": "Skeleton schema of a `Chart.yaml` file.",
+                "required": ["apiVersion", "name", "version"],
+                "properties": {
+                    "annotations": {
+                        "type": "object",
+                        "description": "Mapping of custom metadata that can be used for custom attributes.\n\n## `charted-server` specific notes\nSome attributes marked with the `charts.noelware.org/` prefix are recognized\nby [Hoshi], a web UI for `charted-server`.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest\n\n### Non Exhaustive Attributes\n#### `charts.noelware.org/license`\nA **SPDX** identified string of the license of the chart.\n\n#### `charts.noelware.org/images`\nA list of Docker images that the chart uses.",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "propertyNames": {
+                            "type": "string"
+                        }
+                    },
+                    "apiVersion": {
+                        "$ref": "#/components/schemas/ChartSpecVersion",
+                        "description": "The `apiVersion` field should be v2 for Helm charts that require at least Helm 3.\nCharts supporting previous Helm versions have an apiVersion set to v1 and are\nstill installable by Helm 3."
+                    },
+                    "appVersion": {
+                        "type": ["string", "null"],
+                        "description": "Note that the `appVersion` field is not related to the `version` field.\n\nIt is a way of specifying the version of the application. For example, the\n`drupal` chart may have an `appVersion: \"8.2.1\"`, indicating that the version\nof Drupal included in the chart (by default) is `8.2.1`. This field is\ninformational, and has no impact on chart version calculations.\n\nWrapping the version in quotes is highly recommended. It forces the YAML parser to\ntreat the version number as a string. Leaving it unquoted can lead to parsing\nissues in some cases. For example, YAML interprets 1.0 as a floating point value,\nand a git commit SHA like 1234e10 as scientific notation."
+                    },
+                    "dependencies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChartDependency"
+                        },
+                        "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in\n`Chart.yaml` or brought in to the `charts/` directory and managed manually.\nThe charts required by the current chart are defined as a list in the\ndependencies field."
+                    },
+                    "deprecated": {
+                        "type": "boolean",
+                        "description": "When managing charts in a Chart Repository, it is sometimes necessary to deprecate\na chart.\n\nThe optional `deprecated` field in Chart.yaml can be used to mark a chart as\ndeprecated. If the latest version of a chart in the repository is marked as\ndeprecated, then the chart as a whole is considered to be deprecated.\n\nThe chart name can be later reused by publishing a newer version that is not\nmarked as deprecated."
+                    },
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "A single-sentence description of this project"
+                    },
+                    "home": {
+                        "type": ["string", "null"],
+                        "description": "The URL of this project's homepage."
+                    },
+                    "icon": {
+                        "type": ["string", "null"],
+                        "description": "A URL or an SVG or PNG image to be used as an icon"
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "A list of keywords about this project. These keywords can be searched\nvia the /search endpoint if it's enabled."
+                    },
+                    "kubeVersion": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/VersionReq",
+                                "description": "The optional `kubeVersion` field can define SemVer constraints on supported\nKubernetes versions. Helm will validate the version constraints when\ninstalling the chart and fail if the cluster runs an unsupported Kubernetes\nversion."
+                            }
+                        ]
+                    },
+                    "maintainers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChartMaintainer"
+                        },
+                        "description": "A list of name and URL/email address combinations for the maintainer(s)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the chart."
+                    },
+                    "sources": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "A list of URLs to the source code for this project"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChartType",
+                        "description": "The type of the chart."
+                    },
+                    "version": {
+                        "$ref": "#/components/schemas/Version",
+                        "description": "A SemVer 2 conformant version string of the chart."
+                    }
+                }
+            },
+            "ChartDependency": {
+                "type": "object",
+                "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in\n`Chart.yaml` or brought in to the `charts/` directory and managed manually. The charts\nrequired by the current chart are defined as a list in the `dependencies` field.",
+                "required": ["name"],
+                "properties": {
+                    "alias": {
+                        "type": ["string", "null"],
+                        "description": "Alias that is used to identify a chart. Useful for pointing to the\nsame chart multiple times"
+                    },
+                    "condition": {
+                        "type": ["string", "null"],
+                        "description": "YAML path that resolves to a boolean to enable or disable charts\ndynamically."
+                    },
+                    "import-values": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StringOrImportValue"
+                        },
+                        "description": "[`ImportValues`][ImportValue] holds the mapping of source values to parent key to\nbe imported. Each item can be a string or pair of child/parent sublist items."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the chart"
+                    },
+                    "repository": {
+                        "type": ["string", "null"],
+                        "description": "Repository URL or alias that should be used to grab\nthe dependency from."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of tags that can be used to group charts to enable/disable together."
+                    },
+                    "version": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Version",
+                                "description": "The version of the chart."
+                            }
+                        ]
+                    }
+                }
+            },
+            "ChartIndex": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": ["generated", "entries", "apiVersion"],
+                        "properties": {
+                            "apiVersion": {
+                                "type": "string",
+                                "enum": ["v1"]
+                            },
+                            "entries": {
+                                "type": "object",
+                                "description": "Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a\nHelm chart.",
+                                "additionalProperties": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ChartIndexSpec"
+                                    }
+                                },
+                                "propertyNames": {
+                                    "type": "string"
+                                }
+                            },
+                            "generated": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "[`DateTime`] constant on when the chart index was generated at, this will not\nbe modified at all."
+                            }
+                        }
+                    }
+                ],
+                "description": "Schema skeleton for a `index.yaml` file, that represents a [`Chart`] index."
+            },
+            "ChartIndexSpec": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Chart",
+                        "description": "The Chart specification itself, this will be flatten when (de)serializing."
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "created": {
+                                "type": ["string", "null"],
+                                "format": "date-time"
+                            },
+                            "digest": {
+                                "type": ["string", "null"]
+                            },
+                            "removed": {
+                                "type": "boolean"
+                            },
+                            "urls": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "description": "Specification of the `index.yaml` file used for Helm chart repositories."
+            },
+            "ChartMaintainer": {
+                "type": "object",
+                "description": "Name and URL/email address combination as a maintainer.\n\nThe maintainer's name can be a [`ULID`][charted_types::Ulid] or a\n[`Name`][charted_types::name::Name] and [Hoshi](https://charts.noelware.org/docs/hoshi/latest) can use the information\nto query the user from the API server and show a \"Maintainers\" list in the UI.",
+                "required": ["name"],
+                "properties": {
+                    "email": {
+                        "type": ["string", "null"],
+                        "description": "The maintainer's email"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The maintainer's name"
+                    },
+                    "url": {
+                        "type": ["string", "null"],
+                        "description": "URL for the maintainer"
+                    }
+                }
+            },
+            "ChartSpecVersion": {
+                "type": "string",
+                "description": "The `apiVersion` field should be `v2` for Helm charts that require at least Helm 3.\n\nCharts supporting previous Helm versions should have an `apiVersion` set to v1 and are\ninstallable by Helm 3.",
+                "enum": ["v1", "v2"]
+            },
+            "ChartType": {
+                "type": "string",
+                "description": "Representation of a Helm chart.",
+                "enum": ["application", "library"]
+            },
+            "CreateApiKeyPayload": {
+                "type": "object",
+                "description": "Payload object for creating a API key.",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "short and concise description about this api key."
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "the api key's display name."
+                    },
+                    "expires_in": {
+                        "type": ["string", "null"],
+                        "format": "date-time",
+                        "description": "datetime of when this api key should be deleted from the server\nand can no longer be used.",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "the name of the api key"
+                    },
+                    "scopes": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "the list of permissions that this api key has as a [bitfield] data structure.\n\n[bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure"
+                    }
+                }
+            },
+            "CreateOrganizationPayload": {
+                "type": "object"
+            },
+            "CreateRepositoryPayload": {
+                "type": "object",
+                "description": "Request body for creating a repository.",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "a short description about this repository",
+                        "maximum": 140
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "name of this repository."
+                    },
+                    "private": {
+                        "type": "boolean",
+                        "description": "whether if this repository is private and only the owner\nor the repository members (if the feature flag is enabled)\ncan view, download, create, update, etc."
+                    },
+                    "readme": {
+                        "type": ["string", "null"],
+                        "description": "the contents of the **README.md** file of this repository.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor users to see about the chart itself.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest",
+                        "maximum": 16382
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChartType",
+                        "description": "chart type.\n\nthis is not overridable when a new chart is published."
+                    }
+                }
+            },
+            "CreateRepositoryReleasePayload": {
+                "type": "object",
+                "required": ["tag"],
+                "properties": {
+                    "tag": {
+                        "$ref": "#/components/schemas/Version",
+                        "description": "SemVer-based [`Version`] to indicate what version this release is.\n\nThis is an immutable tag and can't be patched without conflicts; you can only delete a\nrelease by its ID or version, which will remove this tag and can be freely used."
+                    },
+                    "title": {
+                        "type": ["string", "null"],
+                        "description": "title of this release."
+                    },
+                    "update_text": {
+                        "type": ["string", "null"],
+                        "description": "changelog of this release, can be rendered as HTML or Markdown.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor a changelog viewer.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest"
+                    }
+                }
+            },
+            "CreateUserPayload": {
+                "type": "object",
+                "required": ["username", "email"],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "description": "Email address to identify this user"
+                    },
+                    "password": {
+                        "type": ["string", "null"],
+                        "description": "The password to use when authenticating, this is optional on non-local sessions.",
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
+                    "username": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "User handle to use to identify yourself."
+                    }
+                }
+            },
+            "DateTime": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "Deprecation": {
+                "type": "object",
+                "description": "Deprecation of this feature and why it was deprecated.",
+                "required": ["since", "removed_in"],
+                "properties": {
+                    "message": {
+                        "type": ["string", "null"],
+                        "description": "Optional message about this deprecation."
+                    },
+                    "removed_in": {
+                        "type": "string",
+                        "description": "What version when this feature will be no longer avaliable."
+                    },
+                    "since": {
+                        "type": "string",
+                        "description": "What version since this feature is deprecated."
+                    }
+                }
+            },
+            "Distribution": {
+                "type": "string",
+                "description": "Deployment strategy that was used for this instance.",
+                "enum": ["kubernetes", "from_source", "docker", "nix", "git"]
+            },
+            "Duration": {
+                "oneOf": [
+                    {
+                        "type": "number",
+                        "format": "u-int64",
+                        "description": "Span of time represented in milliseconds"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Span of time represented in a humane format like `1s`, `15 days`, etc."
+                    }
+                ],
+                "description": "`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."
+            },
+            "EnabledFeature": {
+                "type": "object",
+                "description": "Datatype for an enabled feature.",
+                "required": ["enabled", "metadata"],
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "description": "If the feature is enabled."
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata",
+                        "description": "Metadata about this feature."
+                    }
+                }
+            },
+            "Error": {
+                "type": "object",
+                "description": "Representation of a error from an error trace.",
+                "required": ["code", "message"],
+                "properties": {
+                    "code": {
+                        "$ref": "#/components/schemas/ErrorCode",
+                        "description": "Contextualized error code on why this request failed.\n\nThis field can be looked up from the documentation to give\na better representation of the error."
+                    },
+                    "details": {
+                        "description": "If provided, this gives more information about the error\nand why it could've possibly failed."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A humane description based off the contextualised `\"code\"` field."
+                    }
+                }
+            },
+            "ErrorCode": {
+                "type": "string",
+                "description": "Contextualized error code on why this request failed.\n\nThis field can be looked up from the documentation to give\na better representation of the error.",
+                "enum": [
+                    "SYSTEM_FAILURE",
+                    "UNEXPECTED_E_O_F",
+                    "REST_ENDPOINT_NOT_FOUND",
+                    "INVALID_HTTP_METHOD",
+                    "ENTITY_NOT_FOUND",
+                    "ENTITY_ALREADY_EXISTS",
+                    "INTERNAL_SERVER_ERROR",
+                    "VALIDATION_FAILED",
+                    "INVALID_CONTENT_TYPE",
+                    "INVALID_HTTP_HEADER_NAME",
+                    "INVALID_HTTP_HEADER_VALUE",
+                    "REQUIRES_SESSION_TOKEN",
+                    "UNABLE_TO_DECODE_BASE64",
+                    "UNABLE_TO_DECODE_ULID",
+                    "INVALID_UTF8",
+                    "INVALID_BODY",
+                    "MISSING_HEADER",
+                    "REGISTRATIONS_DISABLED",
+                    "MISSING_PASSWORD",
+                    "ACCESS_NOT_PERMITTED",
+                    "IO",
+                    "INVALID_TYPE",
+                    "BAD_REQUEST",
+                    "MISSING_CONTENT_TYPE",
+                    "REACHED_UNEXPECTED_EOF",
+                    "INVALID_INPUT",
+                    "UNABLE_TO_PARSE_PATH_PARAMETER",
+                    "MISSING_PATH_PARAMETER",
+                    "WRONG_PARAMETERS",
+                    "PARSING_FAILED_IN_PATH_PARAM",
+                    "UNSUPPORTED_AUTHORIZATION_KIND",
+                    "PARSING_QUERY_PARAMS_FAILED",
+                    "INVALID_JWT_CLAIM",
+                    "MISSING_AUTHORIZATION_HEADER",
+                    "INVALID_PASSWORD",
+                    "INVALID_AUTHENTICATION_TYPE",
+                    "INVALID_AUTHORIZATION_PARTS",
+                    "INVALID_SESSION_TOKEN",
+                    "SESSION_EXPIRED",
+                    "UNKNOWN_SESSION",
+                    "REFRESH_TOKEN_REQUIRED",
+                    "MAX_PER_PAGE_EXCEEDED",
+                    "INVALID_JSON_PAYLOAD",
+                    "UNKNOWN_MULTIPART_FIELD",
+                    "INCOMPLETE_MULTIPART_FIELD_DATA",
+                    "READ_MULTIPART_HEADER_FAILED",
+                    "DECODE_MULTIPART_CONTENT_TYPE_FAILED",
+                    "MISSING_MULTIPART_BOUNDARY",
+                    "NO_MULTIPART_RECEIVED",
+                    "INCOMPLETE_MULTIPART_STREAM",
+                    "DECODE_MULTIPART_HEADER_NAME_FAILED",
+                    "STREAM_SIZE_EXCEEDED",
+                    "MULTIPART_FIELDS_SIZE_EXCEEDED",
+                    "MULTIPART_STREAM_READ_FAILED",
+                    "MISSING_MULTIPART_FIELD",
+                    "INVALID_MULTIPART_BOUNDARY"
+                ]
+            },
+            "ImportValue": {
+                "type": "object",
+                "description": "Container that holds the mapping of source values to the parent key to be imported.\n\nEach item can be a child/parent sublist item or a string, the representation\nin Rust is [`StringOrImportValue`].",
+                "required": ["parent", "child"],
+                "properties": {
+                    "child": {
+                        "type": "string",
+                        "description": "The source key of the values to be imported"
+                    },
+                    "parent": {
+                        "type": "string",
+                        "description": "The destination path in the parent chart's values."
+                    }
+                }
+            },
+            "Login": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "description": "Logs into the registry via their username ahead-of-time.",
+                        "required": ["username"],
+                        "properties": {
+                            "username": {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "Logs into the registry via their username ahead-of-time."
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "description": "Logs into the registry via their registered email address.",
+                        "required": ["email"],
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "description": "Logs into the registry via their registered email address."
+                            }
+                        }
+                    }
+                ],
+                "description": "Login representation, fields are mutually exclusive."
+            },
+            "Main": {
+                "type": "object",
+                "required": ["distribution", "build_info"],
+                "properties": {
+                    "build_info": {
+                        "$ref": "#/components/schemas/BuildInfo",
+                        "description": "build information about the server"
+                    },
+                    "distribution": {
+                        "$ref": "#/components/schemas/Distribution",
+                        "description": "current distribution"
+                    }
+                }
+            },
+            "Metadata": {
+                "type": "object",
+                "description": "Metadata about this feature.\n\nThis is used for the `/features/[name]` feature to determine the metadata\nof a feature regardless if it's enabled or not. The `/features` endpoint will\nreturn if this feature is enabled or not alongside its metadata as: `[enabled,\nmetadata]`.",
+                "required": [
+                    "name",
+                    "config_key",
+                    "description",
+                    "authors",
+                    "since"
+                ],
+                "properties": {
+                    "authors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Authors that created this feature."
+                    },
+                    "config_key": {
+                        "type": "string",
+                        "description": "The configuration key that this feature is configured in."
+                    },
+                    "deprecated": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Deprecation",
+                                "description": "If the feature is deprecated, this is the notice."
+                            }
+                        ]
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description about this feature."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the feature."
+                    },
+                    "since": {
+                        "type": "string",
+                        "description": "When did this feature appear in?"
+                    }
+                }
+            },
+            "Name": {
+                "type": "string",
+                "description": "Valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to figure out how to calculate their ID.",
+                "maxLength": 32,
+                "minLength": 1,
+                "pattern": "^(?<name>[A-z]|-|_|~|\\d{0,9}){1,32}$"
+            },
+            "NameOrUlid": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "format": "ulid"
+                    },
+                    {
+                        "$ref": "#/components/schemas/Name"
+                    }
+                ],
+                "description": "`NameOrUlid` is a \"union\" enum that can represent either:\n\n* [`Name`]\n* [`Ulid`]"
+            },
+            "Organization": {
+                "type": "object",
+                "description": "An organization is a shared resource for users to build, test, and push Helm charts.",
+                "required": ["created_at", "updated_at", "owner", "name", "id"],
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this organization was created.",
+                        "readOnly": true
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "the organization's display name."
+                    },
+                    "gravatar_email": {
+                        "type": ["string", "null"],
+                        "description": "valid email address that points to their Gravatar account."
+                    },
+                    "icon_hash": {
+                        "type": ["string", "null"],
+                        "description": "a unique hash generated by the API server to the organization's icon.",
+                        "readOnly": true
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the organization's unique identifier."
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "the organization's name"
+                    },
+                    "owner": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "reference to the owner of this organization"
+                    },
+                    "prefers_gravatar": {
+                        "type": "boolean",
+                        "description": "whether if this organization prefers their Gravatar email as their icon"
+                    },
+                    "private": {
+                        "type": "boolean",
+                        "description": "whether if this organization is marked private"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this organization was last modified.",
+                        "readOnly": true
+                    },
+                    "verified_publisher": {
+                        "type": "boolean",
+                        "description": "whether if this organization is a verified publisher"
+                    }
+                }
+            },
+            "OrganizationMember": {
+                "type": "object",
+                "description": "Resource that correlates to a organization member.",
+                "required": ["updated_at", "joined_at", "account", "id"],
+                "properties": {
+                    "account": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "reference to their user account.",
+                        "readOnly": true
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "the member's display name."
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the member's unique identifier.",
+                        "readOnly": true
+                    },
+                    "joined_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this member joined this organization.",
+                        "readOnly": true
+                    },
+                    "permissions": {
+                        "type": "integer",
+                        "format": "u-int64",
+                        "description": "the permissions that this member has as a [bitfield] data structure.\n\n[bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure",
+                        "minimum": 0
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this release was last modified.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "PatchApiKeyPayload": {
+                "type": "object",
+                "description": "Payload object for patching the metadata of a API key.",
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "changes the api key's display name.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "changes the api key's display name.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                    },
+                    "name": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "changes the api key's name.\n\nif the name of the api key already conflicts with another\nkey, then a 409 Conflict HTTP response is sent instead.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                            }
+                        ]
+                    },
+                    "scopes": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "$ref": "#/components/schemas/ApiKeyScope"
+                        },
+                        "description": "changes the permissions of this api key."
+                    }
+                }
+            },
+            "PatchOrganizationPayload": {
+                "type": "object"
+            },
+            "PatchRepositoryPayload": {
+                "type": "object",
+                "description": "Request body for modifying a repository.",
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "a short description about this repository",
+                        "maximum": 140
+                    },
+                    "name": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "changes the name of this repository if provided."
+                            }
+                        ]
+                    },
+                    "private": {
+                        "type": ["boolean", "null"],
+                        "description": "whether if this repository is private and only the owner\nor the repository members (if the feature flag is enabled)\ncan view, download, create, update, etc."
+                    },
+                    "readme": {
+                        "type": ["string", "null"],
+                        "description": "the contents of the **README.md** file of this repository.\n\nfor clients or web uis (like [Hoshi]) might display the contents\nfor users to see about the chart itself.\n\nWhile it can be either HTML or Markdown, the client is responsible for\nsanitization. the server does minimal sanitization if the content\nis pure HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest",
+                        "maximum": 16382
+                    },
+                    "type": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/ChartType",
+                                "description": "chart type.\n\nthis is not overridable when a new chart is published."
+                            }
+                        ]
+                    }
+                }
+            },
+            "PatchRepositoryReleasePayload": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": ["string", "null"],
+                        "description": "changes the title of this release."
+                    },
+                    "update_text": {
+                        "type": ["string", "null"],
+                        "description": "updates the changelog of this release, can be rendered as HTML or Markdown."
+                    }
+                }
+            },
+            "PatchUserPayload": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "Changes the description about yourself.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                    },
+                    "email": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's email."
+                    },
+                    "gravatar_email": {
+                        "type": ["string", "null"],
+                        "description": "Changes the Gravatar email address associated\nfor this user.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                    },
+                    "name": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's display name."
+                    },
+                    "password": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's password, if the session backend is allowed to do so.",
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
+                    "prefers_gravatar": {
+                        "type": ["boolean", "null"],
+                        "description": "Toggle to use when preferring the Gravatar avatar\nover the ones used by the API server locally.\n\n- `null` or empty: field will not be updated"
+                    },
+                    "username": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Name",
+                                "description": "changes your username.\n\nif any user has the username already taken, a 409 Conflict\nHTTP response is sent.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                            }
+                        ]
+                    }
+                }
+            },
+            "Repository": {
+                "type": "object",
+                "description": "A **Helm** chart that can be associated by a [`User`] or [`Organization`].",
+                "required": [
+                    "created_at",
+                    "updated_at",
+                    "owner",
+                    "type",
+                    "name",
+                    "id"
+                ],
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this repository was created.",
+                        "readOnly": true
+                    },
+                    "creator": {
+                        "type": ["string", "null"],
+                        "format": "ulid",
+                        "description": "The creator of the repository.\n\nThis field was added to determine if this is a organization\nor user repository without having another db enumeration\nto manage.\n\nThis can be `null` if this is a user repository as the [`owner`]\nfield will be set to the user that created the repository. This\nis non-null to the organization member that created the repository as\nthe [`owner`] field will always be the organization.\n\n[`owner`]: #",
+                        "readOnly": true
+                    },
+                    "deprecated": {
+                        "type": "boolean",
+                        "description": "whether or not if this repository is marked **deprecated**."
+                    },
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "Short and concise description about this repository."
+                    },
+                    "icon_hash": {
+                        "type": ["string", "null"],
+                        "description": "unique icon hash for the repository generated by the API server."
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the repository's unique identifier.",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "the name of this repository."
+                    },
+                    "owner": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the [`User`] account or [`Organization`] that created this repository.",
+                        "readOnly": true
+                    },
+                    "private": {
+                        "type": "boolean",
+                        "description": "whether or not if this repository is marked **private**."
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChartType",
+                        "description": "representation of this repository.\n\nRepositories can also be considered as a library chart and can be\npulled from a user or organization's Helm chart index."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this repository was last modified.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "RepositoryMember": {
+                "type": "object",
+                "description": "Resource that correlates to a repository member.",
+                "required": ["updated_at", "joined_at", "account", "id"],
+                "properties": {
+                    "account": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "reference to their user account.",
+                        "readOnly": true
+                    },
+                    "display_name": {
+                        "type": ["string", "null"],
+                        "description": "the member's display name."
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the member's unique identifier.",
+                        "readOnly": true
+                    },
+                    "joined_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this member joined this repository.",
+                        "readOnly": true
+                    },
+                    "permissions": {
+                        "type": "integer",
+                        "format": "u-int64",
+                        "description": "the permissions that this member has as a [bitfield] data structure.\n\n[bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure",
+                        "minimum": 0
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this release was last modified.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "RepositoryRelease": {
+                "type": "object",
+                "description": "Resource that contains a [`Repository`] release.\n\n**Releases** are a way to group new releases of Helm charts that can\nbe easily used and fetched from the API server.\n\nAny [`Repository`] can have a number of releases but release tags\ncannot clash between one and another. All release tags must comply\nto the [SemVer v2] format.\n\n[SemVer v2]: https://semver.org/",
+                "required": [
+                    "repository",
+                    "created_at",
+                    "updated_at",
+                    "tag",
+                    "id"
+                ],
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this release was created.",
+                        "readOnly": true
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the release's unique identifier.",
+                        "readOnly": true
+                    },
+                    "repository": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "[`Repository`] that owns this release.",
+                        "readOnly": true
+                    },
+                    "tag": {
+                        "$ref": "#/components/schemas/Version",
+                        "description": "the release tag."
+                    },
+                    "title": {
+                        "type": ["string", "null"],
+                        "description": "the title of this release.\n\nIf no title is provided, then consumers can place their own title. For\n[Hoshi], this will render to \"Release [`{tag}`]\"\n\n[`{tag}`]: #\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest"
+                    },
+                    "update_text": {
+                        "type": ["string", "null"],
+                        "description": "The \"changelog\" or update text of this release.\n\nThis can be formatted into Markdown and applications like\n[Hoshi] can render the Markdown into HTML.\n\n[Hoshi]: https://charts.noelware.org/docs/hoshi/latest"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this release was last modified.",
+                        "readOnly": true
+                    },
+                    "yanked": {
+                        "type": "boolean",
+                        "description": "whether or not if this release was yanked."
+                    }
+                }
+            },
+            "Session": {
+                "type": "object",
+                "description": "Resource that represents a [`User`] session.",
+                "required": ["owner", "id"],
+                "properties": {
+                    "access_token": {
+                        "type": ["string", "null"],
+                        "description": "The token that is used to send API requests.",
+                        "readOnly": true
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the api key's unique identifier."
+                    },
+                    "owner": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "reference to the [`User`] that owns this session"
+                    },
+                    "refresh_token": {
+                        "type": ["string", "null"],
+                        "description": "A token that is used to refresh this session via the [`GET\n/users/@me/sessions/refresh`] REST endpoint.\n\nWhen this session was refreshed, the session is still alive and can still be used\nbut both the [`refresh_token`] and [`access_token`] fields are different values.\n\n[`GET /users/@me/sessions/refresh`]: #\n[`refresh_token`]: #\n[`access_token`]: #",
+                        "readOnly": true
+                    }
+                }
+            },
+            "StringOrImportValue": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "description": "String that points to a key to be imported."
+                    },
+                    {
+                        "$ref": "#/components/schemas/ImportValue",
+                        "description": "Parent/child sublist item."
+                    }
+                ],
+                "description": "Discriminated enumeration that can either be a [`String`] or a [`ImportValue`] as\nthe import source for referencing parent key items to be imported."
+            },
+            "Ulid": {
+                "type": "string",
+                "description": "ULID is a unique 128-bit lexicographically sortable identifier",
+                "examples": ["01D39ZY06FGSCTVN4T2V9PKHFZ"],
+                "maxLength": 26
+            },
+            "Url": {
+                "type": "string",
+                "format": "uri"
+            },
+            "User": {
+                "type": "object",
+                "description": "The baseline entity.\n\nUsers can manage and create repositories and organizations, be apart\nof repository & organizations and much more.",
+                "required": ["created_at", "updated_at", "username", "id"],
+                "properties": {
+                    "admin": {
+                        "type": "boolean",
+                        "description": "whether if this user is an administrator of this instance",
+                        "readOnly": true
+                    },
+                    "avatar_hash": {
+                        "type": ["string", "null"],
+                        "description": "Unique hash by the API server to identify their avatar, if they have uploaded one."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this user was created",
+                        "readOnly": true
+                    },
+                    "description": {
+                        "type": ["string", "null"],
+                        "description": "Short and concise description about this user."
+                    },
+                    "gravatar_email": {
+                        "type": ["string", "null"],
+                        "description": "Valid email address that points to their Gravatar account."
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the user's unique identifier",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": ["string", "null"],
+                        "description": "the user's display name."
+                    },
+                    "prefers_gravatar": {
+                        "type": "boolean",
+                        "description": "Determines whether or not if this user prefers to use their\nGravatar email associated as their profile picture."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this user was last updated",
+                        "readOnly": true
+                    },
+                    "username": {
+                        "$ref": "#/components/schemas/Name",
+                        "description": "the user's username"
+                    },
+                    "verified_publisher": {
+                        "type": "boolean",
+                        "description": "Determines whether if this user is a verified publisher or not.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "UserConnections": {
+                "type": "object",
+                "description": "Connections that a [`User`] is connected to.\n\nThis allows OIDC implementations of charted's authz system to lookup\na user by a unique identifier so the flow is easier.\n\n## Supported Providers\n- [Noelware](https://account.noelware.org)\n- [Google](https://google.com)\n- [GitHub](https://github.com)\n- [GitLab](https://gitlab.com)",
+                "required": ["created_at", "updated_at", "id"],
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this object was created.\n\nthis should be in range of when the [`User`] was created, but\nit is not 100% a guarantee.",
+                        "readOnly": true
+                    },
+                    "github_account_id": {
+                        "type": ["string", "null"],
+                        "description": "Account ID that is from [GitHub](https://github.com)"
+                    },
+                    "gitlab_account_id": {
+                        "type": ["string", "null"],
+                        "description": "Account ID that is from [GitLab](https://gitlab.com)"
+                    },
+                    "google_account_id": {
+                        "type": ["string", "null"],
+                        "description": "Account ID that is from [Google](https://google.com)"
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "description": "the object's unique identifier"
+                    },
+                    "noelware_account_id": {
+                        "type": ["string", "null"],
+                        "format": "ulid",
+                        "description": "Account ID (formatted as a [`Ulid`]) that is from [Noelware](https://account.noelware.org)."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "datetime of when this object was last modified.",
+                        "readOnly": true
+                    }
+                }
+            },
+            "UserLoginPayload": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Login"
+                    },
+                    {
+                        "type": "object",
+                        "required": ["password"],
+                        "properties": {
+                            "password": {
+                                "type": "string",
+                                "description": "password to login as."
+                            }
+                        }
+                    }
+                ],
+                "description": "Request body for creating a session."
+            },
+            "Version": {
+                "type": "string",
+                "description": "Type that represents a semantic version (https://semver.org).",
+                "examples": ["1.2.3"],
+                "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+            },
+            "VersionReq": {
+                "type": "string",
+                "description": "A semantic version requirement (https://semver.org) that Helm and charted-server supports",
+                "examples": [">=1.2.3", "~1"]
+            }
+        },
         "responses": {
             "ApiErrorResponse": {
                 "description": "API response that is returned during a error path",
@@ -98,6 +1417,177 @@
                     }
                 }
             },
+            "EnabledFeatureResponse": {
+                "description": "Response datatype for object `EnabledFeatureResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/EnabledFeature"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ListApiKeyResponse": {
+                "description": "Response datatype for a list of objects that are of type `ApiKeyResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApiKey"
+                                    }
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ListOrganizationResponse": {
+                "description": "Response datatype for a list of objects that are of type `OrganizationResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Organization"
+                                    }
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ListRepositoryResponse": {
+                "description": "Response datatype for a list of objects that are of type `RepositoryResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Repository"
+                                    }
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "MainResponse": {
+                "description": "Response datatype for object `MainResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Main"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "MetadataResponse": {
+                "description": "Response datatype for object `MetadataResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Metadata"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "OrganizationResponse": {
                 "description": "Response datatype for object `OrganizationResponse`.",
                 "content": {
@@ -135,6 +1625,33 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/Repository"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UrlResponse": {
+                "description": "Response datatype for object `UrlResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Url"
                                 },
                                 "errors": {
                                     "type": "array",
