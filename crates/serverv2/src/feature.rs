@@ -15,16 +15,21 @@
 //
 //! Allows building server features.
 
+use crate::mk_api_response_types;
 use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
 use sea_orm_migration::{MigrationTrait, MigratorTrait};
+use serde::Serialize;
 use std::{
     any::{self, TypeId},
-    collections::HashMap,
+    collections::{HashMap, hash_map::Iter},
     fmt::Debug,
     sync::Arc,
 };
-use utoipa::openapi::OpenApi;
+use utoipa::{ToSchema, openapi::OpenApi};
+
+/// A list of all the features by their metadata.
+pub const FEATURES: &[&str] = &["gc", "members"];
 
 /// Newtype wrapper for holding a collection of [`Feature`]s.
 #[derive(Clone, Default)]
@@ -78,6 +83,11 @@ impl Collection {
         None
     }
 
+    /// Returns a iterator of all the features avaliable
+    pub fn iter(&self) -> Iter<'_, TypeId, Arc<dyn Feature>> {
+        self.0.iter()
+    }
+
     pub(crate) fn add<F: Feature>(&mut self, feat: F) {
         let type_id = TypeId::of::<F>();
         self.0.insert(type_id, Arc::new(feat));
@@ -98,18 +108,32 @@ impl MigratorTrait for NoMigratorAvaliable {
 /// of a feature regardless if it's enabled or not. The `/features` endpoint will
 /// return if this feature is enabled or not alongside its metadata as: `[enabled,
 /// metadata]`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ToSchema, Serialize)]
 pub struct Metadata {
+    /// Name of the feature.
     pub name: &'static str,
+
+    /// The configuration key that this feature is configured in.
     pub config_key: &'static str,
+
+    /// Description about this feature.
     pub description: &'static str,
+
+    /// Authors that created this feature.
     pub authors: &'static [&'static str],
+
+    /// When did this feature appear in?
     pub since: &'static str,
+
+    /// If the feature is deprecated, this is the notice.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deprecated: Option<Deprecation>,
 }
 
+mk_api_response_types!(Metadata);
+
 /// Deprecation of this feature and why it was deprecated.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ToSchema, Serialize)]
 pub struct Deprecation {
     /// What version since this feature is deprecated.
     pub since: &'static str,
@@ -118,6 +142,7 @@ pub struct Deprecation {
     pub removed_in: &'static str,
 
     /// Optional message about this deprecation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub message: Option<&'static str>,
 }
 

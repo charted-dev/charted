@@ -68,6 +68,7 @@ tower-http = { version = "0.6.2", features = [
     "cors",
 ] }
 tracing.workspace = true
+url = { workspace = true, features = ["serde"] }
 utoipa = { workspace = true, features = ["debug", "url"] }
 
 [dev-dependencies]

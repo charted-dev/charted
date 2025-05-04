@@ -12,3 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use crate::{feature::Metadata, mk_api_response_types, mk_into_responses};
+use serde::Serialize;
+use utoipa::ToSchema;
+
+/// Datatype for an enabled feature.
+#[derive(Serialize, ToSchema)]
+pub struct EnabledFeature {
+    /// If the feature is enabled.
+    pub enabled: bool,
+
+    /// Metadata about this feature.
+    pub metadata: Metadata,
+}
+
+mk_api_response_types!(EnabledFeature);
+mk_into_responses!(for EnabledFeature {
+    "200" => [ref(EnabledFeatureResponse)];
+    "404" => [error(description = "404 Not Found")];
+});

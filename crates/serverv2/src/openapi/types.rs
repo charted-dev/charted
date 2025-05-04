@@ -18,15 +18,14 @@ use serde_json::Value;
 use utoipa::{
     PartialSchema, ToResponse, ToSchema,
     openapi::{
-        ArrayBuilder, ContentBuilder, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema, Type,
-        schema::SchemaType,
+        ArrayBuilder, ContentBuilder, KnownFormat, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
+        SchemaFormat, Type, schema::SchemaType,
     },
 };
 
 /// Represents a generic empty API response, please do not use this in actual code,
 /// it is only meant for utoipa for OpenAPI code generation.
 pub struct EmptyApiResponse;
-
 impl PartialSchema for EmptyApiResponse {
     fn schema() -> RefOr<Schema> {
         let object = ObjectBuilder::new()
@@ -64,7 +63,6 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
 /// Represents a generic API error response object. Please do not use this in actual code,
 /// it is only meant for OpenAPI code generation.
 pub struct ApiErrorResponse;
-
 impl PartialSchema for ApiErrorResponse {
     fn schema() -> RefOr<Schema> {
         let object = ObjectBuilder::new()
@@ -111,6 +109,20 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
     }
 }
 
+pub struct Url;
+impl PartialSchema for Url {
+    fn schema() -> RefOr<Schema> {
+        RefOr::T(Schema::Object(
+            ObjectBuilder::new()
+                .schema_type(SchemaType::Type(Type::String))
+                .format(Some(SchemaFormat::KnownFormat(KnownFormat::Uri)))
+                .build(),
+        ))
+    }
+}
+
+impl ToSchema for Url {}
+
 #[macro_export]
 macro_rules! mk_api_response_types {
     ($($Ty:ty)+) => {$(
@@ -127,6 +139,7 @@ macro_rules! mk_api_response_types {
                 ) {
                     use $crate::__macro_support::utoipa::{
                         PartialSchema,
+                        ToSchema,
                         openapi::{
                             RefOr,
                             Schema,
@@ -187,9 +200,101 @@ macro_rules! mk_api_response_types {
     )+};
 }
 
+#[macro_export]
+macro_rules! mk_list_based_api_response_types {
+    ($($Ty:ty)+) => {$(
+        $crate::__macro_support::paste! {
+            #[doc = concat!("Response datatype for object `", stringify!($Ty), "`.")]
+            pub struct [<List $Ty Response>];
+
+            impl<'r> $crate::__macro_support::utoipa::ToResponse<'r> for [<List $Ty Response>] {
+                fn response() -> (
+                    &'r str,
+                    $crate::__macro_support::utoipa::openapi::RefOr<
+                        $crate::__macro_support::utoipa::openapi::Response
+                    >
+                ) {
+                    use $crate::__macro_support::utoipa::{
+                        PartialSchema,
+                        ToSchema,
+                        openapi::{
+                            RefOr,
+                            Schema,
+                            Response,
+                            Content,
+                            Object,
+                            Ref,
+                            Array,
+                        }
+                    };
+
+                    const __NAME: &'static str = concat!(
+                        "List",
+                        stringify!($Ty),
+                        "Response"
+                    );
+
+                    let RefOr::T(Schema::Object(response)) = <
+                        ::charted_core::api::Response<()> as PartialSchema
+                    >::schema() else {
+                        unreachable!();
+                    };
+
+                    // Safety: the derive macro for `api::Response` will always have
+                    // a `success` field.
+                    let success = unsafe { response.properties.get("success").unwrap_unchecked() };
+                    let errors = unsafe { response.properties.get("errors").unwrap_unchecked() };
+
+                    (
+                        __NAME,
+                        Response::builder()
+                            .description(concat!(
+                                "Response datatype for a list of objects that are of type `",
+                                concat!(
+                                    stringify!($Ty),
+                                    "Response"
+                                ),
+                                "`."
+                            ))
+                            .content(
+                                "application/json",
+                                Content::builder()
+                                    .schema(Some(RefOr::T(Schema::Object({
+                                        let data = RefOr::T(Schema::Array(
+                                            Array::new(RefOr::Ref(
+                                                Ref::from_schema_name(<$Ty as ToSchema>::name())
+                                            ))
+                                        ));
+
+                                        let __object = Object::builder()
+                                            .property("success", success.to_owned())
+                                            .required("success")
+                                            .property("data", data)
+                                            .property("errors", errors.to_owned());
+
+                                        __object.build()
+                                    }))))
+                                    .build()
+                            )
+                            .build()
+                            .into()
+                    )
+                }
+            }
+        }
+    )+};
+}
+
 mk_api_response_types! {
     Organization
     Repository
     ApiKey
     User
+    Url
+}
+
+mk_list_based_api_response_types! {
+    Organization
+    Repository
+    ApiKey
 }

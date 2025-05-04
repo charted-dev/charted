@@ -58,6 +58,10 @@ impl Version {
         }
     }
 
+    pub fn path(&self) -> String {
+        format!("/{}", self.as_str())
+    }
+
     pub const fn as_slice<'a>() -> &'a [Version] {
         &[Version::V1]
     }

@@ -14,7 +14,9 @@
 // limitations under the License.
 
 use super::Env;
-use crate::env::{shutdown_signal, systemd};
+use crate::env::shutdown_signal;
+#[cfg(all(feature = "libsystemd", target_os = "linux"))]
+use crate::env::systemd;
 use axum::Router;
 use axum_server::{Handle, tls_rustls::RustlsConfig};
 use charted_config::server::{self, ssl};

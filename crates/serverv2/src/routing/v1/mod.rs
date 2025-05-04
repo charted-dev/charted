@@ -26,9 +26,42 @@ pub mod organization;
 pub mod repository;
 pub mod user;
 
-use crate::Env;
+use crate::{Env, mk_api_response_types, mk_into_responses};
 use axum::{Router, routing};
+use charted_core::VERSION;
+use serde::Serialize;
+use utoipa::ToSchema;
+
+/// Generic entrypoint message for any API route like `/users`.
+#[derive(Serialize, ToSchema)]
+pub struct Entrypoint {
+    /// Humane message to greet you.
+    pub message: String,
+
+    /// URI to the documentation for this entrypoint.
+    pub docs: String,
+}
+
+impl Entrypoint {
+    pub fn new(entity: impl AsRef<str>) -> Self {
+        let entity = entity.as_ref();
+        Self {
+            message: format!("welcome to the {entity} API"),
+            docs: format!(
+                "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
+                entity.to_lowercase().replace(' ', "")
+            ),
+        }
+    }
+}
+
+mk_api_response_types!(Entrypoint);
+mk_into_responses!(for Entrypoint {
+    "200" => [ref(EntrypointResponse)];
+});
 
 pub fn create_router(_: &Env) -> Router<Env> {
-    Router::new().route("/", routing::get(main::main))
+    Router::new()
+        .route("/healthz", routing::get(healthz::healthz))
+        .route("/", routing::get(main::main))
 }

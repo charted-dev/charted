@@ -4,7 +4,6 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
-    "rust-analyzer.cargo.allTargets": false,
     "rust-analyzer.check.workspace": false,
 
     // Ensure that we don't lock up `cargo check` (i.e, for `cargo expand` to debug macros)

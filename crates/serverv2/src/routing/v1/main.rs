@@ -44,6 +44,7 @@ mk_into_responses!(for Main {
     "200" => [ref(MainResponse)];
 });
 
+#[axum::debug_handler]
 #[utoipa::path(get, path = "/v1", operation_id = "Main", responses(Main))]
 pub async fn main() -> api::Response<Main> {
     api::from_default(StatusCode::OK)

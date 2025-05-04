@@ -13,6 +13,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Extracts the `T` from [`RefOr`].
+#[macro_export]
+macro_rules! extract_refor_t {
+    ($val:expr) => {
+        match $val {
+            val => {
+                let ::utoipa::openapi::RefOr::T(v) = val else {
+                    unreachable!()
+                };
+
+                v
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! modify_property {
+    ($($val:ident.$field:ident($arg:expr))*) => {
+        $($val.$field = From::from($arg);)*
+    };
+}
+
+#[macro_export]
+macro_rules! commit_patch {
+    ($model:ident of bool: old.$oldf:ident => $newf:expr; [$entity:ident]) => {
+        if let ::core::option::Option::Some(field) = $newf
+            && ($entity).$oldf != field {
+            $model.$oldf = ::sea_orm::ActiveValue::set(field);
+        }
+    };
+
+    ($model:ident of string?: old.$oldf:ident => $newf:expr) => {
+        if let ::core::option::Option::Some(field) = ($newf).as_deref() {
+            let old = ($oldf).as_deref();
+            if old.is_none() && !field.is_empty() {
+                $model.$oldf = ::sea_orm::ActiveValue::set(Some(field.to_owned()));
+            } else if let Some(old) = old &&
+                !old.is_empty() &&
+                old != field
+            {
+                $model.$oldf = ::sea_orm::ActiveValue::set(Some(field.to_owned()));
+            } else {
+                $model.$oldf = ::sea_orm::ActiveValue::set(None);
+            }
+        }
+    };
+
+    ($model:ident of string?: old.$oldf:ident => $newf:expr; validate that len < $len:literal [$errors:ident]) => {
+        if let ::core::option::Option::Some(field) = ($newf).as_deref() {
+            if !(field.len() <= $len) {
+                ::std::vec::Vec::push(&mut $errors, ::charted_core::api::Error {
+                    code: ::charted_core::api::ErrorCode::ValidationFailed,
+                    message: ::std::borrow::Cow::Borrowed(concat!("expected to be less than ", $len, " characters")),
+                    details: ::core::option::Option::Some(::serde_json::json!({
+                        "path": stringify!($oldf),
+                        "expected": $len,
+                        "received": [field.len() - $len, $len]
+                    }))
+                });
+            }
+        } else {
+            $crate::commit_patch!($model of string?: old.$oldf => $newf);
+        }
+    };
+
+    ($model:ident of string?: old.$oldf:ident => $newf:expr; validate that $validator:expr) => {
+        if let ::core::option::Option::Some(field) = ($newf).as_deref() {
+            if !($validator) {
+                ::std::vec::Vec::push(&mut $errors, ::charted_core::api::Error {
+                    code: ::charted_core::api::ErrorCode::ValidationFailed,
+                    message: ::std::borrow::Cow::Borrowed("validation failed"),
+                    details: ::core::option::Option::Some(::serde_json::json!({
+                        "path": stringify!($oldf),
+                        "value": field.clone()
+                    }))
+                });
+            }
+        } else {
+            $crate::commit_patch!($model of string?: old.$oldf => $newf);
+        }
+    };
+}
+
 #[macro_export]
 macro_rules! mk_into_responses {
     (for $Ty:ty {$(
@@ -27,11 +111,8 @@ macro_rules! mk_into_responses {
             > {
                 ::azalia::btreemap! {
                     $(
-                        $code => {
-                            let __ret = $crate::__internal_mk_into_responses!(@internal $($tt)*);
-                            __ret
-                        }
-                    )+
+                        $code => $crate::__internal_mk_into_responses!(@internal $($tt)*)
+                    ),+
                 }
             }
         }
@@ -48,4 +129,22 @@ macro_rules! __internal_mk_into_responses {
             ),
         )
     };
+
+    (@internal error) => {
+        $crate::__internal_mk_into_responses(@internal ref($crate::openapi::ApiErrorResponse))
+    };
+
+    (@internal error($($field:ident = $value:expr),*)) => {{
+        let mut response = $crate::extract_refor_t!(
+            <$crate::openapi::ApiErrorResponse as $crate::__macro_support::utoipa::ToResponse>::response().1
+        );
+
+        $(
+            $crate::modify_property!(
+                response.$field($value)
+            );
+        )*
+
+        response
+    }};
 }
