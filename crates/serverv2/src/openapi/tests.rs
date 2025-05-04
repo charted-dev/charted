@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use super::*;
+use std::collections::HashSet;
 use utoipa::openapi::{
     Ref, RefOr, Schema, Type,
     path::ParameterIn,
@@ -306,13 +307,23 @@ fn sanity_check_all_references_are_correct() {
     eprintln!("received {} references", references.len());
 
     let as_json_value = serde_json::to_value(document).unwrap();
+    let mut seen = HashSet::new();
+
     for (name, ref_) in references {
+        // If we have already seen it and it is valid, then don't re-compute.
+        if seen.contains(&ref_.ref_location) {
+            continue;
+        }
+
         eprintln!("==> validating {} ({name})", ref_.ref_location);
 
         // references are usually similar to JSON pointers (kind of).
         let ptr = ref_.ref_location.replace('#', "");
         match as_json_value.pointer(&ptr) {
-            Some(_) => {}
+            Some(_) => {
+                seen.insert(ref_.ref_location);
+            }
+
             None => panic!(
                 "{name}: reference {} is non-existent or is a invalid JSON pointer ({ptr})",
                 ref_.ref_location

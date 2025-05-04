@@ -16,7 +16,7 @@
 mod addons;
 mod types;
 
-use addons::IncludeDefaultVersionWithoutPrefix;
+use addons::{IncludeDefaultVersionWithoutPrefix, IncludeErrorProneSchemas};
 pub use types::{
     ApiErrorResponse, ApiKeyResponse, EmptyApiResponse, ListApiKeyResponse, ListOrganizationResponse,
     ListRepositoryResponse, OrganizationResponse, RepositoryResponse, Url, UrlResponse, UserResponse,
@@ -32,7 +32,8 @@ use utoipa::{
 #[derive(OpenApi)]
 #[openapi(
     modifiers(
-        &IncludeDefaultVersionWithoutPrefix
+        &IncludeDefaultVersionWithoutPrefix,
+        &IncludeErrorProneSchemas
     ),
     info(
         title = "charted-server",
