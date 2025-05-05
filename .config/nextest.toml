@@ -30,6 +30,12 @@ envtests = { max-threads = 1 }
 ds-docker = { max-threads = 1 }
 
 [[profile.default.overrides]]
-platform = "cfg(unix)"
+test-group = "ds-docker"
+platform = "cfg(target_os = \"linux\")"
 retries = 2
-filter = 'package(charted-helm-charts)'
+filter = 'package(charted-helm-charts) and test(/azure|s3$/)'
+
+[[profile.default.overrides]]
+test-group = "envtests"
+retries = 2
+filter = 'package(charted-config) and test(/^env/)'

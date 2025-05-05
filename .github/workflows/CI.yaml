@@ -96,7 +96,7 @@ jobs:
                   tool: cargo-nextest
 
             - run: cargo build --workspace --all-features
-            - run: cargo nextest run --workspace --all-features
+            - run: cargo nextest run --workspace --all-features --profile ci
             - run: cargo test --doc --workspace --all-features
     cargo-deny:
         name: 'Rust / `cargo deny`'
