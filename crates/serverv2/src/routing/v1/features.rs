@@ -13,12 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{feature::Metadata, mk_api_response_types, mk_into_responses};
+use crate::{Env, mk_api_response_types, mk_into_responses, mk_list_based_api_response_types, mk_route_handler};
+use axum::{extract::State, http::StatusCode};
+use charted_core::api;
+use charted_feature::Metadata;
 use serde::Serialize;
 use utoipa::ToSchema;
 
 /// Datatype for an enabled feature.
-#[derive(Serialize, ToSchema)]
+#[derive(Clone, Serialize, ToSchema)]
 pub struct EnabledFeature {
     /// If the feature is enabled.
     pub enabled: bool,
@@ -28,7 +31,26 @@ pub struct EnabledFeature {
 }
 
 mk_api_response_types!(EnabledFeature);
+mk_list_based_api_response_types!(EnabledFeature);
 mk_into_responses!(for EnabledFeature {
     "200" => [ref(EnabledFeatureResponse)];
     "404" => [error(description = "404 Not Found")];
 });
+
+mk_route_handler! {
+    /// Returns all the server's features.
+    #[path("/v1/features", get, {
+        operation_id = "getServerFeatures",
+        responses(
+            (
+                status = 200,
+                description = "list of all features and checks if they are enabled or not",
+                body = ref("#/components/schemas/ListEnabledFeatureResponse")
+            )
+        )
+    })]
+    #[app_state = Env]
+    fn features({State(_)}: State<Env>) -> api::Response<Vec<EnabledFeature>> {
+        api::ok(StatusCode::OK, [].to_vec())
+    }
+}

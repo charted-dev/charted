@@ -100,10 +100,9 @@ use utoipa::{
 
             charted_types::payloads::UserLoginPayload,
 
-            crate::feature::Metadata,
-            crate::feature::Deprecation,
+            charted_feature::Metadata,
+            charted_feature::Deprecation,
             crate::routing::v1::main::Main,
-            crate::routing::v1::features::EnabledFeature,
         ),
         responses(
             ApiErrorResponse,
@@ -117,13 +116,19 @@ use utoipa::{
             ListRepositoryResponse,
             UrlResponse,
 
-            crate::feature::MetadataResponse,
             crate::routing::v1::main::MainResponse,
-            crate::routing::v1::features::EnabledFeatureResponse,
+            crate::routing::v1::indexes::ChartIndexResponse,
         )
     ),
-    paths(),
+    paths(
+        crate::routing::v1::healthz::healthz,
+        crate::routing::v1::indexes::fetch,
+        crate::routing::v1::main::main,
+    ),
     tags(
+        (
+            name = "Main"
+        ),
         (
             name = "Users",
             description = "Endpoints that create, modify, delete, or fetch user metadata"

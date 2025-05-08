@@ -12,3 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use crate::{Env, openapi::Document};
+use axum::{Json, extract::State};
+use std::sync::OnceLock;
+use utoipa::{OpenApi as _, openapi::OpenApi};
+
+static OPENAPI: OnceLock<OpenApi> = OnceLock::new();
+
+pub async fn openapi(State(env): State<Env>) -> Json<&'static OpenApi> {
+    let document = OPENAPI.get_or_init(|| {
+        let mut core = Document::openapi();
+        for (_, feat) in env.features.iter() {
+            feat.extend_openapi(&mut core);
+        }
+
+        core
+    });
+
+    Json(document)
+}

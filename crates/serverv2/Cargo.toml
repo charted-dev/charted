@@ -41,6 +41,10 @@ charted-config.workspace = true
 charted-core = { workspace = true, features = ["axum", "openapi", "yaml"] }
 charted-database.workspace = true
 charted-datastore.workspace = true
+charted-feature = { version = "0.1.0", path = "../../features" }
+charted-feature-gc.workspace = true
+charted-feature-members.workspace = true
+charted-feature-totp.workspace = true
 charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-metrics.workspace = true

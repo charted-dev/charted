@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::Env;
-use charted_core::BoxedFuture;
+use charted_core::{BoxedFuture, api};
 use charted_database::entities::{OrganizationEntity, UserEntity, organization, user};
 use charted_types::{NameOrUlid, Organization, Owner, Ulid, User, name::Name};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
@@ -89,5 +89,22 @@ impl OwnerExt for Owner {
         }
 
         Ok(None)
+    }
+}
+
+pub trait ResultExt<T, E>: Sized {
+    #[allow(clippy::result_large_err)]
+    fn into_system_failure(self) -> Result<T, api::Response>;
+}
+
+impl<T, E> ResultExt<T, E> for Result<T, E>
+where
+    E: std::error::Error,
+{
+    fn into_system_failure(self) -> Result<T, api::Response> {
+        self.inspect_err(|e| {
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)
     }
 }

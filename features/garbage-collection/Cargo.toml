@@ -26,4 +26,4 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-charted-serverv2 = { version = "0.1.0", path = "../../crates/serverv2" }
+charted-feature.workspace = true

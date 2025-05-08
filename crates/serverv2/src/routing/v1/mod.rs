@@ -17,7 +17,7 @@
 //!
 //! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api/v1
 
-pub mod features;
+//pub mod features;
 pub mod healthz;
 pub mod indexes;
 pub mod main;
@@ -62,6 +62,8 @@ mk_into_responses!(for Entrypoint {
 
 pub fn create_router(_: &Env) -> Router<Env> {
     Router::new()
+        .route("/indexes/{idOrName}", routing::get(indexes::fetch))
+        .route("/openapi.json", routing::get(openapi::openapi))
         .route("/healthz", routing::get(healthz::healthz))
         .route("/", routing::get(main::main))
 }

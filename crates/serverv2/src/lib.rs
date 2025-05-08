@@ -41,6 +41,7 @@ pub mod routing;
 // Private module to aid in macro development
 #[doc(hidden)]
 pub mod __macro_support {
+    pub use axum;
     pub use paste::paste;
     pub use utoipa;
 }

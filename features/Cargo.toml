@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-feature-members"
-description = "🐻‍❄️📦 Allow management of repositories and organizations."
+name = "charted-feature"
+description = "🐻‍❄️📦 Allows building server features."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -25,5 +25,12 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[lib]
+path = "lib.rs"
+
 [dependencies]
-charted-feature.workspace = true
+azalia.workspace = true
+charted-core.workspace = true
+sea-orm-migration.workspace = true
+serde.workspace = true
+utoipa.workspace = true

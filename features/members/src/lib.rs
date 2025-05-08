@@ -13,22 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_serverv2::feature::Metadata;
-
-/// Metadata about this feature.
-pub const METADATA: Metadata = Metadata {
-    name: "Repository/Organization Members",
-    config_key: "members",
-    description: env!("CARGO_PKG_DESCRIPTION"),
-    authors: &["Noelware, LLC. <team@noelware.org>"],
-    since: "0.1.0",
-    deprecated: None,
-};
+use charted_feature::Metadata;
 
 #[derive(Debug, Clone)]
 pub struct Feature;
-impl charted_serverv2::feature::Feature for Feature {
+impl charted_feature::Feature for Feature {
     fn metadata(&self) -> Metadata {
+        const METADATA: Metadata = Metadata {
+            name: "Repository/Organization Members",
+            config_key: "members",
+            description: env!("CARGO_PKG_DESCRIPTION"),
+            authors: &["Noelware, LLC. <team@noelware.org>"],
+            since: "0.1.0",
+            deprecated: None,
+        };
+
         METADATA
     }
 }

@@ -13,30 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// #[path = "build/generate_path_item.rs"]
-// mod generate_path_item;
-
-use serde_json::Value;
-use std::fs;
-use utoipa::openapi::Paths;
+use serde::Deserialize;
+use std::fs::File;
+use utoipa::openapi::{Info, Paths};
 
 const OPENAPI_DOCUMENT: &str = "../../assets/openapi.json";
+
+#[derive(Debug, Deserialize)]
+struct PartialOpenApi {
+    openapi: String,
+    info: Info,
+    paths: Paths,
+}
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
     println!("cargo::rerun-if-changed={}", OPENAPI_DOCUMENT);
 
-    let contents = fs::read_to_string(OPENAPI_DOCUMENT).unwrap();
-    let as_value: Value = serde_json::from_str(&contents).unwrap();
-    let contents = Value::Object(
-        as_value
-            .get("paths")
-            .expect("`paths` is missing from openapi document")
-            .as_object()
-            .expect("`paths` was not a object")
-            .clone(),
-    );
-
-    let Paths { paths, .. } = serde_json::from_value(contents).unwrap();
-    eprintln!("{:#?}", paths);
+    let file = File::open(OPENAPI_DOCUMENT).expect("`assets/openapi.json` to be present in src tree");
+    serde_json::from_reader::<_, PartialOpenApi>(file).unwrap();
 }

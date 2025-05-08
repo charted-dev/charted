@@ -1296,6 +1296,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "reqwest",
+ "serde",
  "serde_json",
  "syn 2.0.100",
  "tracing",
@@ -1373,17 +1374,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-feature"
+version = "0.1.0"
+dependencies = [
+ "azalia",
+ "charted-core",
+ "sea-orm-migration",
+ "serde",
+ "utoipa",
+]
+
+[[package]]
 name = "charted-feature-gc"
 version = "0.1.0"
 dependencies = [
- "charted-serverv2",
+ "charted-feature",
 ]
 
 [[package]]
 name = "charted-feature-members"
 version = "0.1.0"
 dependencies = [
- "charted-serverv2",
+ "charted-feature",
 ]
 
 [[package]]
@@ -1473,6 +1485,10 @@ dependencies = [
  "charted-core",
  "charted-database",
  "charted-datastore",
+ "charted-feature",
+ "charted-feature-gc",
+ "charted-feature-members",
+ "charted-feature-totp",
  "charted-helm-charts",
  "charted-helm-types",
  "charted-metrics",

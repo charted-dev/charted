@@ -119,9 +119,53 @@ macro_rules! mk_into_responses {
     };
 }
 
+/// Declarative macro to implement a REST endpoint.
+#[macro_export]
+macro_rules! mk_route_handler {
+    (
+        $(#[doc = $doc:literal])*
+        #[path($route:literal, $method:ident$(, { $($path:tt)* })?)]
+        $(#[app_state = $State:ty])?
+        fn $name:ident($(
+            {$arg:pat}: $ty:ty
+        ),*) -> $ret:ty $code:block
+    ) => {
+        #[::axum::debug_handler$((state = $State))?]
+        #[$crate::__macro_support::utoipa::path(
+            $method,
+
+            path = $route,
+            $($($path)*,)?
+        )]
+        pub async fn $name($($arg: $ty),*) -> $ret $code
+    };
+}
+
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __internal_mk_into_responses {
+    (@internal ref(with $content:literal => $T:ty$(; $($field:ident($value:expr);)*)?)) => {
+        $crate::__macro_support::utoipa::openapi::Response::builder()
+            .content(
+                $content,
+                $crate::__macro_support::utoipa::openapi::Content::builder()
+                    .schema(::core::option::Option::Some(
+                        $crate::__macro_support::utoipa::openapi::RefOr::Ref(
+                            $crate::__macro_support::utoipa::openapi::Ref::from_schema_name(
+                                <$T as $crate::__macro_support::utoipa::ToSchema>::name()
+                            )
+                        )
+                    ))
+                    .build()
+            )
+            $(
+                $(
+                    .$field($value)
+                )*
+            )?
+            .build()
+    };
+
     (@internal ref($T:ty)) => {
         $crate::__macro_support::utoipa::openapi::RefOr::Ref(
             $crate::__macro_support::utoipa::openapi::Ref::from_response_name(
@@ -134,7 +178,8 @@ macro_rules! __internal_mk_into_responses {
         $crate::__internal_mk_into_responses(@internal ref($crate::openapi::ApiErrorResponse))
     };
 
-    (@internal error($($field:ident = $value:expr),*)) => {{
+    (@internal error($($field:ident($value:expr)),*)) => {{
+        #[allow(unused_mut)]
         let mut response = $crate::extract_refor_t!(
             <$crate::openapi::ApiErrorResponse as $crate::__macro_support::utoipa::ToResponse>::response().1
         );

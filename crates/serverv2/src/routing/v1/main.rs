@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{mk_api_response_types, mk_into_responses};
+use crate::{mk_api_response_types, mk_into_responses, mk_route_handler};
 use axum::http::StatusCode;
 use charted_core::{BuildInfo, Distribution, api};
 use serde::Serialize;
@@ -44,8 +44,9 @@ mk_into_responses!(for Main {
     "200" => [ref(MainResponse)];
 });
 
-#[axum::debug_handler]
-#[utoipa::path(get, path = "/v1", operation_id = "Main", responses(Main))]
-pub async fn main() -> api::Response<Main> {
-    api::from_default(StatusCode::OK)
+mk_route_handler! {
+    #[path("/v1", get, { tag = "Main", responses(Main) })]
+    fn main() -> api::Response<Main> {
+        api::from_default(StatusCode::OK)
+    }
 }
