@@ -685,8 +685,10 @@ FodyWeavers.xsd
 
 !crates/helm/charts/__fixtures__/**/*.tgz
 !nix/packages/*.nix
+!nix/packages/*.patch
 !Cargo.lock
 config.toml
 .direnv/
+result
 data/
 .env

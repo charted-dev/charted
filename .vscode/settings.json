@@ -9,18 +9,22 @@
     // Ensure that we don't lock up `cargo check` (i.e, for `cargo expand` to debug macros)
     // but this comes at the cost of duplicate artifacts, which I think we can sacrifice.
     "rust-analyzer.cargo.targetDir": "${workspaceFolder}/target/rust-analyzer",
+    "rust-analyzer.cargo.extraEnv": {
+        "RUSTFLAGS": "--cfg tokio_unstable"
+    },
     "rust-analyzer.server.extraEnv": {
         "CARGO_TARGET_DIR": "${workspaceFolder}/target/rust-analyzer"
     },
-
     "rust-analyzer.runnables.extraEnv": {
         // Allows to run integration tests with logging enabled
         "INTEGTEST_LOG": "trace,aws_smithy_runtime=info,hyper_util=info",
 
         // Generate a full backtrace when tests error out
-        "RUST_BACKTRACE": "full"
-    },
+        "RUST_BACKTRACE": "full",
 
+        // Ensure that the `--cfg tokio_unstable` flag is avaliable
+        "RUSTFLAGS": "--cfg tokio_unstable"
+    },
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },

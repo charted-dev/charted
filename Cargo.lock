@@ -1510,6 +1510,7 @@ dependencies = [
  "serde_json",
  "serde_path_to_error",
  "tokio",
+ "tokio-metrics",
  "tower 0.5.2",
  "tower-http",
  "tracing",
@@ -6316,6 +6317,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
+]
+
+[[package]]
+name = "tokio-metrics"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7817b32d36c9b94744d7aa3f8fc13526aa0f5112009d7045f3c659413a6e44ac"
+dependencies = [
+ "futures-util",
+ "metrics",
+ "pin-project-lite",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]

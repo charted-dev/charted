@@ -38,8 +38,14 @@ async fn filesystem() {
     do_test(ds).await;
 }
 
+#[cfg(target_os = "linux")]
 #[tokio::test]
 async fn s3() {
+    // Always succeed the test if Docker tests are disabled.
+    if super::docker_tests_disabled() {
+        return;
+    }
+
     let _log_guard = testutil::setup_tracing();
     let minio = testutil::minio().await.unwrap();
     let port = minio.get_host_port_ipv4(9000).await.unwrap();
@@ -61,8 +67,14 @@ async fn s3() {
     do_test(ds).await
 }
 
+#[cfg(target_os = "linux")]
 #[tokio::test]
 async fn azure() {
+    // Always succeed the test if Docker tests are disabled.
+    if super::docker_tests_disabled() {
+        return;
+    }
+
     let _log_guard = testutil::setup_tracing();
     let azurite = testutil::azurite().await.unwrap();
     let port = azurite.get_host_port_ipv4(10000).await.unwrap();

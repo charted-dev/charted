@@ -34,11 +34,13 @@ in
     src = ../../.;
 
     cargoBuildFlags = ["--bin" "charted"];
-    cargoLock = {
-      inherit (common) outputHashes;
+    cargoLock.lockFile = ../../Cargo.lock;
 
-      lockFile = ../../Cargo.lock;
-    };
+    patches = [
+      ./00001_charted_disable-clang.patch
+    ];
+
+    RUSTFLAGS = "--cfg tokio_unstable -Csymbol-mangling-version=v0";
 
     nativeBuildInputs = [pkg-config installShellFiles];
     buildInputs =
@@ -49,8 +51,12 @@ in
         SystemConfiguration
       ]));
 
-    env.CHARTED_DISTRIBUTION_KIND = "nix";
+    env = {
+      CHARTED_DISTRIBUTION_KIND = "nix";
+      DISABLE_DOCKER_TESTS = "1";
+    };
 
+    useNextest = true;
     postInstall = ''
       installShellCompletion --cmd charted \
         --bash <($out/bin/charted completions bash) \

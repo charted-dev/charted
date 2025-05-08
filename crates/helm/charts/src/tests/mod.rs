@@ -25,3 +25,7 @@ macro_rules! fixture {
 }
 
 pub(in crate::tests) use fixture;
+
+pub(in crate::tests) fn docker_tests_disabled() -> bool {
+    matches!(std::env::var("DISABLE_DOCKER_TESTS").as_deref(), Ok("1"))
+}

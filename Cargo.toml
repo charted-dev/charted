@@ -58,6 +58,10 @@ publish = false
 repository = "https://github.com/charted-dev/charted"
 rust-version = "1.85"
 
+[workspace.lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ['cfg(noeldoc)', 'cfg(tokio_unstable)']
+
 [workspace.dependencies]
 charted-authz.path = "./crates/authz"
 charted-authz-local.path = "./crates/authz/local"

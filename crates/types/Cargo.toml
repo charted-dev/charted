@@ -26,8 +26,8 @@ repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
+[lints]
+workspace = true
 
 [features]
 default = []

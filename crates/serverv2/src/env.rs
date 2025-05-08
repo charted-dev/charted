@@ -69,21 +69,35 @@ impl Env {
         let authz: Arc<dyn Authenticator> = build_authz_backend(&config.sessions);
         debug!("authenticator: initialized [{}]", Duration::from(now.elapsed()));
 
+        let prometheus = match &config.metrics {
+            metrics::Config::Disabled => None,
+            metrics::Config::Prometheus(config) => charted_metrics::init_prometheus(config).map(Some)?,
+            metrics::Config::OpenTelemetry(otel) => {
+                charted_metrics::init_opentelemetry(otel)?;
+                None
+            }
+        };
+
+        #[cfg(tokio_unstable)]
+        match config.metrics {
+            metrics::Config::Disabled => {}
+            _ => {
+                debug!("installing Tokio-based metrics");
+                tokio::spawn(
+                    tokio_metrics::RuntimeMetricsReporterBuilder::default()
+                        .with_interval(std::time::Duration::from_secs(15))
+                        .describe_and_run(),
+                );
+            }
+        }
+
         #[allow(unused_mut)]
         let mut features = feature::Collection::new();
 
         debug!("built environment in {}", Duration::from(original.elapsed()));
 
         Ok(Self {
-            prometheus: match &config.metrics {
-                metrics::Config::Disabled => None,
-                metrics::Config::Prometheus(config) => charted_metrics::init_prometheus(config).map(Some)?,
-                metrics::Config::OpenTelemetry(otel) => {
-                    charted_metrics::init_opentelemetry(otel)?;
-                    None
-                }
-            },
-
+            prometheus,
             features,
             config,
             authz,

@@ -18,7 +18,7 @@
   cargoTOML = builtins.fromTOML (builtins.readFile ../Cargo.toml);
   rustflags = stdenv:
     if stdenv.isLinux
-    then ''-C linker=clang -C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
+    then ''-C linker=clang -C link-arg=-fuse-ld=mold -C target-cpu=native --cfg tokio_unstable $RUSTFLAGS''
     else ''$RUSTFLAGS'';
 
   mkRustPlatform = rust: rust.fromRustupToolchainFile ../rust-toolchain.toml;

@@ -26,8 +26,8 @@ repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
+[lints]
+workspace = true
 
 [features]
 default = []
@@ -36,7 +36,7 @@ default = []
 charted-core = { workspace = true, features = ["axum"] }
 charted-types.workspace = true
 charted-helm-types.workspace = true
-derive_more = { workspace = true, features = ["from", "display", "error"] }
+derive_more = { workspace = true, features = ["display", "error", "from"] }
 futures-util = { version = "0.3.31", default-features = false }
 reqwest = { version = "0.12.12", features = ["json", "multipart"] }
 serde_json.workspace = true
@@ -49,9 +49,9 @@ quote = { version = "1.0.38", default-features = false }
 serde.workspace = true
 serde_json.workspace = true
 syn = { version = "2.0.98", default-features = false, features = [
-    "printing",
-    "parsing",
     "clone-impls",
     "full",
+    "parsing",
+    "printing",
 ] }
 utoipa = { workspace = true, features = ["debug"] }
