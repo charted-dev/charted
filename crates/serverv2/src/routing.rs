@@ -17,13 +17,14 @@
 
 use crate::Env;
 use axum::{
-    Router,
+    Extension, Router,
     body::Body,
     extract::DefaultBodyLimit,
     http::{Method, Request, Response, StatusCode},
     response::IntoResponse,
 };
 use charted_core::api;
+use metrics_exporter_prometheus::PrometheusHandle;
 use serde_json::json;
 use std::{any::Any, borrow::Cow};
 use tower::ServiceBuilder;
@@ -51,6 +52,17 @@ macro_rules! mk_router(
         router
     }};
 );
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub(crate) async fn prometheus_scrape(
+    Extension(handle): Extension<Option<PrometheusHandle>>,
+) -> impl IntoResponse {
+    let Some(handle) = handle else {
+        unreachable!()
+    };
+
+    handle.render()
+}
 
 fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
     let details = azalia::message_from_panic(message);

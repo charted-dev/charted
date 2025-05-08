@@ -1498,6 +1498,7 @@ dependencies = [
  "futures-util",
  "jsonwebtoken",
  "libsystemd",
+ "metrics-exporter-prometheus",
  "mime",
  "multer",
  "paste",

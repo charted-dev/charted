@@ -20,15 +20,16 @@ mod prometheus;
 mod systemd;
 
 use crate::{feature, routing};
-use axum::extract::FromRef;
+use axum::{Extension, extract::FromRef};
 use axum_server::Handle;
 use charted_authz::Authenticator;
 use charted_config::{
-    Config,
+    Config, metrics,
     sessions::{self, Backend},
 };
-use charted_core::{serde::Duration, ulid};
+use charted_core::{ResultExt, serde::Duration, ulid};
 use charted_datastore::DataStore;
+use metrics_exporter_prometheus::PrometheusHandle;
 use sea_orm::DatabaseConnection;
 use std::{sync::Arc, time::Instant};
 
@@ -41,6 +42,8 @@ pub struct Env {
     pub ulid: ulid::Generator,
     pub db: DatabaseConnection,
     pub ds: DataStore,
+
+    prometheus: Option<PrometheusHandle>,
 }
 
 impl Env {
@@ -72,6 +75,15 @@ impl Env {
         debug!("built environment in {}", Duration::from(original.elapsed()));
 
         Ok(Self {
+            prometheus: match &config.metrics {
+                metrics::Config::Disabled => None,
+                metrics::Config::Prometheus(config) => charted_metrics::init_prometheus(config).map(Some)?,
+                metrics::Config::OpenTelemetry(otel) => {
+                    charted_metrics::init_opentelemetry(otel)?;
+                    None
+                }
+            },
+
             features,
             config,
             authz,
@@ -90,45 +102,18 @@ impl Env {
 
     /// Starts the API server.
     pub async fn drive(&self) -> eyre::Result<()> {
-        let router = routing::create_router(self).with_state(self.clone());
-
-        crate::env::apiserver::start(self, router).await
-
-        // futures_util::try_join!(crate::env::apiserver::start(&self, router))
-        //     .map(|(..)| ())
-        //     .into_report()
-    }
-}
-
-/*
-impl Context {
-    /// Starts the API server.
-    pub async fn start(&self) -> eyre::Result<()> {
-        let config = self.config.clone();
         let router = routing::create_router(self)
-            .layer(Extension(self.prometheus_handle.clone()))
+            .layer(Extension(self.prometheus.clone()))
             .with_state(self.clone());
 
         futures_util::try_join!(
-            self.start_api_server(router),
-            self.start_prometheus_server(&config.metrics)
+            crate::env::apiserver::start(self, router),
+            crate::env::prometheus::start(self)
         )
         .map(|(..)| ())
         .into_report()
     }
-
-    fn init_prometheus_handle(config: &metrics::Config) -> eyre::Result<Option<PrometheusHandle>> {
-        match config {
-            metrics::Config::Disabled => Ok(None),
-            metrics::Config::Prometheus(config) => Ok(Some(charted_metrics::init_prometheus(config)?)),
-            metrics::Config::OpenTelemetry(config) => {
-                charted_metrics::init_opentelemetry(config)?;
-                Ok(None)
-            }
-        }
-    }
 }
-*/
 
 fn build_authz_backend(config: &sessions::Config) -> Arc<dyn Authenticator> {
     match config.backend {

@@ -53,6 +53,7 @@ derive_more = { workspace = true, features = ["deref", "deref_mut"] }
 eyre.workspace = true
 futures-util = "0.3.31"
 jsonwebtoken = "9.3.1"
+metrics-exporter-prometheus.workspace = true
 mime = "0.3.17"
 multer.workspace = true
 paste = "1.0.15"

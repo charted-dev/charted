@@ -13,15 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env::shutdown_signal;
+use super::Env;
+use crate::{env::shutdown_signal, routing};
 use axum::{Extension, Router};
 use charted_config::metrics;
 use charted_core::ResultExt;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 
-pub async fn start(config: &metrics::Config) -> eyre::Result<()> {
-    let metrics::Config::Prometheus(config) = config else {
+pub async fn start(env: &Env) -> eyre::Result<()> {
+    let metrics::Config::Prometheus(config) = &env.config.metrics else {
         return Ok(());
     };
 
@@ -38,8 +39,8 @@ pub async fn start(config: &metrics::Config) -> eyre::Result<()> {
     );
 
     let router = Router::new()
-        //.route("/", axum::routing::get(routing::v1::prometheus_scrape))
-        .layer(Extension(()));
+        .route("/", axum::routing::get(routing::prometheus_scrape))
+        .layer(Extension(env.prometheus.clone()));
 
     let listener = TcpListener::bind(addr).await?;
     axum::serve(listener, router.into_make_service())
