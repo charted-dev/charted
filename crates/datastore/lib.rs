@@ -26,10 +26,10 @@
 //! we can build a [`Namespace`]:
 //!
 //! ```no_run
-//! use charted_datastore::{fs, StorageService, DataStore};
+//! use charted_datastore::{fs, DataStore, remi::StorageService as _};
 //! use charted_config::storage::Config;
 //!
-//! # tokio_test::block_on(async {
+//! # let _ = tokio_test::block_on(async {
 //! // Builds a `DataStore` that is fully initialized.
 //! let ds = DataStore::new(&Config::Filesystem(fs::StorageConfig {
 //!     directory: "./data".into(),
@@ -45,7 +45,7 @@
 //! ns.open("noel/index.yaml").await?;
 //! #
 //! # Ok::<(), eyre::Report>(())
-//! # })
+//! # });
 //! ```
 
 // Export the main `remi` crate.
