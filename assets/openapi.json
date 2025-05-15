@@ -135,6 +135,1097 @@
                 }
             }
         },
+        "/users": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Entrypoint to the Users API.",
+                "operationId": "users",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users"],
+                "summary": "Creates a new user.",
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "Request body for creating a new user on this instance. The `password` field can be omitted if the session backend isn't the local one.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "403": {
+                        "description": "Instance doesn't allow registrations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Session backend requires `password` or `email` wasn't a valid email address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Either the `username` or `email` was taken by another user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Returns information about yourself via an authenticated request.",
+                "operationId": "getSelfUser",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "4XX": {
+                        "description": "Authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:access"]
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Users"],
+                "summary": "Delete yourself.",
+                "operationId": "deleteSelf",
+                "responses": {
+                    "204": {
+                        "description": "User is scheduled for deletion and will be deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "summary": "Patch the authenticated user's metadata.",
+                "operationId": "patchSelf",
+                "requestBody": {
+                    "description": "Payload object for patching user metadata",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchUserPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Patch was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4XX": {
+                        "description": "Authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:patch"]
+                    }
+                ]
+            }
+        },
+        "/users/@me/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Lists all the avaliable API keys this user has.",
+                "operationId": "getAllApiKeys",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListApiKeyResponse"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "409": {
+                        "description": "api key already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "operationId": "getSingleApiKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "404": {
+                        "description": "api key was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Deletes an API key.",
+                "operationId": "deleteAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "404": {
+                        "description": "API key by ID or name was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patches a API key's metadata.",
+                "operationId": "createAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Request body for patching this API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "409": {
+                        "description": "failed to apply patch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the authenticated user's current avatar.",
+                "operationId": "getSelfUserAvatar",
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users/Avatars"],
+                "summary": "Upload an avatar.",
+                "operationId": "uploadSelfUserAvatar",
+                "requestBody": {
+                    "description": "Multipart form of a single field being the avatar data",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer",
+                                    "format": "u-int8",
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/UrlResponse"
+                    }
+                }
+            }
+        },
+        "/users/@me/avatars/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the authenticated user's avatar by their hash.",
+                "operationId": "getSelfUserAvatarByHash",
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all of this user's repositories.",
+                "operationId": "listMyRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Users", "Repositories"],
+                "summary": "Creates a repository under this user.",
+                "operationId": "createRepository",
+                "requestBody": {
+                    "description": "Request body for creating a new repository",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "409": {
+                        "description": "repository already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/session": {
+            "get": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Retrieve information about this session.",
+                "description": "Useless on its own but useful for testing out session authentication.",
+                "operationId": "getUserSession",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    },
+                    "4XX": {
+                        "description": "authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Logs you out from the session and destroys it.",
+                "operationId": "logout",
+                "responses": {
+                    "204": {
+                        "description": "session was successfully deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "session was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/session/refresh": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Refresh a session by destroying the old session and creating a new one.",
+                "operationId": "refreshSessionToken",
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Creates a new session.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by username or email address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "email was not properly formatted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Retrieve a single user by their ID or name.",
+                "operationId": "getUserByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "400": {
+                        "description": "Invalid ULID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the user's current avatar.",
+                "operationId": "getCurrentUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatars/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the user's avatar by their hash.",
+                "operationId": "getUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "The hash that the request will check for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all the avaliable user repositories.",
+                "operationId": "listRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    }
+                }
+            }
+        },
         "/v1": {
             "get": {
                 "tags": ["Main"],
@@ -237,6 +1328,1097 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/users": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Entrypoint to the Users API.",
+                "operationId": "users",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users"],
+                "summary": "Creates a new user.",
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "Request body for creating a new user on this instance. The `password` field can be omitted if the session backend isn't the local one.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "403": {
+                        "description": "Instance doesn't allow registrations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Session backend requires `password` or `email` wasn't a valid email address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Either the `username` or `email` was taken by another user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Returns information about yourself via an authenticated request.",
+                "operationId": "getSelfUser",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "4XX": {
+                        "description": "Authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:access"]
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Users"],
+                "summary": "Delete yourself.",
+                "operationId": "deleteSelf",
+                "responses": {
+                    "204": {
+                        "description": "User is scheduled for deletion and will be deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "summary": "Patch the authenticated user's metadata.",
+                "operationId": "patchSelf",
+                "requestBody": {
+                    "description": "Payload object for patching user metadata",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchUserPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Patch was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4XX": {
+                        "description": "Authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": ["user:patch"]
+                    }
+                ]
+            }
+        },
+        "/v1/users/@me/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Lists all the avaliable API keys this user has.",
+                "operationId": "getAllApiKeys",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListApiKeyResponse"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "409": {
+                        "description": "api key already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "operationId": "getSingleApiKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ApiKeyResponse"
+                    },
+                    "404": {
+                        "description": "api key was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Deletes an API key.",
+                "operationId": "deleteAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "404": {
+                        "description": "API key by ID or name was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patches a API key's metadata.",
+                "operationId": "createAPIKey",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Request body for patching this API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyApiResponse"
+                    },
+                    "409": {
+                        "description": "failed to apply patch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the authenticated user's current avatar.",
+                "operationId": "getSelfUserAvatar",
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users/Avatars"],
+                "summary": "Upload an avatar.",
+                "operationId": "uploadSelfUserAvatar",
+                "requestBody": {
+                    "description": "Multipart form of a single field being the avatar data",
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer",
+                                    "format": "u-int8",
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/UrlResponse"
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/avatars/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the authenticated user's avatar by their hash.",
+                "operationId": "getSelfUserAvatarByHash",
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all of this user's repositories.",
+                "operationId": "listMyRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Users", "Repositories"],
+                "summary": "Creates a repository under this user.",
+                "operationId": "createRepository",
+                "requestBody": {
+                    "description": "Request body for creating a new repository",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "409": {
+                        "description": "repository already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/session": {
+            "get": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Retrieve information about this session.",
+                "description": "Useless on its own but useful for testing out session authentication.",
+                "operationId": "getUserSession",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    },
+                    "4XX": {
+                        "description": "authentication failures",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Logs you out from the session and destroys it.",
+                "operationId": "logout",
+                "responses": {
+                    "204": {
+                        "description": "session was successfully deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "session was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/session/refresh": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Refresh a session by destroying the old session and creating a new one.",
+                "operationId": "refreshSessionToken",
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    }
+                }
+            }
+        },
+        "/v1/users/login": {
+            "post": {
+                "tags": ["Users", "Users/Sessions"],
+                "summary": "Creates a new session.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/SessionResponse"
+                    },
+                    "403": {
+                        "description": "invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "user was not found by username or email address",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "email was not properly formatted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Retrieve a single user by their ID or name.",
+                "operationId": "getUserByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UserResponse"
+                    },
+                    "400": {
+                        "description": "Invalid ULID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the user's current avatar.",
+                "operationId": "getCurrentUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/avatars/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "summary": "Returns the user's avatar by their hash.",
+                "operationId": "getUserAvatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "The hash that the request will check for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "byte-array of the avatar/icon",
+                        "content": {
+                            "image/png": {
+                                "schema": {}
+                            },
+                            "image/jpeg": {
+                                "schema": {}
+                            },
+                            "image/gif": {
+                                "schema": {}
+                            },
+                            "image/svg": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "avatar or icon by hash was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all the avaliable user repositories.",
+                "operationId": "listRepositories",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ListRepositoryResponse"
                     }
                 }
             }
@@ -773,6 +2955,30 @@
                 ],
                 "description": "`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."
             },
+            "EmptyApiResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Whether if this request was a success"
+                    }
+                }
+            },
+            "Entrypoint": {
+                "type": "object",
+                "description": "Generic entrypoint message for any API route like `/users`.",
+                "required": ["message", "docs"],
+                "properties": {
+                    "docs": {
+                        "type": "string",
+                        "description": "URI to the documentation for this entrypoint."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Humane message to greet you."
+                    }
+                }
+            },
             "Error": {
                 "type": "object",
                 "description": "Representation of a error from an error trace.",
@@ -975,6 +3181,11 @@
                 ],
                 "description": "`NameOrUlid` is a \"union\" enum that can represent either:\n\n* [`Name`]\n* [`Ulid`]"
             },
+            "Ordering": {
+                "type": "string",
+                "description": "The ordering of the data. Either ascending or descending.",
+                "enum": ["ASC", "DESC"]
+            },
             "Organization": {
                 "type": "object",
                 "description": "An organization is a shared resource for users to build, test, and push Helm charts.",
@@ -1071,6 +3282,27 @@
                         "format": "date-time",
                         "description": "datetime of when this release was last modified.",
                         "readOnly": true
+                    }
+                }
+            },
+            "PaginationRequest": {
+                "type": "object",
+                "description": "A pagination request.",
+                "properties": {
+                    "orderBy": {
+                        "$ref": "#/components/schemas/Ordering",
+                        "description": "Ordering of the data."
+                    },
+                    "page": {
+                        "type": "integer",
+                        "description": "The page to go towards, default is `1`.",
+                        "minimum": 0
+                    },
+                    "perPage": {
+                        "type": "integer",
+                        "description": "Amount of entries per page.",
+                        "maximum": 100,
+                        "minimum": 10
                     }
                 }
             },
@@ -1642,6 +3874,33 @@
                     }
                 }
             },
+            "EntrypointResponse": {
+                "description": "Response datatype for object `EntrypointResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Entrypoint"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "ListApiKeyResponse": {
                 "description": "Response datatype for a list of objects that are of type `ApiKeyResponse`.",
                 "content": {
@@ -1796,6 +4055,33 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/Repository"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "SessionResponse": {
+                "description": "Response datatype for object `SessionResponse`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Session"
                                 },
                                 "errors": {
                                     "type": "array",
