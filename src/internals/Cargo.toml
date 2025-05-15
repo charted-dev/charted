@@ -30,7 +30,7 @@ path = "main.rs"
 
 [dependencies]
 azalia = { workspace = true, features = ["log", "log+writers"] }
-charted-serverv2 = { path = "../../crates/serverv2", version = "=0.1.0" }
+charted-server.workspace = true
 color-eyre.workspace = true
 eyre.workspace = true
 tracing.workspace = true

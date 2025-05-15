@@ -12,27 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! Implementation of version **1** of the [charted REST Specification].
+//!
+//! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api/v1
 
-mod admin;
-pub mod features;
+//pub mod features;
 pub mod healthz;
-pub mod index;
+pub mod indexes;
 pub mod main;
 pub mod openapi;
 pub mod organization;
 pub mod repository;
 pub mod user;
 
-use crate::{Context, openapi::ApiResponse};
-use axum::{Extension, Router, response::IntoResponse, routing};
+use crate::{Env, mk_api_response_types, mk_into_responses};
+use axum::{Router, routing};
 use charted_core::VERSION;
-use metrics_exporter_prometheus::PrometheusHandle;
 use serde::Serialize;
-use std::collections::BTreeMap;
-use utoipa::{
-    IntoResponses, ToSchema,
-    openapi::{Ref, RefOr, Response},
-};
+use utoipa::ToSchema;
 
 /// Generic entrypoint message for any API route like `/users`.
 #[derive(Serialize, ToSchema)]
@@ -57,46 +55,24 @@ impl Entrypoint {
     }
 }
 
-pub type EntrypointResponse = ApiResponse<Entrypoint>;
-impl IntoResponses for EntrypointResponse {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap!(
-            "200" => RefOr::Ref(Ref::from_response_name("EntrypointResponse"))
-        )
-    }
-}
+mk_api_response_types!(Entrypoint);
+mk_into_responses!(for Entrypoint {
+    "200" => [ref(EntrypointResponse)];
+});
 
-pub fn create_router(ctx: &Context) -> Router<Context> {
+pub fn create_router(env: &Env) -> Router<Env> {
     let mut router = Router::new()
-        .nest("/repositories", repository::create_router(ctx))
-        .nest("/users", user::create_router(ctx))
-        .route("/indexes/{idOrName}", routing::get(index::fetch))
-        .route("/openapi.json", routing::get(openapi::get))
-        .route("/features", routing::get(features::features))
-        .route("/_healthz", routing::get(healthz::healthz))
+        .nest("/users", user::create_router(env))
+        .route("/indexes/{idOrName}", routing::get(indexes::fetch))
+        .route("/openapi.json", routing::get(openapi::openapi))
+        .route("/healthz", routing::get(healthz::healthz))
         .route("/", routing::get(main::main));
 
-    if let Some(config) = ctx.config.metrics.as_prometheus() &&
-        config.standalone.is_none()
+    if let Some(metrics) = env.config.metrics.as_prometheus() &&
+        metrics.standalone.is_none()
     {
-        router = router.route(&config.endpoint, routing::get(prometheus_scrape));
-    }
-
-    for feat in ctx.features.values() {
-        let (path, extended) = feat.extend_router();
-        router = router.nest(path, extended);
+        router = router.route(&metrics.endpoint, routing::get(super::prometheus_scrape));
     }
 
     router
-}
-
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-pub(crate) async fn prometheus_scrape(
-    Extension(handle): Extension<Option<PrometheusHandle>>,
-) -> impl IntoResponse {
-    let Some(handle) = handle else {
-        unreachable!()
-    };
-
-    handle.render()
 }

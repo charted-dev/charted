@@ -14,96 +14,48 @@
 // limitations under the License.
 
 use crate::{
-    Context, commit_patch,
+    Env, commit_patch,
+    ext::{DataStoreExt, ResultExt},
     extract::{Json, Path, Query},
-    extract_refor_t,
-    middleware::authn::{self, Options, Session},
-    modify_property,
-    openapi::{ApiErrorResponse, EmptyApiResponse},
-    pagination::{Ordering, PaginationRequest},
+    middleware::authn::Session,
+    mk_into_responses,
+    openapi::{EmptyApiResponse, ListRepositoryResponse, RepositoryResponse},
+    ops::db,
+    pagination::PaginationRequest,
     util::{self, BuildLinkHeaderOpts},
 };
 use axum::{
-    Extension, Router,
+    Extension,
     extract::State,
-    handler::Handler,
     http::{
         StatusCode,
         header::{self, HeaderValue},
     },
-    routing,
 };
-use azalia::remi::{
-    core::{StorageService as _, UploadRequest},
+use charted_core::{api, clamp};
+use charted_database::entities::{RepositoryEntity, repository};
+use charted_datastore::{
     fs,
+    remi::{StorageService, UploadRequest},
 };
-use charted_core::{api, bitflags::ApiKeyScope, clamp};
-use charted_database::entities::{RepositoryEntity, UserEntity, repository, user};
 use charted_types::{
-    NameOrUlid, Repository, User,
+    NameOrUlid, Repository,
     payloads::{CreateRepositoryPayload, PatchRepositoryPayload},
 };
 use chrono::Utc;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter,
     QueryOrder,
 };
 use serde_json::json;
-use std::{borrow::Cow, cmp, collections::BTreeMap};
-use utoipa::{
-    IntoResponses, ToResponse,
-    openapi::{Ref, RefOr, Response},
-};
-
-pub fn create_router(cx: &Context) -> Router<Context> {
-    Router::new()
-        .route(
-            "/repositories",
-            routing::get(
-                list_self_user_repositories.layer(authn::new(
-                    cx.to_owned(),
-                    Options::default()
-                        .with_scope(ApiKeyScope::RepoAccess)
-                        .with_scope(ApiKeyScope::UserAccess),
-                )),
-            )
-            .put(
-                create_user_repository.layer(authn::new(
-                    cx.to_owned(),
-                    Options::default()
-                        .with_scope(ApiKeyScope::RepoCreate)
-                        .with_scope(ApiKeyScope::UserAccess),
-                )),
-            ),
-        )
-        .route(
-            "/repositories/{idOrName}",
-            routing::patch(patch_user_repository.layer(authn::new(
-                cx.to_owned(),
-                Options::default().with_scope(ApiKeyScope::RepoUpdate),
-            ))),
-        )
-}
+use std::{borrow::Cow, cmp};
 
 struct ListRepositoriesR;
-impl IntoResponses for ListRepositoriesR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("ListRepositoryResponse"),
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for ListRepositoriesR {
+    "200" => [ref(ListRepositoryResponse)];
+});
 
 /// Lists all the avaliable user repositories.
-///
-/// If the user is logged in with credentials, this will also show their private
-/// repositories as well.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     get,
@@ -114,7 +66,7 @@ impl IntoResponses for ListRepositoriesR {
     responses(ListRepositoriesR)
 )]
 pub async fn list_user_repositories(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Path(id_or_name): Path<NameOrUlid>,
     Query(PaginationRequest {
         per_page,
@@ -123,17 +75,10 @@ pub async fn list_user_repositories(
     }): Query<PaginationRequest>,
 ) -> api::Result<Vec<Repository>> {
     let ion = id_or_name.clone();
-
     let per_page = clamp(per_page, 10, 100).unwrap_or(10);
     let paginator = (match id_or_name {
         NameOrUlid::Ulid(id) => RepositoryEntity::find().filter(repository::Column::Owner.eq(id)),
-        NameOrUlid::Name(ref name) => match UserEntity::find()
-            .filter(user::Column::Username.eq(name.to_owned()))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<User>::into)
-        {
+        NameOrUlid::Name(name) => match db::user::get(&env.db, NameOrUlid::Name(name)).await? {
             Some(user) => RepositoryEntity::find().filter(repository::Column::Owner.eq(user.id)),
             None => {
                 return Err(api::err(
@@ -141,24 +86,21 @@ pub async fn list_user_repositories(
                     (
                         api::ErrorCode::EntityNotFound,
                         "user with id or name was not found",
-                        json!({"idOrName":id_or_name}),
+                        json!({"idOrName":&ion}),
                     ),
                 ));
             }
         },
     })
     .filter(repository::Column::Private.eq(false))
-    .order_by(repository::Column::Id, match order_by {
-        Ordering::Ascending => Order::Asc,
-        Ordering::Descending => Order::Desc,
-    })
-    .paginate(&cx.pool, per_page as u64);
+    .order_by(repository::Column::Id, order_by.into_sea_orm())
+    .paginate(&env.db, per_page as u64);
 
-    let pages = paginator.num_pages().await.map_err(api::system_failure)?;
+    let pages = paginator.num_pages().await.into_system_failure()?;
     let entries = paginator
         .fetch_page(cmp::min(0, page as u64))
         .await
-        .map_err(api::system_failure)?
+        .into_system_failure()?
         .into_iter()
         .map(Into::<Repository>::into)
         .collect::<Vec<_>>();
@@ -169,14 +111,14 @@ pub async fn list_user_repositories(
         current: page,
         per_page,
         max_pages: pages,
-        resource: cx
+        resource: env
             .config
             .base_url
             .unwrap()
             .join(&format!("/users/{ion}/repositories"))
             .unwrap(),
     })
-    .map_err(api::system_failure)?;
+    .into_system_failure()?;
 
     let mut response = api::ok(StatusCode::OK, entries);
     if !link_hdr.is_empty() {
@@ -197,7 +139,7 @@ pub async fn list_user_repositories(
     responses(ListRepositoriesR)
 )]
 pub async fn list_self_user_repositories(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Query(PaginationRequest {
         per_page,
@@ -208,11 +150,8 @@ pub async fn list_self_user_repositories(
     let per_page = clamp(per_page, 10, 100).unwrap_or(10);
     let paginator = RepositoryEntity::find()
         .filter(repository::Column::Owner.eq(user.id))
-        .order_by(repository::Column::Id, match order_by {
-            Ordering::Ascending => Order::Asc,
-            Ordering::Descending => Order::Desc,
-        })
-        .paginate(&cx.pool, per_page as u64);
+        .order_by(repository::Column::Id, order_by.into_sea_orm())
+        .paginate(&env.db, per_page as u64);
 
     let pages = paginator.num_pages().await.map_err(api::system_failure)?;
     let entries = paginator
@@ -229,9 +168,9 @@ pub async fn list_self_user_repositories(
         current: page,
         per_page,
         max_pages: pages,
-        resource: cx.config.base_url.unwrap().join("/users/@me/repositories").unwrap(),
+        resource: env.config.base_url.unwrap().join("/users/@me/repositories").unwrap(),
     })
-    .map_err(api::system_failure)?;
+    .into_system_failure()?;
 
     let mut response = api::ok(StatusCode::OK, entries);
     if !link_hdr.is_empty() {
@@ -242,26 +181,10 @@ pub async fn list_self_user_repositories(
 }
 
 struct CreateRepositoryR;
-impl IntoResponses for CreateRepositoryR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "201" => Ref::from_response_name("RepositoryResponse"),
-            "409" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("repository already exists"));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for CreateRepositoryR {
+    "201" => [ref(RepositoryResponse)];
+    "409" => [error(description("repository already exists"))];
+});
 
 /// Creates a repository under this user.
 #[utoipa::path(
@@ -278,7 +201,7 @@ impl IntoResponses for CreateRepositoryR {
 )]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn create_user_repository(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Json(CreateRepositoryPayload {
         description,
@@ -288,17 +211,11 @@ pub async fn create_user_repository(
         ty,
     }): Json<CreateRepositoryPayload>,
 ) -> api::Result<Repository> {
-    if RepositoryEntity::find()
-        .filter(repository::Column::Name.eq(name.clone()))
-        .filter(repository::Column::Owner.eq(user.id))
-        .one(&cx.pool)
-        .await
-        .inspect_err(|e| {
-            error!(error = %e, repository.name = %name, repository.owner = %user.id, "failed to find repository by name");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?
-        .is_some()
+    if db::repository::get_as_model_with_additional_bounds(&env.db, NameOrUlid::Name(name.clone()), |query| {
+        query.filter(repository::Column::Owner.eq(user.id))
+    })
+    .await?
+    .is_some()
     {
         return Err(api::err(
             StatusCode::CONFLICT,
@@ -306,16 +223,14 @@ pub async fn create_user_repository(
                 api::ErrorCode::EntityAlreadyExists,
                 "repository with the given name already exists on this account",
                 json!({"name": &name, "owner": &user.id}),
-            )
+            ),
         ));
     }
 
     let readme_repr = if let Some(readme) = readme {
         let content_type = azalia::remi::fs::default_resolver(readme.as_bytes());
-        if content_type.starts_with("text/html") {
-            Some((readme, ".html", content_type))
-        } else if content_type.starts_with("text/plain") {
-            Some((readme, ".txt", content_type))
+        if content_type.starts_with("text/html") || content_type.starts_with("text/plain") {
+            Some((readme, content_type))
         } else {
             return Err(api::err(
                 StatusCode::FORBIDDEN,
@@ -330,15 +245,7 @@ pub async fn create_user_repository(
         None
     };
 
-    let id = cx
-        .ulid_generator
-        .generate()
-        .inspect_err(|e| {
-            error!(error = %e, apikey.name = %name, "received error when generating id for apikey");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?;
-
+    let id = env.ulid.generate().into_system_failure()?;
     let now = Utc::now();
     let model = repository::Model {
         description,
@@ -356,7 +263,7 @@ pub async fn create_user_repository(
 
     let active_model = model.clone().into_active_model();
     RepositoryEntity::insert(active_model)
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
         .inspect_err(|e| {
             error!(error = %e, repository.name = %name, repository.owner = %user.id, "failed to create repository");
@@ -364,8 +271,10 @@ pub async fn create_user_repository(
         })
         .map_err(api::system_failure)?;
 
-    if let Some((content, ext, ty)) = readme_repr {
+    if let Some((content, ty)) = readme_repr {
         use azalia::remi::core::StorageService;
+
+        let ns = env.ds.repositories(model.id);
 
         // if it ever fails, once a request is inflight for /repositories/:id/README, then
         // we can just re-create it if it doesn't exist.
@@ -374,42 +283,29 @@ pub async fn create_user_repository(
         //
         // for other storages, it could possibly fail so this is why we'll just
         // re-create it later if it fails
-        let _ = cx
-            .storage
+        if let Err(e) = ns
             .upload(
-                format!("./repositories/{id}/README{ext}"),
+                "README",
                 UploadRequest::default().with_content_type(Some(ty)).with_data(content),
             )
             .await
-            .inspect_err(|e| {
-                error!(error = %e, repository.id = %id, "failed to upload readme");
-                sentry::capture_error(e);
-            });
+        {
+            error!(error = %e, repository.name = %model.name, repository.owner = %model.owner, "failed to upload README: will retry again");
+            sentry::capture_error(&e);
+        }
     }
 
     Ok(api::ok(StatusCode::CREATED, model.into()))
 }
 
 struct PatchRepoR;
-impl IntoResponses for PatchRepoR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "204" => {
-                let mut response = extract_refor_t!(EmptyApiResponse::response().1);
-                modify_property!(response.description("Patch was successful"));
+mk_into_responses!(for PatchRepoR {
+    "204" => [ref(with "application/json" => EmptyApiResponse;
+        description("patch was applied to object");
+    )];
 
-                response
-            },
-
-            "4XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Any occurrence when authentication fails or if the patch couldn't be applied"));
-
-                response
-            }
-        }
-    }
-}
+    "4XX" => [error(description("authentication failures"))];
+});
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
@@ -430,7 +326,7 @@ impl IntoResponses for PatchRepoR {
     )
 )]
 pub async fn patch_user_repository(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(id_or_name): Path<NameOrUlid>,
     Json(PatchRepositoryPayload {
@@ -441,59 +337,35 @@ pub async fn patch_user_repository(
         ty,
     }): Json<PatchRepositoryPayload>,
 ) -> api::Result<()> {
-    let (mut model, repo) = match id_or_name {
-        NameOrUlid::Name(ref name) => match RepositoryEntity::find()
-            .filter(repository::Column::Name.eq(name.clone()))
-            .filter(repository::Column::Owner.eq(user.id))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-        {
-            Some(repo) => (repo.clone().into_active_model(), Repository::from(repo)),
-            None => {
-                return Err(api::err(
-                    StatusCode::NOT_FOUND,
-                    (
-                        api::ErrorCode::EntityNotFound,
-                        "repository with name doesn't exist",
-                        json!({"idOrName":id_or_name}),
-                    ),
-                ));
-            }
-        },
+    let model = db::repository::get_as_model_with_additional_bounds(&env.db, id_or_name.clone(), |query| {
+        query.filter(repository::Column::Owner.eq(user.id))
+    })
+    .await?
+    .ok_or_else(|| {
+        api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "repository with name doesn't exist",
+                json!({"idOrName":id_or_name}),
+            ),
+        )
+    })?;
 
-        NameOrUlid::Ulid(id) => match RepositoryEntity::find_by_id(id)
-            .filter(repository::Column::Owner.eq(user.id))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-        {
-            Some(repo) => (repo.clone().into_active_model(), Repository::from(repo)),
-            None => {
-                return Err(api::err(
-                    StatusCode::NOT_FOUND,
-                    (
-                        api::ErrorCode::EntityNotFound,
-                        "repository with id doesn't exist",
-                        json!({"idOrName":id_or_name}),
-                    ),
-                ));
-            }
-        },
-    };
-
+    let mut active = model.clone().into_active_model();
     let mut errors = Vec::new();
-    commit_patch!(model of string?: old.description => description; validate that len < 140 [errors]);
-    commit_patch!(model of bool: old.private => private; [repo]);
+    commit_patch!(active of string?: old.description => description; validate that len < 140 [errors]);
+
+    if let Some(field) = private {
+        active.private.set_if_not_equals(field);
+    }
 
     if let Some(name) = name {
-        if RepositoryEntity::find()
-            .filter(repository::Column::Name.eq(name.clone()))
-            .filter(repository::Column::Owner.eq(user.id))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .is_some()
+        if db::repository::get_as_model_with_additional_bounds(&env.db, NameOrUlid::Name(name.clone()), |query| {
+            query.filter(repository::Column::Owner.eq(user.id))
+        })
+        .await?
+        .is_some()
         {
             errors.push(api::Error {
                 code: api::ErrorCode::EntityAlreadyExists,
@@ -504,11 +376,13 @@ pub async fn patch_user_repository(
                 })),
             });
         } else {
-            model.name = ActiveValue::set(name);
+            active.name = ActiveValue::set(name);
         }
     }
 
-    commit_patch!(model of bool: old.type_ => ty; [repo]);
+    if let Some(ty) = ty {
+        active.type_.set_if_not_equals(ty);
+    }
 
     if let Some(readme) = readme.as_deref() {
         // if it exceeds 16kib, don't allow it
@@ -530,27 +404,23 @@ pub async fn patch_user_repository(
         });
     }
 
-    model.updated_at = ActiveValue::set(Utc::now());
+    active.updated_at = ActiveValue::set(Utc::now());
+    active.update(&env.db).await.into_system_failure()?;
 
-    if let Err(e) = model.update(&cx.pool).await {
-        error!(error = %e, repository.name = %repo.name, repository.owner = %user.id, "failed to commit changes");
-        sentry::capture_error(&e);
+    if let Some(readme) = readme.as_deref() {
+        let content_type = fs::default_resolver(readme.as_bytes());
+        let ns = env.ds.repositories(model.id);
 
-        return Err(api::system_failure(e));
-    }
-
-    if let Some(readme) = readme {
-        let ct = fs::default_resolver(readme.as_bytes());
-
-        if let Err(e) = cx
-            .storage
+        if let Err(e) = ns
             .upload(
-                format!("./repositories/{}/README", repo.id),
-                UploadRequest::default().with_content_type(Some(ct)).with_data(readme),
+                "README",
+                UploadRequest::default()
+                    .with_content_type(Some(content_type))
+                    .with_data(readme.to_owned()),
             )
             .await
         {
-            error!(error = %e, repository.name = %repo.name, repository.owner = %user.id, "failed to upload README; will be tried again on next request of /repositories/{}/readme", repo.id);
+            error!(error = %e, repository.name = %model.name, repository.owner = %model.owner, "failed to upload README: will retry again");
             sentry::capture_error(&e);
         }
     }
@@ -577,22 +447,14 @@ pub async fn patch_user_repository(
     )
 )]
 pub async fn delete(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(id_or_name): Path<NameOrUlid>,
 ) -> api::Result<()> {
-    let repository = (match id_or_name {
-        NameOrUlid::Name(ref name) => RepositoryEntity::find().filter(repository::Column::Name.eq(name.clone())),
-        NameOrUlid::Ulid(id) => RepositoryEntity::find_by_id(id),
+    let repository = db::repository::get_with_additional_bounds(&env.db, id_or_name.clone(), |query| {
+        query.filter(repository::Column::Owner.eq(user.id))
     })
-    .filter(repository::Column::Owner.eq(user.id))
-    .one(&cx.pool)
-    .await
-    .inspect_err(|e| {
-        error!(error = %e, repository = %id_or_name, owner = %user.id, "failed to query repository");
-        sentry::capture_error(e);
-    })
-    .map_err(api::system_failure)?
+    .await?
     .ok_or_else(|| {
         api::err(
             StatusCode::NOT_FOUND,
@@ -606,9 +468,9 @@ pub async fn delete(
 
     // Delete the repository
     RepositoryEntity::delete_by_id(repository.id)
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
-        .map_err(api::system_failure)?;
+        .into_system_failure()?;
 
     Ok(api::from_default(StatusCode::ACCEPTED))
 }

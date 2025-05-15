@@ -14,11 +14,9 @@
 // limitations under the License.
 
 pub mod authn;
-
-mod admin;
 mod log;
 mod request_id;
 
-pub use admin::*;
-pub use log::*;
-pub use request_id::*;
+pub use log::log;
+pub(in crate::middleware) use request_id::XRequestId;
+pub use request_id::request_id;

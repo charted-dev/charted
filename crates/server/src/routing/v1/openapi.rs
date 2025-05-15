@@ -13,25 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{Context, openapi::Document};
-use axum::extract::State;
+use crate::{Env, openapi::Document};
+use axum::{Json, extract::State};
 use std::sync::OnceLock;
 use utoipa::{OpenApi as _, openapi::OpenApi};
 
-// We stash it in a OnceLock since we iterate through the server features
-// and to compute all features for each request is kinda dirty.
-static CACHED: OnceLock<OpenApi> = OnceLock::new();
+static OPENAPI: OnceLock<OpenApi> = OnceLock::new();
 
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn get(State(cx): State<Context>) -> String {
-    let document = CACHED.get_or_init(|| {
-        let mut doc = Document::openapi();
-        for feat in cx.features.values() {
-            feat.extends_openapi(&mut doc);
+pub async fn openapi(State(env): State<Env>) -> Json<&'static OpenApi> {
+    let document = OPENAPI.get_or_init(|| {
+        let mut core = Document::openapi();
+        for (_, feat) in env.features.iter() {
+            feat.extend_openapi(&mut core);
         }
 
-        doc
+        core
     });
 
-    document.to_pretty_json().expect("to be serialized correctly")
+    Json(document)
 }

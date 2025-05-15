@@ -13,92 +13,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::openapi::ApiResponse;
-use axum::http::StatusCode;
+use crate::{Env, mk_api_response_types, mk_into_responses, mk_list_based_api_response_types, mk_route_handler};
+use axum::{extract::State, http::StatusCode};
 use charted_core::api;
+use charted_feature::Metadata;
 use serde::Serialize;
-use std::collections::BTreeMap;
-use utoipa::{
-    IntoResponses, ToResponse, ToSchema,
-    openapi::{Ref, RefOr, Response},
-};
+use utoipa::ToSchema;
 
-/// A list of enabled features on this instance.
-#[derive(Serialize, ToSchema, Default)]
-pub struct Features {
-    /// Whether if the [**Garbage Collection**] feature is enabled.
-    ///
-    /// As of this version, the **Garbage Collection** feature isn't implemented yet! You
-    /// can track [the progress of the feature].
-    ///
-    /// [the progress of the feature]: #
-    /// [**Garbage Collection**]: https://charts.noelware.org/docs/server/latest/features/garbage-collection
-    pub garbage_collection: bool,
+/// Datatype for an enabled feature.
+#[derive(Clone, Serialize, ToSchema)]
+pub struct EnabledFeature {
+    /// If the feature is enabled.
+    pub enabled: bool,
 
-    /// Whether if the [**Audit Logging**] feature is enabled.
-    ///
-    /// As of this version, the **Audit Logging** feature isn't implemented yet! You
-    /// can track [the progress of the feature].
-    ///
-    /// [the progress of the feature]: #
-    /// [**Garbage Collection**]: https://charts.noelware.org/docs/server/latest/features/audit-logging
-    pub audit_logs: bool,
-
-    /// Whether if the [**HTTP Webhooks**] feature is enabled.
-    ///
-    /// As of this version, the **HTTP Webhooks** feature isn't implemented yet! You
-    /// can track [the progress of the feature].
-    ///
-    /// [the progress of the feature]: #
-    /// [**HTTP Webhooks**]: https://charts.noelware.org/docs/server/latest/features/webhooks
-    pub webhooks: bool,
-
-    /// Whether if the [**Search**] feature is enabled.
-    ///
-    /// As of this version, the **Search** feature isn't implemented yet! You
-    /// can track [the progress of the feature].
-    ///
-    /// [the progress of the feature]: #
-    /// [**Search**]: https://charts.noelware.org/docs/server/latest/features/garbage-collection
-    pub search: bool,
-
-    /// Whether if the [**TOTP (Time-based one time password)**] feature is enabled.
-    ///
-    /// As of this version, the **TOTP (Time-based one time password)** feature isn't
-    /// implemented yet! You can track [the progress of the feature].
-    ///
-    /// [**TOTP (Time-based one time password)**]: https://charts.noelware.org/docs/server/latest/features/totp
-    /// [the progress of the feature]: #
-    pub totp: bool,
-
-    /// Whether if the [**OCI Registry**] feature is enabled.
-    ///
-    /// As of this version, the **OCI Registry** feature isn't implemented yet! You
-    /// can track [the progress of the feature].
-    ///
-    /// [**TOTP (Time-based one time password)**]: https://charts.noelware.org/docs/server/latest/features/oci
-    /// [the progress of the feature]: #
-    pub oci: bool,
+    /// Metadata about this feature.
+    pub metadata: Metadata,
 }
 
-impl IntoResponses for ApiResponse<Features> {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap!(
-            "200" => RefOr::Ref(Ref::from_response_name(ApiResponse::<Features>::response().0))
+mk_api_response_types!(EnabledFeature);
+mk_list_based_api_response_types!(EnabledFeature);
+mk_into_responses!(for EnabledFeature {
+    "200" => [ref(EnabledFeatureResponse)];
+    "404" => [error(description = "404 Not Found")];
+});
+
+mk_route_handler! {
+    /// Returns all the server's features.
+    #[path("/v1/features", get, {
+        operation_id = "getServerFeatures",
+        responses(
+            (
+                status = 200,
+                description = "list of all features and checks if they are enabled or not",
+                body = ref("#/components/schemas/ListEnabledFeatureResponse")
+            )
         )
+    })]
+    #[app_state = Env]
+    fn features({State(_)}: State<Env>) -> api::Response<Vec<EnabledFeature>> {
+        api::ok(StatusCode::OK, [].to_vec())
     }
-}
-
-/// Returns a list of enabled server features.
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-#[utoipa::path(
-    get,
-
-    path = "/v1/features",
-    operation_id = "features",
-    tag = "Main",
-    responses(ApiResponse<Features>)
-)]
-pub async fn features() -> api::Response<Features> {
-    api::from_default(StatusCode::OK)
 }

@@ -13,18 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Healthcheck endpoint to determine if services are OK.
-#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[axum::debug_handler]
 #[utoipa::path(
     get,
-    path = "/v1/_healthz",
-    operation_id = "healthz",
-    tags = ["Main"],
+
+    path = "/v1/healthz",
+    tag = "Main",
     responses(
         (
             status = 200,
-            description = "Successful response",
-            content_type = "text/plain"
+            description = "Ok.",
+            body = String
         )
     )
 )]

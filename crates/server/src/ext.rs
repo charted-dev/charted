@@ -13,39 +13,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Context;
+use crate::Env;
+use charted_core::{BoxedFuture, api};
 use charted_database::entities::{OrganizationEntity, UserEntity, organization, user};
+use charted_datastore::{DataStore, Namespace};
 use charted_types::{NameOrUlid, Organization, Owner, Ulid, User, name::Name};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use std::pin::Pin;
 
+/// Extension trait for [`Owner`].
 pub trait OwnerExt: Sized {
+    /// Queries a [`Owner`] by either their ID ([`Ulid`](NameOrUlid::Ulid)) or by their
+    /// name ([`Name`](NameOrUlid::Name)).
     fn query_by_id_or_name<'s>(
-        ctx: &'s Context,
+        env: &'s Env,
         id_or_name: NameOrUlid,
-    ) -> Pin<Box<dyn Future<Output = Result<Option<Owner>, sea_orm::DbErr>> + Send + 's>> {
+    ) -> BoxedFuture<'s, Result<Option<Owner>, sea_orm::DbErr>> {
         match id_or_name {
-            NameOrUlid::Name(name) => Box::pin(Self::query_by_name(ctx, name)),
-            NameOrUlid::Ulid(id) => Box::pin(Self::query_by_id(ctx, id)),
+            NameOrUlid::Name(name) => Box::pin(Self::query_by_name(env, name)),
+            NameOrUlid::Ulid(id) => Box::pin(Self::query_by_id(env, id)),
         }
     }
 
+    /// Queries a [`Owner`] by their [name](Name).
     fn query_by_name<'s>(
-        ctx: &'s Context,
+        ctx: &'s Env,
         name: Name,
     ) -> impl Future<Output = Result<Option<Owner>, sea_orm::DbErr>> + Send + 's;
 
+    /// Queries a [`Owner`] by their [id](Ulid).
     fn query_by_id<'s>(
-        ctx: &'s Context,
+        ctx: &'s Env,
         id: Ulid,
     ) -> impl Future<Output = Result<Option<Owner>, sea_orm::DbErr>> + Send + 's;
 }
 
 impl OwnerExt for Owner {
-    async fn query_by_name(ctx: &Context, name: Name) -> Result<Option<Owner>, sea_orm::DbErr> {
+    async fn query_by_name(env: &Env, name: Name) -> Result<Option<Owner>, sea_orm::DbErr> {
         if let Some(user) = UserEntity::find()
             .filter(user::Column::Username.eq(name.clone()))
-            .one(&ctx.pool)
+            .one(&env.db)
             .await?
             .map(Into::<User>::into)
         {
@@ -54,7 +60,7 @@ impl OwnerExt for Owner {
 
         if let Some(org) = OrganizationEntity::find()
             .filter(organization::Column::Name.eq(name))
-            .one(&ctx.pool)
+            .one(&env.db)
             .await?
             .map(Into::<Organization>::into)
         {
@@ -64,10 +70,10 @@ impl OwnerExt for Owner {
         Ok(None)
     }
 
-    async fn query_by_id(ctx: &Context, id: Ulid) -> Result<Option<Owner>, sea_orm::DbErr> {
+    async fn query_by_id(env: &Env, id: Ulid) -> Result<Option<Owner>, sea_orm::DbErr> {
         if let Some(user) = UserEntity::find()
             .filter(user::Column::Id.eq(id))
-            .one(&ctx.pool)
+            .one(&env.db)
             .await?
             .map(Into::<User>::into)
         {
@@ -76,7 +82,7 @@ impl OwnerExt for Owner {
 
         if let Some(org) = OrganizationEntity::find()
             .filter(organization::Column::Id.eq(id))
-            .one(&ctx.pool)
+            .one(&env.db)
             .await?
             .map(Into::<Organization>::into)
         {
@@ -84,5 +90,32 @@ impl OwnerExt for Owner {
         }
 
         Ok(None)
+    }
+}
+
+pub trait ResultExt<T, E>: Sized {
+    #[allow(clippy::result_large_err)]
+    fn into_system_failure(self) -> Result<T, api::Response>;
+}
+
+impl<T, E> ResultExt<T, E> for Result<T, E>
+where
+    E: std::error::Error,
+{
+    fn into_system_failure(self) -> Result<T, api::Response> {
+        self.inspect_err(|e| {
+            sentry::capture_error(e);
+        })
+        .map_err(api::system_failure)
+    }
+}
+
+pub trait DataStoreExt: Sized {
+    fn repositories(&self, id: Ulid) -> Namespace<'_>;
+}
+
+impl DataStoreExt for DataStore {
+    fn repositories(&self, id: Ulid) -> Namespace<'_> {
+        self.namespace(format!("repositories/{id}"))
     }
 }

@@ -13,16 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod extract;
-pub use extract::*;
-
 mod error;
+mod extract;
 
-use crate::Context;
+use crate::{Env, ops};
 use axum::{
     body::Body,
-    http::{Request, StatusCode, header::AUTHORIZATION},
-    response::{IntoResponse, Response},
+    http::{Request, Response, StatusCode, header::AUTHORIZATION},
+    response::IntoResponse,
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
 use charted_authz::InvalidPassword;
@@ -31,41 +29,19 @@ use charted_core::{
     bitflags::{ApiKeyScope, ApiKeyScopes},
 };
 use charted_database::entities::{ApiKeyEntity, SessionEntity, UserEntity, apikey, session, user};
-use charted_types::{ApiKey, Ulid, User, name::Name};
+use charted_types::{ApiKey, User, name::Name};
 use error::Error;
-use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+pub use extract::Session;
+use jsonwebtoken::TokenData;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use serde_json::{Value, json};
-use std::{borrow::Cow, collections::HashMap, str::FromStr};
+use serde_json::json;
+use std::{borrow::Cow, str::FromStr};
 use tower_http::auth::{AsyncAuthorizeRequest, AsyncRequireAuthorizationLayer};
 
-/// The `iss` field value.
-///
-/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.1>
-pub const JWT_ISS: &str = "Noelware";
-
-/// The `aud` field value.
-///
-/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.3>
-pub const JWT_AUD: &str = "charted-server";
-
-/// JWT algorithm to use.
-pub const JWT_ALGORITHM: Algorithm = Algorithm::HS512;
-
-/// JWT claim for the expiration.
-///
-/// <https://www.rfc-editor.org/rfc/rfc7519#section-4.1.4>
-pub const JWT_EXP: &str = "exp";
-
-/// Claim name for a user ID.
-pub const JWT_UID_FIELD: &str = "uid";
-
-/// Claim name for a session ID.
-pub const JWT_SID_FIELD: &str = "sid";
-
+/// Options that configures the [`Authn`] middleware.
 #[derive(Clone, Default)]
 pub struct Options {
-    /// whether if the rest endpoint requires a valid refresh token
+    /// whether if this request requires a valid refresh token.
     pub require_refresh_token: bool,
 
     /// whether if the rest endpoint is ok with no prior authorization.
@@ -84,53 +60,127 @@ impl Options {
     }
 }
 
-/// Creates a [`AsyncRequireAuthorizationLayer`] that will use the authn handler to
-/// handle authorization between in-flight requests.
-pub fn new(ctx: Context, options: Options) -> AsyncRequireAuthorizationLayer<Handler> {
-    AsyncRequireAuthorizationLayer::new(Handler { options, context: ctx })
+/// Factory trait that allows building new authn middleware
+/// without cloning [`Env`] each time.
+pub trait Factory {
+    /// Creates a [`AsyncRequireAuthorizationLayer`] that will use the authn handler to
+    /// handle authorization between in-flight requests.
+    fn authn(&self, options: Options) -> AsyncRequireAuthorizationLayer<Authn>;
+}
+
+impl Factory for Env {
+    fn authn(&self, options: Options) -> AsyncRequireAuthorizationLayer<Authn> {
+        AsyncRequireAuthorizationLayer::new(Authn {
+            options,
+            env: self.clone(),
+        })
+    }
 }
 
 #[derive(Clone)]
-pub struct Handler {
+pub struct Authn {
+    env: Env,
     options: Options,
-    context: Context,
 }
 
-impl Handler {
+impl AsyncAuthorizeRequest<Body> for Authn {
+    type Future = BoxedFuture<'static, Result<Request<Self::RequestBody>, Response<Self::ResponseBody>>>;
+    type RequestBody = Body;
+    type ResponseBody = Body;
+
+    fn authorize(&mut self, request: Request<Body>) -> Self::Future {
+        // it has to be cloned for each inflight request because Rust is so sensitive
+        // that `&mut self` will outlive a static, allocated future but whatever
+        // I guess.
+        let me = self.clone();
+        let env = me.env.clone();
+        let options = me.options.clone();
+
+        Box::pin(async move {
+            let headers = request.headers();
+            let Some(header) = headers.get(AUTHORIZATION) else {
+                if options.allow_unauthorized {
+                    return Ok(request);
+                }
+
+                bail!(Error::MissingAuthorizationHeader)
+            };
+
+            let Ok(value) = String::from_utf8(header.as_ref().to_vec()).inspect_err(|e| {
+                error!(error = %e, "failed to validate UTF-8 contents in header");
+            }) else {
+                bail!(Error::invalid_utf8())
+            };
+
+            let (ty, value) = match value.split_once(' ') {
+                Some((_, value)) if value.contains(' ') => {
+                    let space = value.chars().position(|x| x == ' ').unwrap_or_default();
+                    bail!(Error::msg(
+                        format!("received extra space at {space} when parsing header"),
+                        None,
+                    ))
+                }
+
+                Some((ty, value)) => match ty.parse::<AuthType>() {
+                    Ok(ty) => (ty, value),
+                    Err(e) => {
+                        bail!(Error::UnknownAuthType(Cow::Owned(e)))
+                    }
+                },
+
+                None => {
+                    bail!(Error::msg(
+                        "auth header must be in the form of 'Type Value', i.e, 'ApiKey hjdjshdjs'",
+                        None,
+                    ));
+                }
+            };
+
+            // sorted from most likely to unlikely
+            match ty {
+                AuthType::ApiKey => me.api_key_auth(env, request, value.to_owned()).await,
+                AuthType::Bearer => me.bearer_auth(env, request, value.to_owned()).await,
+                AuthType::Basic if env.config.sessions.enable_basic_auth => {
+                    me.basic_auth(env, request, value.to_owned()).await
+                }
+
+                _ => bail!(api::err(
+                    StatusCode::PRECONDITION_FAILED,
+                    (
+                        api::ErrorCode::UnsupportedAuthorizationKind,
+                        "instance has disabled the use of `Basic` authentication",
+                    ),
+                )),
+            }
+        })
+    }
+}
+
+impl Authn {
     #[instrument(
-        name = "charted.server.authn.basic",
+        name = "charted.server.authz.basic",
         skip_all,
         fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    async fn handle_basic_auth(
-        self,
-        ctx: Context,
+    async fn basic_auth(
+        &self,
+        env: Env,
         mut req: Request<Body>,
-        token: String,
-    ) -> Result<Request<Body>, Response> {
+        content: String,
+    ) -> Result<Request<Body>, Response<Body>> {
         if self.options.require_refresh_token {
-            return Err(as_response(api::err(
+            bail!(api::err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
                     api::ErrorCode::RefreshTokenRequired,
                     "cannot use `Basic` authentication on this route",
                 ),
-            )));
-        }
-
-        if !ctx.config.sessions.enable_basic_auth {
-            return Err(as_response(api::err(
-                StatusCode::BAD_REQUEST,
-                (
-                    api::ErrorCode::BadRequest,
-                    "instance has disabled the use of `Basic` authentication",
-                ),
-            )));
+            ))
         }
 
         let decoded = String::from_utf8(
             STANDARD
-                .decode(&token)
+                .decode(&content)
                 .inspect_err(|e| {
                     error!(error = %e, "failed to decode from base64");
                     sentry::capture_error(e);
@@ -143,22 +193,16 @@ impl Handler {
 
         let (username, password) = match decoded.split_once(':') {
             Some((_, pass)) if pass.contains(':') => {
-                return Err(as_response(Error::msg(
-                    "received more than one `:` in basic auth input",
-                    None,
-                )));
+                bail!(Error::msg("received more than one `:` in basic auth input", None));
             }
 
             Some(v) => v,
             None => {
-                return Err(as_response(Error::msg(
-                    "input must be in the form of 'username:password'",
-                    None,
-                )));
+                bail!(Error::msg("input must be in the form of 'username:password'", None));
             }
         };
 
-        let user: Name = username
+        let username: Name = username
             .parse()
             .map_err(|e| Error::InvalidName {
                 input: Cow::Owned(username.to_owned()),
@@ -166,14 +210,14 @@ impl Handler {
             })
             .map_err(as_response)?;
 
-        let Some(model) = UserEntity::find()
-            .filter(user::Column::Username.eq(user))
-            .one(&ctx.pool)
+        let (model, user): (_, User) = match UserEntity::find()
+            .filter(user::Column::Username.eq(username.clone()))
+            .one(&env.db)
             .await
-            .map_err(Error::Database)
-            .map_err(as_response)?
-        else {
-            return Err(as_response(api::err(
+            .map_err(|e| as_response(Error::Database(e)))
+        {
+            Ok(Some(model)) => (model.clone(), model.into()),
+            Ok(None) => bail!(api::err(
                 StatusCode::NOT_FOUND,
                 (
                     api::ErrorCode::EntityNotFound,
@@ -182,101 +226,77 @@ impl Handler {
                         "username": username,
                     }),
                 ),
-            )));
+            )),
+
+            Err(e) => return Err(e),
         };
 
-        let auser: User = model.clone().into();
-        match ctx
-            .authz
-            .authenticate(charted_authz::Request {
-                user: auser.clone(),
-                password: Cow::Borrowed(password),
-                model,
-            })
-            .await
-        {
+        let email = model.email.to_string();
+        let request = charted_authz::Request {
+            password: Cow::Borrowed(password),
+            user: user.clone(),
+            model,
+        };
+
+        match env.authz.authenticate(request).await {
             Ok(()) => {
-                req.extensions_mut().insert(Session {
-                    session: None,
-                    user: auser,
+                sentry::configure_scope(|scope| {
+                    scope.set_user(Some(sentry::User {
+                        username: Some(user.username.as_str().to_owned()),
+                        email: Some(email),
+                        id: Some(user.id.to_string()),
+
+                        ..Default::default()
+                    }));
                 });
 
+                req.extensions_mut().insert(Session { session: None, user });
                 Ok(req)
             }
 
+            Err(e) if e.downcast_ref::<InvalidPassword>().is_some() => bail!(Error::InvalidPassword),
             Err(e) => {
-                if e.downcast_ref::<InvalidPassword>().is_some() {
-                    return Err(as_response(Error::InvalidPassword));
-                }
-
-                error!(error = %e, "failed to authenticate from authz backend");
+                error!(error = %e, %user.username, %user.id, "failed to authenticate user from authz backend");
                 sentry::capture_error(&*e);
 
-                Err(as_response(api::system_failure_from_report(e)))
+                bail!(api::system_failure_from_report(e))
             }
         }
     }
 
     #[instrument(
-        name = "charted.server.authn.bearer",
+        name = "charted.server.authz.bearer",
         skip_all,
         fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    async fn handle_bearer_auth(
-        self,
-        ctx: Context,
+    async fn bearer_auth(
+        &self,
+        env: Env,
         mut req: Request<Body>,
-        token: String,
-    ) -> Result<Request<Body>, Response> {
-        let key = DecodingKey::from_secret(ctx.config.jwt_secret_key.as_ref());
-        let validation = create_validation();
-        let decoded = jsonwebtoken::decode::<HashMap<String, Value>>(&token, &key, &validation)
-            .inspect_err(|e| {
-                error!(error = %e, "failed to decode JWT token");
-                sentry::capture_error(e);
-            })
-            .map_err(Error::Jwt)
-            .map_err(as_response)?;
+        content: String,
+    ) -> Result<Request<Body>, Response<Body>> {
+        let TokenData { claims, .. } =
+            ops::jwt::decode_jwt(&env, &content).map_err(|e| as_response(Error::Jwt(e)))?;
 
-        trace!("JWT claims: {:?}", decoded.claims);
+        trace!("decoded JWT claims: {claims:?}");
 
-        // All tokens created by us will always have `uid` and `sid` fields.
-        let uid = decoded
-            .claims
-            .get(JWT_UID_FIELD)
-            .filter(|x| matches!(x, Value::String(_)))
-            .and_then(Value::as_str)
-            .map(Ulid::new)
-            .ok_or_else(|| {
-                as_response(Error::msg(
-                    format!("missing `{}` JWT claim", JWT_UID_FIELD),
-                    Some(api::ErrorCode::InvalidJwtClaim),
-                ))
-            })?
-            .map_err(Error::DecodeUlid)
-            .map_err(as_response)?;
-
-        let sid = extract_sid_from_token(&decoded.claims).map_err(as_response)?;
-
-        let Some(session) = SessionEntity::find_by_id(sid)
-            .filter(session::Column::Account.eq(uid))
-            .one(&ctx.pool)
+        let Some(session) = SessionEntity::find_by_id(claims.sid)
+            .filter(session::Column::Account.eq(claims.uid))
+            .one(&env.db)
             .await
-            .map_err(Error::Database)
-            .map_err(as_response)?
+            .map_err(|e| as_response(Error::Database(e)))?
         else {
-            return Err(as_response(Error::UnknownSession));
+            bail!(Error::UnknownSession)
         };
 
-        if self.options.require_refresh_token && session.refresh_token != token {
-            return Err(as_response(Error::RefreshTokenRequired));
+        if self.options.require_refresh_token && session.refresh_token != content {
+            bail!(Error::RefreshTokenRequired)
         }
 
-        let Some(user) = UserEntity::find_by_id(uid)
-            .one(&ctx.pool)
+        let Some(user) = UserEntity::find_by_id(claims.uid)
+            .one(&env.db)
             .await
-            .map_err(Error::Database)
-            .map_err(as_response)?
+            .map_err(|e| as_response(Error::Database(e)))?
             .map(Into::<User>::into)
         else {
             return Err(as_response(api::err(
@@ -285,7 +305,7 @@ impl Handler {
                     api::ErrorCode::EntityNotFound,
                     "user with id doesn't exist",
                     json!({
-                        "id": uid,
+                        "id": claims.uid,
                     }),
                 ),
             )));
@@ -300,40 +320,39 @@ impl Handler {
     }
 
     #[instrument(
-        name = "charted.server.authn.apikey",
+        name = "charted.server.authz.apikey",
         skip_all,
         fields(req.uri = req.uri().path(), req.method = req.method().as_str())
     )]
-    async fn handle_apikey_auth(
-        self,
-        ctx: Context,
+    async fn api_key_auth(
+        &self,
+        env: Env,
         mut req: Request<Body>,
-        token: String,
-    ) -> Result<Request<Body>, Response> {
+        content: String,
+    ) -> Result<Request<Body>, Response<Body>> {
         if self.options.require_refresh_token {
-            return Err(as_response(Error::RefreshTokenRequired));
+            bail!(Error::RefreshTokenRequired)
         }
 
         let Some(apikey) = ApiKeyEntity::find()
-            .filter(apikey::Column::Token.eq(token))
-            .one(&ctx.pool)
+            .filter(apikey::Column::Token.eq(content))
+            .one(&env.db)
             .await
-            .map_err(Error::Database)
-            .map_err(as_response)?
+            .map_err(|e| as_response(Error::Database(e)))?
             .map(Into::<ApiKey>::into)
         else {
-            return Err(as_response(api::err(
+            bail!(api::err(
                 StatusCode::NOT_FOUND,
-                (api::ErrorCode::EntityNotFound, "api key from token was not found?"),
-            )));
+                (api::ErrorCode::EntityNotFound, "api key from token was not found"),
+            ))
         };
 
         let scopes = apikey.bitfield();
         for (scope, bit) in self.options.scopes.flags() {
-            trace!(%apikey.name, %scope, "checking if api key enabled the scope required for this route");
+            debug!(%apikey.name, %apikey.owner, %scope, "checking if api key has scope enabled");
             if !scopes.contains(bit) {
-                trace!(%apikey.name, %scope, "scope is not enabled!");
-                return Err(as_response(api::err(
+                debug!(%apikey.name, %apikey.owner, %scope, "user's api key doesn't have scope enabled");
+                bail!(api::err(
                     StatusCode::FORBIDDEN,
                     (
                         api::ErrorCode::AccessNotPermitted,
@@ -343,12 +362,12 @@ impl Handler {
                             "repr": bit,
                         }),
                     ),
-                )));
+                ))
             }
         }
 
         let Some(user) = UserEntity::find_by_id(apikey.owner)
-            .one(&ctx.pool)
+            .one(&env.db)
             .await
             .map_err(Error::Database)
             .map_err(as_response)?
@@ -368,66 +387,6 @@ impl Handler {
 
         req.extensions_mut().insert(Session { session: None, user });
         Ok(req)
-    }
-}
-
-impl AsyncAuthorizeRequest<Body> for Handler {
-    type Future = BoxedFuture<'static, Result<Request<Self::RequestBody>, Response<Self::ResponseBody>>>;
-    type RequestBody = Body;
-    type ResponseBody = Body;
-
-    fn authorize(&mut self, request: Request<Body>) -> Self::Future {
-        let headers = request.headers();
-        let Some(header) = headers.get(AUTHORIZATION) else {
-            if self.options.allow_unauthorized {
-                return Box::pin(noop(request));
-            }
-
-            return Box::pin(async { Err(as_response(Error::MissingAuthorizationHeader)) });
-        };
-
-        let Ok(value) = String::from_utf8(header.as_ref().to_vec()).inspect_err(|err| {
-            error!(error = %err, "failed to validate UTF-8 contents in header");
-            sentry::capture_error(err);
-        }) else {
-            return Box::pin(async { Err(as_response(Error::invalid_utf8())) });
-        };
-
-        let (ty, value) = match value.split_once(' ') {
-            Some((_, value)) if value.contains(' ') => {
-                let space = value.chars().position(|x| x == ' ').unwrap_or_default();
-                return Box::pin(async move {
-                    Err(as_response(Error::msg(
-                        format!("received extra space at {space} when parsing header"),
-                        None,
-                    )))
-                });
-            }
-
-            Some((ty, value)) => match ty.parse::<AuthType>() {
-                Ok(ty) => (ty, value),
-                Err(e) => {
-                    return Box::pin(async { Err(as_response(Error::UnknownAuthType(Cow::Owned(e)))) });
-                }
-            },
-
-            None => {
-                return Box::pin(async {
-                    Err(as_response(Error::msg(
-                        "auth header must be in the form of 'Type Value', i.e, 'ApiKey hjdjshdjs'",
-                        None,
-                    )))
-                });
-            }
-        };
-
-        let context = self.context.clone();
-        let me = self.clone();
-        match ty {
-            AuthType::Basic => Box::pin(me.handle_basic_auth(context, request, value.to_owned())),
-            AuthType::Bearer => Box::pin(me.handle_bearer_auth(context, request, value.to_owned())),
-            AuthType::ApiKey => Box::pin(me.handle_apikey_auth(context, request, value.to_owned())),
-        }
     }
 }
 
@@ -470,43 +429,20 @@ impl FromStr for AuthType {
     }
 }
 
-async fn noop(request: Request<Body>) -> Result<Request<Body>, Response<Body>> {
-    Ok(request)
-}
-
-/// Extracts the `sid` field, which in returns the session ID.
-// while the lint is correct, in this case, we can't do `Box<...>`
-// since that's not the signature that we expect
-#[allow(clippy::result_large_err)]
-pub fn extract_sid_from_token(claims: &HashMap<String, Value>) -> Result<Ulid, Error> {
-    claims
-        .get(JWT_SID_FIELD)
-        .filter(|x| matches!(x, Value::String(_)))
-        .and_then(Value::as_str)
-        .map(Ulid::new)
-        .ok_or_else(|| {
-            Error::msg(
-                format!("missing `{}` JWT claim", JWT_SID_FIELD),
-                Some(api::ErrorCode::InvalidJwtClaim),
-            )
-        })?
-        .map_err(Error::DecodeUlid)
-}
-
-pub fn create_validation() -> Validation {
-    let mut validation = Validation::new(JWT_ALGORITHM);
-    validation.set_audience(&[JWT_AUD]);
-    validation.set_issuer(&[JWT_ISS]);
-    validation.set_required_spec_claims(&[JWT_EXP, "aud", "iss"]);
-
-    validation
-}
-
 #[inline(never)]
-#[cold]
-fn as_response<R: IntoResponse>(e: R) -> Response {
+#[cold] // responses are only created if errors are being used
+fn as_response<R: IntoResponse>(e: R) -> Response<Body> {
     e.into_response()
 }
+
+/// A early-return bail for authn-usage only.
+macro_rules! bail {
+    ($($tt:tt)*) => {
+        return ::core::result::Result::Err(as_response($($tt)*))
+    };
+}
+
+pub(in crate::middleware::authn) use bail;
 
 #[cfg(test)]
 mod tests;

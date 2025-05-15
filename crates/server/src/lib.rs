@@ -12,51 +12,38 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! # 🐻‍❄️📦 `charted-server`
+//! This crate is the official implementation of the [charted REST Specification].
+//!
+//! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api
 
-#![feature(let_chains)]
+#![feature(let_chains, impl_trait_in_bindings)]
 
 #[macro_use]
 extern crate tracing;
 
-pub mod ext;
+mod macros;
+
+mod env;
+pub use env::Env;
+
+mod ext;
+pub use ext::OwnerExt;
+
 pub mod extract;
 pub mod feature;
 pub mod middleware;
-pub mod multipart;
 pub mod openapi;
+pub mod ops;
 pub mod pagination;
 pub mod routing;
 pub mod util;
 
-#[cfg(test)]
-pub mod testing;
-
-#[macro_use]
-mod macros;
-
-mod context;
-mod yaml;
-
-use argon2::{
-    PasswordHasher,
-    password_hash::{SaltString, rand_core::OsRng},
-};
-use charted_core::ARGON2;
-pub use context::*;
-pub use yaml::*;
-
-pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
-    let salt = SaltString::generate(&mut OsRng);
-    let password = password.as_ref();
-
-    ARGON2
-        .hash_password(password, &salt)
-        .map(|hash| hash.to_string())
-        .inspect_err(|e| {
-            error!(error = %e, "failed to compute argon2 password");
-        })
-        // since `argon2::Error` doesn't implement `std::error::Error`,
-        // we implicitlly pass it into the `eyre!` macro, which will create
-        // an adhoc error.
-        .map_err(|e| eyre::eyre!(e))
+// Private module to aid in macro development
+#[doc(hidden)]
+pub mod __macro_support {
+    pub use axum;
+    pub use paste::paste;
+    pub use utoipa;
 }

@@ -27,8 +27,7 @@ members = [
     "crates/helm/charts",
     "crates/helm/types",
     "crates/metrics",
-    #"crates/server",
-    "crates/serverv2",
+    "crates/server",
     "crates/types",
 
     "crates/workers/apikeys",

@@ -96,3 +96,82 @@ macro_rules! commit_patch {
         }
     };
 }
+
+#[macro_export]
+macro_rules! mk_into_responses {
+    (for $Ty:ty {$(
+        $code:expr => [$($tt:tt)*];
+    )+}) => {
+        impl $crate::__macro_support::utoipa::IntoResponses for $Ty {
+            fn responses() -> ::std::collections::BTreeMap<
+                String,
+                $crate::__macro_support::utoipa::openapi::RefOr<
+                    $crate::__macro_support::utoipa::openapi::Response
+                >
+            > {
+                ::azalia::btreemap! {
+                    $(
+                        $code => $crate::__internal_mk_into_responses!(@internal $($tt)*)
+                    ),+
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __internal_mk_into_responses {
+    (@internal custom($res:expr)) => {
+        $res
+    };
+
+    (@internal ref(with $content:literal => $T:ty$(; $($field:ident($value:expr);)*)?)) => {
+        $crate::__macro_support::utoipa::openapi::Response::builder()
+            .content(
+                $content,
+                $crate::__macro_support::utoipa::openapi::Content::builder()
+                    .schema(::core::option::Option::Some(
+                        $crate::__macro_support::utoipa::openapi::RefOr::Ref(
+                            $crate::__macro_support::utoipa::openapi::Ref::from_schema_name(
+                                <$T as $crate::__macro_support::utoipa::ToSchema>::name()
+                            )
+                        )
+                    ))
+                    .build()
+            )
+            $(
+                $(
+                    .$field($value)
+                )*
+            )?
+            .build()
+    };
+
+    (@internal ref($T:ty)) => {
+        $crate::__macro_support::utoipa::openapi::RefOr::Ref(
+            $crate::__macro_support::utoipa::openapi::Ref::from_response_name(
+                <$T as $crate::__macro_support::utoipa::ToResponse<'_>>::response().0,
+            ),
+        )
+    };
+
+    (@internal error) => {
+        $crate::__internal_mk_into_responses(@internal ref($crate::openapi::ApiErrorResponse))
+    };
+
+    (@internal error($($field:ident($value:expr)),*)) => {{
+        #[allow(unused_mut)]
+        let mut response = $crate::extract_refor_t!(
+            <$crate::openapi::ApiErrorResponse as $crate::__macro_support::utoipa::ToResponse>::response().1
+        );
+
+        $(
+            $crate::modify_property!(
+                response.$field($value)
+            );
+        )*
+
+        response
+    }};
+}

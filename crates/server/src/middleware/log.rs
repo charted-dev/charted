@@ -14,15 +14,14 @@
 // limitations under the License.
 
 use super::XRequestId;
-use crate::Context;
 use axum::{
     body::Body,
-    extract::{FromRequestParts, MatchedPath, Request, State},
+    extract::{FromRequestParts, MatchedPath, Request},
     http::{Extensions, HeaderMap, Method, Uri, Version, header::USER_AGENT},
     middleware::Next,
     response::IntoResponse,
 };
-use std::{fmt::Display, sync::atomic::Ordering, time::Instant};
+use std::{fmt::Display, time::Instant};
 use tracing::{info, instrument};
 
 #[derive(FromRequestParts)]
@@ -44,12 +43,7 @@ pub struct Metadata {
     http.uri = metadata.uri.path(),
 ))]
 #[cfg_attr(debug_assertions, axum::debug_middleware)]
-pub async fn log(
-    metadata: Metadata,
-    State(cx): State<Context>,
-    req: Request<Body>,
-    next: Next,
-) -> impl IntoResponse {
+pub async fn log(metadata: Metadata, req: Request<Body>, next: Next) -> impl IntoResponse {
     let uri = metadata.uri.path();
     if uri.contains("/heartbeat") {
         return next.run(req).await;
@@ -57,17 +51,14 @@ pub async fn log(
 
     let counter = charted_metrics::counter!("charted.server.request",
         "req.matched_path" => display_opt(metadata.matched.as_ref().map(MatchedPath::as_str)).to_string(),
-        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string(),
-        "req.id"           => display_opt(metadata.extensions.get::<XRequestId>()).to_string()
+        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string()
     );
 
     counter.increment(1);
-    cx.requests.fetch_add(1, Ordering::SeqCst);
 
-    let latency = charted_metrics::histogram!("charted.server.request[latency]",
+    let latency = charted_metrics::histogram!("charted.server.request.latency",
         "req.matched_path" => display_opt(metadata.matched.as_ref().map(MatchedPath::as_str)).to_string(),
-        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string(),
-        "req.id"           => display_opt(metadata.extensions.get::<XRequestId>()).to_string()
+        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string()
     );
 
     let start = Instant::now();

@@ -1257,7 +1257,7 @@ dependencies = [
  "charted-core",
  "charted-database",
  "charted-helm-types",
- "charted-serverv2",
+ "charted-server",
  "charted-types",
  "clap",
  "clap_complete",
@@ -1447,7 +1447,7 @@ name = "charted-internals"
 version = "0.0.0-devel.0"
 dependencies = [
  "azalia",
- "charted-serverv2",
+ "charted-server",
  "color-eyre",
  "eyre",
  "tracing",
@@ -1470,7 +1470,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "charted-serverv2"
+name = "charted-server"
 version = "0.1.0"
 dependencies = [
  "argon2",

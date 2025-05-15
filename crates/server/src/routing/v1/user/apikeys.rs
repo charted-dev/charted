@@ -14,13 +14,14 @@
 // limitations under the License.
 
 use crate::{
-    Context, commit_patch,
+    Env, commit_patch,
+    ext::ResultExt,
     extract::{Json, Path, Query},
-    extract_refor_t,
-    middleware::authn::{self, Options, Session},
-    modify_property,
-    openapi::ApiErrorResponse,
-    pagination::{Ordering, PaginationRequest},
+    middleware::authn::{Factory, Options, Session},
+    mk_into_responses,
+    openapi::{ApiKeyResponse, EmptyApiResponse, ListApiKeyResponse},
+    ops::db,
+    pagination::PaginationRequest,
     util::{self, BuildLinkHeaderOpts},
 };
 use axum::{
@@ -38,51 +39,34 @@ use charted_types::{
 };
 use chrono::Utc;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, Order, PaginatorTrait, QueryFilter, QueryOrder,
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter,
+    QueryOrder,
 };
 use serde_json::json;
-use std::{cmp, collections::BTreeMap};
-use utoipa::{
-    IntoResponses, ToResponse,
-    openapi::{Ref, RefOr, Response},
-};
+use std::{borrow::Cow, cmp};
 
-pub fn create_router(cx: &Context) -> Router<Context> {
+pub fn create_router(env: &Env) -> Router<Env> {
     Router::new()
         .route(
             "/",
-            routing::get(list.layer(authn::new(
-                cx.clone(),
-                Options::default().with_scope(ApiKeyScope::ApiKeyList),
-            ))),
+            routing::get(list.layer(env.authn(Options::default().with_scope(ApiKeyScope::ApiKeyList))))
+                .put(create.layer(env.authn(Options::default().with_scope(ApiKeyScope::ApiKeyCreate)))),
         )
         .route(
             "/{idOrName}",
-            routing::get(fetch.layer(authn::new(
-                cx.clone(),
-                Options::default().with_scope(ApiKeyScope::ApiKeyView),
-            ))),
+            routing::get(fetch.layer(env.authn(Options::default().with_scope(ApiKeyScope::ApiKeyView))))
+                .patch(patch.layer(env.authn(Options::default().with_scope(ApiKeyScope::ApiKeyUpdate))))
+                .delete(delete.layer(env.authn(Options::default().with_scope(ApiKeyScope::ApiKeyDelete)))),
         )
 }
 
 struct AllApiKeysR;
-impl IntoResponses for AllApiKeysR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("ListApiKeyResponse"),
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for AllApiKeysR {
+    "200" => [ref(ListApiKeyResponse)];
+});
 
 /// Lists all the avaliable API keys this user has.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.list[apikeys]", skip_all)]
 #[utoipa::path(
     get,
     path = "/v1/users/@me/apikeys",
@@ -92,7 +76,7 @@ impl IntoResponses for AllApiKeysR {
     responses(AllApiKeysR)
 )]
 pub async fn list(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Query(PaginationRequest {
         per_page,
@@ -103,11 +87,8 @@ pub async fn list(
     let per_page = clamp(per_page, 10, 100).unwrap_or(10);
     let paginator = ApiKeyEntity::find()
         .filter(apikey::Column::Owner.eq(user.username))
-        .order_by(apikey::Column::Id, match order_by {
-            Ordering::Ascending => Order::Asc,
-            Ordering::Descending => Order::Desc,
-        })
-        .paginate(&cx.pool, per_page as u64);
+        .order_by(apikey::Column::Id, order_by.into_sea_orm())
+        .paginate(&env.db, per_page as u64);
 
     let pages = paginator.num_pages().await.map_err(api::system_failure)?;
     let entries = paginator
@@ -124,9 +105,9 @@ pub async fn list(
         current: page,
         per_page,
         max_pages: pages,
-        resource: cx.config.base_url.unwrap().join("/users/@me/apikeys").unwrap(),
+        resource: env.config.base_url.unwrap().join("/users/@me/apikeys").unwrap(),
     })
-    .map_err(api::system_failure)?;
+    .into_system_failure()?;
 
     let mut response = api::ok(StatusCode::OK, entries);
     if !link_hdr.is_empty() {
@@ -137,29 +118,12 @@ pub async fn list(
 }
 
 struct SingleApiKeyR;
-impl IntoResponses for SingleApiKeyR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("ApiKeyResponse"),
-            "404" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("API key was not found."));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for SingleApiKeyR {
+    "200" => [ref(ApiKeyResponse)];
+    "404" => [error(description("api key was not found"))];
+});
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.fetch[apikeys]", skip_all)]
 #[utoipa::path(
     get,
     path = "/v1/users/@me/apikeys/{idOrName}",
@@ -169,56 +133,34 @@ impl IntoResponses for SingleApiKeyR {
     responses(SingleApiKeyR)
 )]
 pub async fn fetch(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(id_or_name): Path<NameOrUlid>,
 ) -> api::Result<ApiKey> {
-    let Some(apikey) = (match id_or_name.clone() {
-        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name)),
-        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id),
+    match db::apikey::get_with_additional_bounds(&env.db, id_or_name.clone(), |query| {
+        query.filter(apikey::Column::Owner.eq(user.id))
     })
-    .filter(apikey::Column::Owner.eq(user.id))
-    .one(&cx.pool)
-    .await
-    .map_err(api::system_failure)?
-    .map(Into::<ApiKey>::into) else {
-        return Err(api::err(
+    .await?
+    {
+        Some(apikey) => Ok(api::ok(StatusCode::OK, apikey)),
+        None => Err(api::err(
             StatusCode::NOT_FOUND,
             (
                 api::ErrorCode::EntityNotFound,
                 "api key with name or id was not found",
                 json!({"idOrName":id_or_name}),
             ),
-        ));
-    };
-
-    Ok(api::ok(StatusCode::OK, apikey))
-}
-
-pub struct CreateApiKeyR;
-impl IntoResponses for CreateApiKeyR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "201" => Ref::from_response_name("ApiKeyResponse"),
-            "409" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("API key already exists"));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
+        )),
     }
 }
 
+struct CreateApiKeyR;
+mk_into_responses!(for CreateApiKeyR {
+    "201" => [ref(ApiKeyResponse)];
+    "409" => [error(description("api key already exists"))];
+});
+
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.create[apikey]", skip_all)]
 #[utoipa::path(
     put,
     path = "/v1/users/@me/apikeys",
@@ -232,7 +174,7 @@ impl IntoResponses for CreateApiKeyR {
     responses(CreateApiKeyR)
 )]
 pub async fn create(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Json(CreateApiKeyPayload {
         display_name,
@@ -242,17 +184,11 @@ pub async fn create(
         name,
     }): Json<CreateApiKeyPayload>,
 ) -> api::Result<ApiKey> {
-    if ApiKeyEntity::find()
-        .filter(apikey::Column::Name.eq(name.clone()))
-        .filter(apikey::Column::Owner.eq(user.id))
-        .one(&cx.pool)
-        .await
-        .inspect_err(|e| {
-            error!(error = %e, apikey.name = %name, owner = %user.id, "failed to find apikey by name");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?
-        .is_some()
+    if db::apikey::get_with_additional_bounds(&env.db, NameOrUlid::Name(name.clone()), |query| {
+        query.filter(apikey::Column::Owner.eq(user.id))
+    })
+    .await?
+    .is_some()
     {
         return Err(api::err(
             StatusCode::CONFLICT,
@@ -264,15 +200,7 @@ pub async fn create(
         ));
     }
 
-    let id = cx
-        .ulid_generator
-        .generate()
-        .inspect_err(|e| {
-            error!(error = %e, apikey.name = %name, "received error when generating id for apikey");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?;
-
+    let id = env.ulid.generate().into_system_failure()?;
     let now = Utc::now();
     let token = rand_string(32);
     let model = apikey::Model {
@@ -290,7 +218,7 @@ pub async fn create(
 
     let active_model = model.clone().into_active_model();
     ApiKeyEntity::insert(active_model)
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
         .inspect_err(|e| {
             error!(error = %e, apikey.name = %name, apikey.owner = %user.id, "failed to create api key");
@@ -302,30 +230,13 @@ pub async fn create(
 }
 
 struct PatchApiKeyR;
-impl IntoResponses for PatchApiKeyR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "204" => Ref::from_response_name("EmptyApiResponse"),
-            "409" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Failed to apply patches"));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for PatchApiKeyR {
+    "204" => [ref(EmptyApiResponse)];
+    "409" => [error(description("failed to apply patch"))];
+});
 
 /// Patches a API key's metadata.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.patch[apikey]", skip_all)]
 #[utoipa::path(
     patch,
     path = "/v1/users/@me/apikeys/{idOrName}",
@@ -340,46 +251,53 @@ impl IntoResponses for PatchApiKeyR {
     responses(PatchApiKeyR)
 )]
 pub async fn patch(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(id_or_name): Path<NameOrUlid>,
     Json(PatchApiKeyPayload {
         display_name,
         description,
         scopes: _,
-        name: _,
+        name,
     }): Json<PatchApiKeyPayload>,
 ) -> api::Result<()> {
-    let (apikey, mut model) = (match &id_or_name {
-        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name.to_owned())),
-        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id.to_owned()),
-    })
-    .filter(apikey::Column::Owner.eq(user.id))
-    .one(&cx.pool)
-    .await
-    .map_err(api::system_failure)?
-    .map(|entity| {
-        (
-            Into::<ApiKey>::into(entity.clone()),
-            Into::<apikey::ActiveModel>::into(entity),
-        )
-    })
-    .ok_or_else(|| {
-        api::err(
-            StatusCode::NOT_FOUND,
-            (
-                api::ErrorCode::EntityNotFound,
-                "apikey with either name or id wasn't found",
-                json!({"idOrName":id_or_name}),
-            ),
-        )
-    })?;
+    let mut model = db::apikey::get_as_model(&env.db, id_or_name.clone())
+        .await?
+        .ok_or_else(|| {
+            api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "apikey with either name or id wasn't found",
+                    json!({"idOrName":id_or_name}),
+                ),
+            )
+        })?
+        .into_active_model();
 
     let mut errors = Vec::new();
     commit_patch!(model of string?: old.display_name => display_name);
     commit_patch!(model of string?: old.description => description; validate that len < 140 [errors]);
 
-    // TODO(@auguwu): add `scopes` and `name` support
+    if let Some(name) = name {
+        if db::apikey::get_as_model_with_additional_bounds(&env.db, NameOrUlid::Name(name.clone()), |query| {
+            query.filter(apikey::Column::Owner.eq(user.id))
+        })
+        .await?
+        .is_some()
+        {
+            errors.push(api::Error {
+                code: api::ErrorCode::EntityAlreadyExists,
+                message: Cow::Borrowed("an existing api key under this account already exists with that name"),
+                details: Some(json!({
+                    "path": "name",
+                    "username": &name
+                })),
+            });
+        } else {
+            model.name = ActiveValue::set(name);
+        }
+    }
 
     if !errors.is_empty() {
         return Err(api::Response {
@@ -392,41 +310,20 @@ pub async fn patch(
     }
 
     model
-        .update(&cx.pool)
+        .update(&env.db)
         .await
-        .inspect_err(|e| {
-            error!(error = %e, %apikey.name, apikey.owner = %user.username, "failed to commit changes for patch");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)
         .map(|_| api::no_content())
+        .into_system_failure()
 }
 
 struct DeleteApiKeyR;
-impl IntoResponses for DeleteApiKeyR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "204" => Ref::from_response_name("EmptyApiResponse"),
-            "404" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("API key by ID or name was not found"));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for DeleteApiKeyR {
+    "200" => [ref(EmptyApiResponse)];
+    "404" => [error(description("API key by ID or name was not found"))];
+});
 
 /// Deletes an API key.
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.delete[apikey]", skip_all)]
+#[axum::debug_handler]
 #[utoipa::path(
     delete,
     path = "/v1/users/@me/apikeys/{idOrName}",
@@ -436,18 +333,14 @@ impl IntoResponses for DeleteApiKeyR {
     responses(DeleteApiKeyR)
 )]
 pub async fn delete(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(id_or_name): Path<NameOrUlid>,
 ) -> api::Result<()> {
-    let ApiKey { id, .. } = (match &id_or_name {
-        NameOrUlid::Name(name) => ApiKeyEntity::find().filter(apikey::Column::Name.eq(name.to_owned())),
-        NameOrUlid::Ulid(id) => ApiKeyEntity::find_by_id(id.to_owned()),
+    let ApiKey { id, .. } = db::apikey::get_with_additional_bounds(&env.db, id_or_name.clone(), |query| {
+        query.filter(apikey::Column::Owner.eq(user.id))
     })
-    .filter(apikey::Column::Owner.eq(user.id))
-    .one(&cx.pool)
-    .await
-    .map_err(api::system_failure)?
+    .await?
     .ok_or_else(|| {
         api::err(
             StatusCode::NOT_FOUND,
@@ -457,11 +350,10 @@ pub async fn delete(
                 json!({"idOrName":id_or_name}),
             ),
         )
-    })
-    .map(Into::<ApiKey>::into)?;
+    })?;
 
     ApiKeyEntity::delete_by_id(id)
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
         .map(|_| api::from_default(StatusCode::ACCEPTED))
         .map_err(api::system_failure)

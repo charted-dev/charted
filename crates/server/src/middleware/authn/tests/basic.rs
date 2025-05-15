@@ -14,178 +14,174 @@
 // limitations under the License.
 
 use crate::middleware::authn::{
-    Error,
-    tests::{consume_body, create_router},
+    error::Error,
+    tests::{consume_body, testcase},
 };
 use axum::{
     body::Body,
-    http::{Request, StatusCode, header::AUTHORIZATION},
+    http::{Request, header::AUTHORIZATION},
 };
-use base64::{Engine, engine::general_purpose::STANDARD};
-use charted_core::api::{self, ErrorCode};
+use base64::engine::{Engine, general_purpose::STANDARD};
+use charted_core::{api, assert_response_is_client_error, assert_status_code};
 use charted_types::name;
 use std::borrow::Cow;
-use tower::{Service, ServiceExt};
+use tower::Service;
 
-#[tokio::test]
-async fn disallow_if_not_enabled_by_config() {
-    let mut router = create_router(Default::default(), false, |_| {}).await;
-    let mut service = router.as_service::<Body>();
+fn base64_encode(b: &[u8]) -> String {
+    let mut auth = String::new();
+    STANDARD.encode_string(b, &mut auth);
 
-    let service = service.ready().await.unwrap();
-    let res = service
-        .call(
-            Request::post("/echo")
-                .header(AUTHORIZATION, "Basic bm9lbDpub2VsaXNjdXRpZXV3dQo=")
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::BAD_REQUEST);
-
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert!(!body.errors.is_empty());
-    assert_eq!(body.errors[0].code, ErrorCode::BadRequest);
-    assert_eq!(
-        body.errors[0].message,
-        "instance has disabled the use of `Basic` authentication"
-    );
+    auth
 }
 
-#[tokio::test]
-async fn decoding_error_missing_colon() {
-    let mut router = create_router(Default::default(), true, |_| {}).await;
-    let mut service = router.as_service::<Body>();
+testcase! {
+    disallow_if_not_enabled_by_config(service) {
+        let res = service
+            .call(
+                Request::post("/echo")
+                    .header(AUTHORIZATION, "Basic bm9lbDpub2VsaXNjdXRpZXV3dQo=")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-    let service = service.ready().await.unwrap();
+        assert_response_is_client_error!(res);
+        assert_status_code!(res, PRECONDITION_FAILED);
 
-    let mut auth = String::new();
-    STANDARD.encode_string(b"wwwww", &mut auth);
+        let body = res.into_body();
+        let res = consume_body!(body as api::Response);
 
-    let res = service
-        .call(
-            Request::post("/echo")
-                .header(AUTHORIZATION, format!("Basic {auth}"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
+        assert!(!res.success);
+        assert_eq!(res.errors[0].code, api::ErrorCode::UnsupportedAuthorizationKind);
+        assert_eq!(res.errors[0].message, "instance has disabled the use of `Basic` authentication");
+    };
+}
 
-    assert_eq!(res.status(), StatusCode::NOT_ACCEPTABLE);
+testcase! {
+    [env_override(|env| {
+        env.config.sessions.enable_basic_auth = true;
+    })]
+    decoding_error_missing_colon(service) {
+        let basic_auth = base64_encode(b"wwwww");
+        let res = service
+            .call(
+                Request::post("/echo")
+                    .header(AUTHORIZATION, format!("Basic {basic_auth}"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert_eq!(
-        body,
-        Error::Message {
+        assert_response_is_client_error!(res);
+        assert_status_code!(res, NOT_ACCEPTABLE);
+
+        let body = res.into_body();
+        let res = consume_body!(body as api::Response);
+
+        let expected = Error::Message {
             message: Cow::Borrowed("input must be in the form of 'username:password'"),
-            code: None
-        }
-        .into()
-    );
+            code: None,
+        };
+
+        assert_eq!(res, expected.into());
+    };
 }
 
-#[tokio::test]
-async fn decoding_error_more_than_one_colon() {
-    let mut router = create_router(Default::default(), true, |_| {}).await;
-    let mut service = router.as_service::<Body>();
+testcase! {
+    [env_override(|env| {
+        env.config.sessions.enable_basic_auth = true;
+    })]
+    decoding_error_more_than_one_colon(service) {
+        let basic_auth = base64_encode(b"wwwww:wwwww:::::::.;?!");
+        let res = service
+            .call(
+                Request::post("/echo")
+                    .header(AUTHORIZATION, format!("Basic {basic_auth}"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-    let service = service.ready().await.unwrap();
+        assert_response_is_client_error!(res);
+        assert_status_code!(res, NOT_ACCEPTABLE);
 
-    let mut auth = String::new();
-    STANDARD.encode_string(b"wwwww:wwwww:::::::.;?!", &mut auth);
+        let body = res.into_body();
+        let res = consume_body!(body as api::Response);
 
-    let res = service
-        .call(
-            Request::post("/echo")
-                .header(AUTHORIZATION, format!("Basic {auth}"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::NOT_ACCEPTABLE);
-
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert_eq!(
-        body,
-        Error::Message {
+        let expected = Error::Message {
             message: Cow::Borrowed("received more than one `:` in basic auth input"),
-            code: None
-        }
-        .into()
-    );
+            code: None,
+        };
+
+        assert_eq!(res, expected.into());
+    };
 }
 
-#[tokio::test]
-async fn invalid_name_in_username() {
-    let mut router = create_router(Default::default(), true, |_| {}).await;
-    let mut service = router.as_service::<Body>();
+testcase! {
+    [env_override(|env| {
+        env.config.sessions.enable_basic_auth = true;
+    })]
+    invalid_name_in_username(service) {
+        let basic_auth = base64_encode(b"noelisTHEbEST!!!!~:owouwudaowo");
+        let res = service
+            .call(
+                Request::post("/echo")
+                    .header(AUTHORIZATION, format!("Basic {basic_auth}"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-    let service = service.ready().await.unwrap();
+        assert_response_is_client_error!(res);
+        assert_status_code!(res, NOT_ACCEPTABLE);
 
-    let mut auth = String::new();
-    STANDARD.encode_string(b"noelisTHEbEST!!!!~:owouwudaowo", &mut auth);
+        let body = res.into_body();
+        let res = consume_body!(body as api::Response);
 
-    let res = service
-        .call(
-            Request::post("/echo")
-                .header(AUTHORIZATION, format!("Basic {auth}"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::NOT_ACCEPTABLE);
-
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert_eq!(
-        body,
-        Error::InvalidName {
+        let expected = Error::InvalidName {
             input: Cow::Borrowed("noelisTHEbEST!!!!~"),
             error: name::Error::InvalidCharacter {
                 input: Cow::Borrowed("noelisthebest!!!!~"),
                 at: 13,
                 ch: '!'
             }
-        }
-        .into()
-    );
+        };
+
+        assert_eq!(res, expected.into());
+    };
 }
 
-#[tokio::test]
-async fn empty_username() {
-    let mut router = create_router(Default::default(), true, |_| {}).await;
-    let mut service = router.as_service::<Body>();
+testcase! {
+    [env_override(|env| {
+        env.config.sessions.enable_basic_auth = true;
+    })]
+    empty_username(service) {
+        let basic_auth = base64_encode(b":owouwudaowo");
+        let res = service
+            .call(
+                Request::post("/echo")
+                    .header(AUTHORIZATION, format!("Basic {basic_auth}"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-    let service = service.ready().await.unwrap();
+        assert_response_is_client_error!(res);
+        assert_status_code!(res, NOT_ACCEPTABLE);
 
-    let mut auth = String::new();
-    STANDARD.encode_string(b":owouwudaowo", &mut auth);
+        let body = res.into_body();
+        let res = consume_body!(body as api::Response);
 
-    let res = service
-        .call(
-            Request::post("/echo")
-                .header(AUTHORIZATION, format!("Basic {auth}"))
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::NOT_ACCEPTABLE);
-
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert_eq!(
-        body,
-        Error::InvalidName {
+        let expected = Error::InvalidName {
             input: Cow::Borrowed(""),
             error: name::Error::Empty,
-        }
-        .into()
-    );
+        };
+
+        assert_eq!(res, expected.into());
+    };
 }

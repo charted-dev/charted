@@ -13,23 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::openapi::ApiResponse;
+use crate::{mk_api_response_types, mk_into_responses};
 use axum::http::StatusCode;
 use charted_core::{BuildInfo, Distribution, api};
 use serde::Serialize;
-use std::collections::BTreeMap;
-use utoipa::{
-    IntoResponses, ToResponse, ToSchema,
-    openapi::{Ref, RefOr, Response},
-};
+use utoipa::ToSchema;
 
 #[derive(Serialize, ToSchema)]
 pub struct Main {
-    /// current distribution this instance is running as.
+    /// current distribution
     #[schema(read_only)]
     distribution: Distribution,
 
-    /// build information.
+    /// build information about the server
+    #[schema(read_only)]
     build_info: BuildInfo,
 }
 
@@ -42,24 +39,13 @@ impl Default for Main {
     }
 }
 
-impl IntoResponses for ApiResponse<Main> {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => RefOr::Ref(Ref::from_response_name(ApiResponse::<Main>::response().0))
-        }
-    }
-}
+mk_api_response_types!(Main);
+mk_into_responses!(for Main {
+    "200" => [ref(MainResponse)];
+});
 
-/// Main entrypoint of the API server.
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-#[utoipa::path(
-    get,
-
-    path = "/v1",
-    operation_id = "main",
-    tag = "Main",
-    responses(ApiResponse<Main>)
-)]
+#[axum::debug_handler]
+#[utoipa::path(get, path = "/v1", tag = "Main", responses(Main))]
 pub async fn main() -> api::Response<Main> {
-    api::ok(StatusCode::OK, Main::default())
+    api::from_default(StatusCode::OK)
 }

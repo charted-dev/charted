@@ -16,94 +16,48 @@
 mod apikey;
 mod basic;
 mod bearer;
+pub(in crate::middleware::authn::tests) mod util;
 
-use super::{Error, Options};
-use crate::Context;
-use axum::{
-    Router,
-    body::Body,
-    http::{Request, StatusCode},
-    response::{IntoResponse, Response},
-    routing,
-};
-use charted_config::Config;
-use charted_core::api;
-use serde::de::DeserializeOwned;
-use tower::{Service, ServiceExt};
+use crate::middleware::authn::{Options, error::Error};
+use axum::{body::Body, http::Request};
+use charted_core::{api, assert_response_is_client_error, assert_response_ok, assert_status_code};
+use tower::Service;
+use util::{consume_body, testcase};
 
-pub(in crate::middleware::authn::tests) async fn echo(req: axum::extract::Request) -> impl IntoResponse {
-    (StatusCode::OK, Response::new(req.into_body()))
-}
-
-pub(in crate::middleware::authn::tests) async fn consume_body<T: DeserializeOwned>(body: Body) -> T {
-    let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-    serde_json::from_slice(&bytes).unwrap()
-}
-
-pub(in crate::middleware::authn::tests) async fn create_context(
-    config_override: impl FnOnce(&mut Config),
-) -> Context {
-    Context::for_testing(config_override).await.unwrap()
-}
-
-pub(in crate::middleware::authn::tests) async fn create_router(
-    options: Options,
-    basic_auth: bool,
-    config_override: impl FnOnce(&mut Config),
-) -> Router {
-    let context = create_context(|cfg| {
-        cfg.sessions.enable_basic_auth = basic_auth;
-        config_override(cfg)
-    })
-    .await;
-
-    Router::new()
-        .route("/echo", routing::post(echo).layer(super::new(context.clone(), options)))
-        .with_state(context)
-}
-
-#[tokio::test]
-async fn disallow_if_no_header() {
-    let mut router = create_router(Default::default(), false, |_| {}).await;
-    let mut service = router.as_service::<Body>();
-
-    let service = service.ready().await.unwrap();
-    let res = service
-        .call(Request::post("/echo").body(Body::empty()).unwrap())
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::NOT_ACCEPTABLE);
-
-    let body = consume_body::<api::Response>(res.into_body()).await;
-    assert_eq!(body, Error::MissingAuthorizationHeader.into());
-}
-
-#[tokio::test]
-async fn allow_if_no_header_and_can_be_allowed() {
-    let mut router = create_router(
-        Options {
-            allow_unauthorized: true,
-            ..Default::default()
-        },
-        false,
-        |_| {},
-    )
-    .await;
-
-    let mut service = router.as_service::<Body>();
-    let service = service.ready().await.unwrap();
-
-    let res = service
-        .call(Request::post("/echo").body(Body::empty()).unwrap())
-        .await
-        .unwrap();
-
-    assert_eq!(res.status(), StatusCode::OK);
-    assert!(
-        axum::body::to_bytes(res.into_body(), usize::MAX)
+testcase! {
+    disallow_if_no_header(service) {
+        let res = service
+            .call(Request::post("/echo").body(Body::empty()).unwrap())
             .await
-            .unwrap()
-            .is_empty()
-    );
+            .unwrap();
+
+        assert_response_is_client_error!(res, "expected server to return 406");
+        assert_status_code!(res, NOT_ACCEPTABLE);
+
+        let body = res.into_body();
+        let body = consume_body!(body as api::Response);
+
+        assert_eq!(body, Error::MissingAuthorizationHeader.into());
+    };
+}
+
+testcase! {
+    [options(Options {
+        allow_unauthorized: true,
+        ..Default::default()
+    })]
+    allow_if_no_header_and_can_be_unauthorized(service) {
+        let res = service
+            .call(Request::post("/echo").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        assert_response_ok!(res);
+        assert!(
+            axum::body::to_bytes(res.into_body(), usize::MAX)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+    };
 }

@@ -27,7 +27,7 @@ authors.workspace = true
 [features]
 default = ["libsystemd"]
 
-libsystemd = ["charted-serverv2/libsystemd"]
+libsystemd = ["charted-server/libsystemd"]
 
 [dependencies]
 argon2.workspace = true
@@ -40,7 +40,7 @@ charted-core.workspace = true
 charted-config.workspace = true
 charted-database.workspace = true
 charted-helm-types.workspace = true
-charted-serverv2 = { version = "0.1.0", path = "../serverv2" }
+charted-server.workspace = true
 charted-types.workspace = true
 clap.workspace = true
 clap_complete.workspace = true

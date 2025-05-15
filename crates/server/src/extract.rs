@@ -14,9 +14,11 @@
 // limitations under the License.
 
 mod json;
+pub mod multipart;
 mod path;
 mod query;
 
-pub use json::*;
-pub use path::*;
-pub use query::*;
+pub use json::Json;
+pub use multipart::Multipart;
+pub use path::Path;
+pub use query::Query;

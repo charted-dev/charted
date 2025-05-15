@@ -15,47 +15,39 @@
 
 pub mod releases;
 
-use super::Entrypoint;
 use crate::{
-    Context,
-    ext::OwnerExt,
+    Env, OwnerExt,
+    ext::ResultExt,
     extract::Path,
-    extract_refor_t,
-    middleware::authn::{self, Options},
-    modify_property,
-    openapi::ApiErrorResponse,
-    routing::v1::EntrypointResponse,
+    middleware::authn::{Factory, Options},
+    mk_into_responses,
+    openapi::RepositoryResponse,
+    ops::db,
+    routing::v1::Entrypoint,
 };
 use axum::{Router, extract::State, handler::Handler, http::StatusCode, routing};
 use charted_core::{
     api,
     bitflags::{ApiKeyScope, ApiKeyScopes},
 };
-use charted_database::entities::{RepositoryEntity, repository};
+use charted_database::entities::repository;
 use charted_types::{NameOrUlid, Owner, Repository};
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, QueryFilter};
 use serde_json::json;
-use std::collections::BTreeMap;
 use utoipa::{
-    IntoParams, IntoResponses, ToResponse,
-    openapi::{
-        Ref, RefOr, Response,
-        path::{Parameter, ParameterIn},
-    },
+    IntoParams,
+    openapi::path::{Parameter, ParameterIn},
 };
 
-pub fn create_router(cx: &Context) -> Router<Context> {
-    Router::new()
-        .route("/", routing::get(main))
-        .route(
-            "/{owner}/{repo}",
-            routing::get(fetch.layer(authn::new(cx.to_owned(), Options {
-                allow_unauthorized: true,
-                scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
-                require_refresh_token: false,
-            }))),
-        )
-        .nest("/{owner}/{repo}/releases", releases::create_router(cx))
+pub fn create_router(env: &Env) -> Router<Env> {
+    Router::new().route("/", routing::get(main)).route(
+        "/{owner}/{repo}",
+        routing::get(fetch.layer(env.authn(Options {
+            allow_unauthorized: true,
+            scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
+            require_refresh_token: false,
+        }))),
+    )
 }
 
 /// Entrypoint handler to the Repositories API.
@@ -65,33 +57,18 @@ pub fn create_router(cx: &Context) -> Router<Context> {
     path = "/v1/repositories",
     operation_id = "repositories",
     tag = "Repositories",
-    responses(EntrypointResponse)
+    responses(Entrypoint)
 )]
 pub async fn main() -> api::Response<Entrypoint> {
     api::ok(StatusCode::OK, Entrypoint::new("Repositories"))
 }
 
 struct FetchRepoR;
-impl IntoResponses for FetchRepoR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("RepositoryResponse"),
-            "400" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Invalid ID or name specified"));
-
-                response
-            },
-
-            "404" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Repository not found"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for FetchRepoR {
+    "200" => [ref(RepositoryResponse)];
+    "400" => [error(description("invalid id or name"))];
+    "404" => [error(description("repository not found"))];
+});
 
 pub struct OwnerRepoP;
 impl IntoParams for OwnerRepoP {
@@ -120,7 +97,6 @@ impl IntoParams for OwnerRepoP {
 }
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.fetch[repository]", skip_all, fields(%owner, %repo))]
 #[utoipa::path(
     get,
     path = "/v1/repositories/{owner}/{repo}",
@@ -130,12 +106,12 @@ impl IntoParams for OwnerRepoP {
     params(OwnerRepoP)
 )]
 pub async fn fetch(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Path((owner, repo)): Path<(NameOrUlid, NameOrUlid)>,
 ) -> api::Result<Repository> {
-    let Some(owner) = Owner::query_by_id_or_name(&cx, owner.clone())
+    let Some(owner) = Owner::query_by_id_or_name(&env, owner.clone())
         .await
-        .map_err(api::system_failure)?
+        .into_system_failure()?
     else {
         return Err(api::err(
             StatusCode::NOT_FOUND,
@@ -147,44 +123,21 @@ pub async fn fetch(
         ));
     };
 
-    match repo {
-        NameOrUlid::Name(ref name) => match RepositoryEntity::find()
-            .filter(repository::Column::Name.eq(name.clone()))
+    match db::repository::get_with_additional_bounds(&env.db, repo.clone(), |query| {
+        query
             .filter(repository::Column::Owner.eq(owner.id()))
             .filter(repository::Column::Private.eq(false))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<Repository>::into)
-        {
-            Some(repo) => Ok(api::ok(StatusCode::OK, repo)),
-            None => Err(api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "repository with id or name was not found",
-                    json!({"idOrName":repo}),
-                ),
-            )),
-        },
-
-        NameOrUlid::Ulid(id) => match RepositoryEntity::find_by_id(id)
-            .filter(repository::Column::Owner.eq(owner.id()))
-            .filter(repository::Column::Private.eq(false))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::into)
-        {
-            Some(repo) => Ok(api::ok(StatusCode::OK, repo)),
-            None => Err(api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "repository with id or name was not found",
-                    json!({"idOrName":repo}),
-                ),
-            )),
-        },
+    })
+    .await?
+    {
+        Some(repo) => Ok(api::ok(StatusCode::OK, repo)),
+        None => Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "repository with id or name was not found",
+                json!({"idOrName":repo}),
+            ),
+        )),
     }
 }

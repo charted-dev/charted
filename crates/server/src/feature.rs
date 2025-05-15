@@ -12,36 +12,121 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! Allows building server features.
 
-use crate::Context;
-use axum::Router;
-use azalia::rust::AsArcAny;
-use charted_core::BoxedFuture;
-use std::{any::TypeId, collections::HashMap, sync::Arc};
-use utoipa::openapi::OpenApi;
+#![allow(unused)]
 
-pub type Collection = HashMap<TypeId, Arc<dyn Feature>>;
+use charted_feature::Feature;
+use std::{
+    any::{self, TypeId},
+    collections::{HashMap, hash_map::Iter},
+    fmt::Debug,
+    sync::Arc,
+};
 
-/// Implements a **server feature**. Read in the [`features/` folder] for documentation.
-///
-/// [`features/` folder]: https://github.com/charted-dev/charted/blob/main/features/README.md
-pub trait Feature: AsArcAny + Send + Sync + 'static {
-    /// Does pre-initialization of this feature once the server is booting up.
-    fn init<'feat, 'cx: 'feat>(&self, cx: &'cx Context) -> BoxedFuture<'feat, eyre::Result<()>> {
-        let _ = cx;
-        Box::pin(async { Ok(()) })
+/// Newtype wrapper for holding a collection of [`Feature`]s.
+#[derive(Clone, Default)]
+pub struct Collection(HashMap<TypeId, Arc<dyn Feature>>);
+
+impl Debug for Collection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let map = self
+            .0
+            .values()
+            .map(|x| any::type_name_of_val(x.as_ref()))
+            .collect::<Vec<_>>();
+
+        f.debug_tuple("Features").field(&map).finish()
     }
-
-    /// If the server feature implements new routes or data types, then this is where
-    /// you can extend the core OpenAPI document.
-    fn extends_openapi(&self, doc: &mut OpenApi) {
-        let _ = doc;
-    }
-
-    /// Extends the API router.
-    ///
-    /// It returns a tuple of `(path, router)`. The `path` must be a valid path.
-    fn extend_router(&self) -> (&'static str, Router<Context>);
 }
 
-azalia::impl_dyn_any!(Feature);
+impl Collection {
+    /// Builds a new, empty feature collection.
+    pub fn new() -> Self {
+        Collection(HashMap::new())
+    }
+
+    /// Returns `true` if the feature is enabled.
+    pub fn has<T: Feature + 'static>(&self) -> bool {
+        // cloning the features has a minimal performance hit since it just increments
+        // the reference count (and when dropped, decrements).
+        self.0.values().cloned().any(|feat| feat.as_arc_any().is::<T>())
+    }
+
+    /// Returns a reference to the feature if it is enabled, otherwise [`None`] is
+    /// returned.
+    pub fn get<T: Feature>(&self) -> Option<&T> {
+        if self.has::<T>() {
+            // Since we know it exists (since `dyn Type::is` will ensure if
+            // the type's ID of `self` is == type ID of `T`), we use `unwrap_unchecked()`
+            // to ensure that it exists.
+            let type_id = TypeId::of::<T>();
+
+            // paranoia once more.
+            assert!(self.0.contains_key(&type_id));
+
+            // We shouldn't have a panic path here if we already know it exists.
+            let feature = unsafe { self.0.get(&type_id).unwrap_unchecked() };
+
+            // another paranoia check.
+            debug_assert!(feature.is::<T>());
+            return feature.downcast();
+        }
+
+        None
+    }
+
+    /// Returns a iterator of all the features avaliable
+    pub fn iter(&self) -> Iter<'_, TypeId, Arc<dyn Feature>> {
+        self.0.iter()
+    }
+
+    pub(crate) fn add<F: Feature>(&mut self, feat: F) {
+        let type_id = TypeId::of::<F>();
+        self.0.insert(type_id, Arc::new(feat));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::feature::Collection;
+    use charted_feature::{Feature, Metadata};
+
+    struct AFeature;
+    impl Feature for AFeature {
+        fn metadata(&self) -> Metadata {
+            const METADATA: Metadata = Metadata {
+                name: "AFeature",
+                config_key: "<none>",
+                description: "a test feature, why are you looking at this?",
+                authors: &["Noel Towa <cutie@floofy.dev>"],
+                since: "0.0.0-devel.0",
+                deprecated: None,
+            };
+
+            METADATA
+        }
+    }
+
+    #[test]
+    fn collection() {
+        let mut features = Collection::new();
+
+        features.add(AFeature);
+        assert!(features.has::<AFeature>());
+
+        let Some(x) = features.get::<AFeature>() else {
+            panic!("failed to get `AFeature`");
+        };
+
+        assert_eq!(x.metadata(), Metadata {
+            name: "AFeature",
+            config_key: "<none>",
+            description: "a test feature, why are you looking at this?",
+            authors: &["Noel Towa <cutie@floofy.dev>"],
+            since: "0.0.0-devel.0",
+            deprecated: None,
+        });
+    }
+}

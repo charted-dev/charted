@@ -19,114 +19,110 @@ pub mod repositories;
 pub mod sessions;
 
 use crate::{
-    Context, commit_patch,
+    Env, commit_patch,
+    ext::ResultExt,
     extract::{Json, Path},
-    extract_refor_t, hash_password,
-    middleware::authn::{self, Options, Session},
-    modify_property,
-    openapi::{ApiErrorResponse, ApiResponse, EmptyApiResponse},
-    routing::v1::{Entrypoint, EntrypointResponse},
+    middleware::authn::{Factory, Options, Session},
+    mk_into_responses,
+    openapi::{EmptyApiResponse, UserResponse},
+    ops::{self, db},
+    routing::v1::Entrypoint,
 };
 use axum::{Extension, Router, extract::State, handler::Handler, http::StatusCode, routing};
 use charted_core::{api, bitflags::ApiKeyScope};
 use charted_database::entities::{UserEntity, user};
+use charted_helm_charts::DataStoreExt;
 use charted_types::{
     NameOrUlid, User,
     payloads::{CreateUserPayload, PatchUserPayload},
 };
-use chrono::{self, Utc};
+use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter};
 use serde_json::json;
-use std::{borrow::Cow, collections::BTreeMap};
-use utoipa::{
-    IntoResponses, ToResponse,
-    openapi::{Ref, RefOr, Response},
-};
+use std::borrow::Cow;
 use validator::ValidateEmail;
 
-pub type UserResponse = ApiResponse<User>;
-
-pub fn create_router(cx: &Context) -> Router<Context> {
-    let router = match cx.config.single_user {
+pub fn create_router(env: &Env) -> Router<Env> {
+    let router = match env.config.single_user {
         false => Router::new().route("/", routing::get(main).put(create)),
         true => Router::new().route("/", routing::get(main)),
     };
 
     let id_or_name = Router::new()
         .route("/", routing::get(fetch))
-        .route("/repositories", routing::get(repositories::list_user_repositories))
         .route("/avatar", routing::get(avatars::get_user_avatar))
-        .route("/avatars/{hash}", routing::get(avatars::get_user_avatar_by_hash));
+        .route("/avatars/{hash}", routing::get(avatars::get_user_avatar_by_hash))
+        .route("/repositories", routing::get(repositories::list_user_repositories));
 
     let at_me = {
-        let mut base = Router::new();
-        match cx.config.single_user {
-            true => {
-                base = base.route(
-                    "/",
-                    routing::get(get_self.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default().with_scope(ApiKeyScope::UserAccess),
-                    )))
-                    .patch(patch.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default().with_scope(ApiKeyScope::UserUpdate),
-                    ))),
-                )
-            }
+        let base = match env.config.single_user {
+            false => Router::new().route(
+                "/",
+                routing::get(get_self.layer(env.authn(Options::default().with_scope(ApiKeyScope::UserAccess))))
+                    .patch(patch.layer(env.authn(Options::default().with_scope(ApiKeyScope::UserUpdate))))
+                    .delete(delete.layer(env.authn(Options::default().with_scope(ApiKeyScope::UserDelete)))),
+            ),
+            true => Router::new().route(
+                "/",
+                routing::get(get_self.layer(env.authn(Options::default().with_scope(ApiKeyScope::UserAccess))))
+                    .patch(patch.layer(env.authn(Options::default().with_scope(ApiKeyScope::UserUpdate)))),
+            ),
+        };
 
-            false => {
-                base = base.route(
-                    "/",
-                    routing::get(get_self.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default().with_scope(ApiKeyScope::UserAccess),
-                    )))
-                    .patch(patch.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default().with_scope(ApiKeyScope::UserUpdate),
-                    )))
-                    .delete(delete.layer(authn::new(
-                        cx.to_owned(),
-                        Options::default().with_scope(ApiKeyScope::UserDelete),
-                    ))),
-                )
-            }
-        }
-
-        base.route(
-            "/session",
-            routing::get(sessions::fetch.layer(authn::new(cx.to_owned(), Options::default()))).delete(
-                sessions::logout.layer(authn::new(cx.to_owned(), Options {
+        base.nest("/apikeys", apikeys::create_router(env))
+            .route(
+                "/session",
+                routing::get(sessions::fetch.layer(env.authn(Options::default())))
+                    .delete(sessions::logout.layer(env.authn(Options::default()))),
+            )
+            .route(
+                "/session/refresh",
+                routing::post(sessions::refresh_session.layer(env.authn(Options {
                     require_refresh_token: true,
                     ..Default::default()
-                })),
-            ),
-        )
-        .nest("/apikeys", apikeys::create_router(cx))
-        .nest("/repositories", repositories::create_router(cx))
-        .route(
-            "/avatar",
-            routing::get(avatars::get_self_user_avatar.layer(authn::new(
-                cx.to_owned(),
-                Options::default().with_scope(ApiKeyScope::UserAccess),
-            )))
-            .post(
-                avatars::upload_user_avatar.layer(authn::new(
-                    cx.to_owned(),
-                    Options::default()
-                        .with_scope(ApiKeyScope::UserAccess)
-                        .with_scope(ApiKeyScope::UserAvatarUpdate),
-                )),
-            ),
-        )
-        .route(
-            "/avatars/{hash}",
-            routing::get(avatars::get_self_user_avatar_by_hash.layer(authn::new(
-                cx.to_owned(),
-                Options::default().with_scope(ApiKeyScope::UserAccess),
-            ))),
-        )
+                }))),
+            )
+            .route(
+                "/repositories",
+                routing::get(
+                    repositories::list_self_user_repositories
+                        .layer(env.authn(Options::default().with_scope(ApiKeyScope::RepoAccess))),
+                )
+                .put(
+                    repositories::create_user_repository
+                        .layer(env.authn(Options::default().with_scope(ApiKeyScope::RepoCreate))),
+                )
+                .patch(
+                    repositories::patch_user_repository
+                        .layer(env.authn(Options::default().with_scope(ApiKeyScope::RepoUpdate))),
+                )
+                .delete(
+                    repositories::delete.layer(env.authn(Options::default().with_scope(ApiKeyScope::RepoDelete))),
+                ),
+            )
+            .route(
+                "/avatar",
+                routing::get(
+                    avatars::get_self_user_avatar
+                        .layer(env.authn(Options::default().with_scope(ApiKeyScope::UserAccess))),
+                )
+                .post(
+                    avatars::upload_user_avatar.layer(
+                        env.authn(
+                            Options::default()
+                                .with_scope(ApiKeyScope::UserAccess)
+                                .with_scope(ApiKeyScope::UserAvatarUpdate),
+                        ),
+                    ),
+                ),
+            )
+            .route(
+                "/avatars/{hash}",
+                routing::get(
+                    avatars::get_self_user_avatar_by_hash
+                        .layer(env.authn(Options::default().with_scope(ApiKeyScope::UserAccess))),
+                ),
+            )
     };
 
     router
@@ -142,58 +138,22 @@ pub fn create_router(cx: &Context) -> Router<Context> {
     path = "/v1/users",
     operation_id = "users",
     tag = "Users",
-    responses(EntrypointResponse)
+    responses(Entrypoint)
 )]
 pub async fn main() -> api::Response<Entrypoint> {
     api::ok(StatusCode::OK, Entrypoint::new("Users"))
 }
 
 struct CreateUserR;
-impl IntoResponses for CreateUserR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap!(
-            "201" => Ref::from_response_name("UserResponse"),
-            "403" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Instance doesn't allow registrations"));
-
-                response
-            },
-
-            "406" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Session backend required the `password` field or `email` was not a valid, proper email address"));
-
-                response
-            },
-
-            "409" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("If a user already has the `username` or `email` taken."));
-
-                response
-            },
-
-            "5XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Internal Server Failure"));
-
-                response
-            }
-        )
-    }
-}
+mk_into_responses!(for CreateUserR {
+    "201" => [ref(UserResponse)];
+    "403" => [error(description("Instance doesn't allow registrations"))];
+    "406" => [error(description("Session backend requires `password` or `email` wasn't a valid email address"))];
+    "409" => [error(description("Either the `username` or `email` was taken by another user"))];
+});
 
 /// Creates a new user.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(
-    name = "charted.server.ops.create[user]",
-    skip_all,
-    fields(
-        user.username = %username,
-        user.email = email
-    )
-)]
 #[utoipa::path(
     post,
 
@@ -207,14 +167,14 @@ impl IntoResponses for CreateUserR {
     responses(CreateUserR)
 )]
 pub async fn create(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Json(CreateUserPayload {
         email,
         password,
         username,
     }): Json<CreateUserPayload>,
 ) -> api::Result<User> {
-    if !cx.config.registrations {
+    if !env.config.registrations {
         return Err(api::err(
             StatusCode::FORBIDDEN,
             (
@@ -224,7 +184,7 @@ pub async fn create(
         ));
     }
 
-    if cx.authz.is::<charted_authz_local::Backend>() && password.is_none() {
+    if env.authz.is::<charted_authz_local::Backend>() && password.is_none() {
         return Err(api::err(
             StatusCode::NOT_ACCEPTABLE,
             (
@@ -245,15 +205,8 @@ pub async fn create(
         ));
     }
 
-    if UserEntity::find()
-        .filter(user::Column::Username.eq(username.clone()))
-        .one(&cx.pool)
-        .await
-        .inspect_err(|e| {
-            error!(error = %e, user.username = %username, "failed to find user by username");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?
+    if db::user::get_as_model(&env.db, NameOrUlid::Name(username.clone()))
+        .await?
         .is_some()
     {
         return Err(api::err(
@@ -266,15 +219,8 @@ pub async fn create(
         ));
     }
 
-    if UserEntity::find()
-        .filter(user::Column::Email.eq(email.clone()))
-        .one(&cx.pool)
-        .await
-        .inspect_err(|e| {
-            error!(error = %e, user.email = %username, "failed to find user by email");
-            sentry::capture_error(e);
-        })
-        .map_err(api::system_failure)?
+    if db::user::find(&env.db, |query| query.filter(user::Column::Email.eq(email.clone())))
+        .await?
         .is_some()
     {
         return Err(api::err(
@@ -298,20 +244,12 @@ pub async fn create(
             ));
         }
 
-        Some(hash_password(password).map_err(api::system_failure_from_report)?)
+        Some(ops::hash_password(password).map_err(api::system_failure_from_report)?)
     } else {
         None
     };
 
-    let id = cx
-        .ulid_generator
-        .generate()
-        .inspect_err(|e| {
-            sentry::capture_error(e);
-            error!("received monotonic overflow -- please inspect this as fast you can!!!!!");
-        })
-        .map_err(api::system_failure)?;
-
+    let id = env.ulid.generate().into_system_failure()?;
     let model = user::Model {
         verified_publisher: false,
         prefers_gravatar: false,
@@ -329,11 +267,12 @@ pub async fn create(
     };
 
     UserEntity::insert(model.clone().into_active_model())
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
-        .map_err(api::system_failure)?;
+        .into_system_failure()?;
 
-    if let Err(e) = charted_helm_charts::create_chart_index(&cx.storage, id.into()).await {
+    let metadata = env.ds.metadata();
+    if let Err(e) = metadata.create_chart_index(id.into()).await {
         error!(error = %e, "failed to create chart index, retrying later...");
         sentry::capture_error(&*e);
     }
@@ -342,30 +281,14 @@ pub async fn create(
 }
 
 struct FetchUserR;
-impl IntoResponses for FetchUserR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("UserResponse"),
-            "400" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Invalid ID or name specified"));
-
-                response
-            },
-
-            "404" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("User not found"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for FetchUserR {
+    "200" => [ref(UserResponse)];
+    "400" => [error(description("Invalid ULID or name specified"))];
+    "404" => [error(description("User not found"))];
+});
 
 /// Retrieve a single user by their ID or name.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-#[instrument(name = "charted.server.ops.fetch[user]", skip_all, fields(%id_or_name))]
 #[utoipa::path(
     get,
     path = "/v1/users/{idOrName}",
@@ -374,59 +297,25 @@ impl IntoResponses for FetchUserR {
     responses(FetchUserR),
     params(NameOrUlid)
 )]
-pub async fn fetch(State(cx): State<Context>, Path(id_or_name): Path<NameOrUlid>) -> api::Result<User> {
-    match id_or_name {
-        NameOrUlid::Name(ref name) => match UserEntity::find()
-            .filter(user::Column::Username.eq(name.to_owned()))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<User>::into)
-        {
-            Some(user) => Ok(api::ok(StatusCode::OK, user)),
-            None => Err(api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "user with id or name was not found",
-                    json!({"idOrName":id_or_name}),
-                ),
-            )),
-        },
-
-        NameOrUlid::Ulid(id) => match UserEntity::find_by_id(id)
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<User>::into)
-        {
-            Some(user) => Ok(api::ok(StatusCode::OK, user)),
-            None => Err(api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "user with id or name was not found",
-                    json!({"idOrName":id_or_name}),
-                ),
-            )),
-        },
+pub async fn fetch(State(env): State<Env>, Path(id_or_name): Path<NameOrUlid>) -> api::Result<User> {
+    match db::user::get(&env.db, id_or_name.clone()).await? {
+        Some(user) => Ok(api::ok(StatusCode::OK, user)),
+        None => Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "user with id or name was not found",
+                json!({"idOrName":id_or_name}),
+            ),
+        )),
     }
 }
 
 struct FetchSelfR;
-impl IntoResponses for FetchSelfR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "200" => Ref::from_response_name("UserResponse"),
-            "4XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("The occurrence when authentication fails"));
-
-                response
-            }
-        }
-    }
-}
+mk_into_responses!(for FetchSelfR {
+    "200" => [ref(UserResponse)];
+    "4XX" => [error(description("Authentication failures"))];
+});
 
 /// Returns information about yourself via an authenticated request.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -445,25 +334,13 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> ap
 }
 
 struct PatchUserR;
-impl IntoResponses for PatchUserR {
-    fn responses() -> BTreeMap<String, RefOr<Response>> {
-        azalia::btreemap! {
-            "204" => {
-                let mut response = extract_refor_t!(EmptyApiResponse::response().1);
-                modify_property!(response.description("Patch was successful"));
+mk_into_responses!(for PatchUserR {
+    "204" => [ref(with "application/json" => EmptyApiResponse;
+        description("Patch was successful");
+    )];
 
-                response
-            },
-
-            "4XX" => {
-                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
-                modify_property!(response.description("Any occurrence when authentication fails or if the patch couldn't be applied"));
-
-                response
-            }
-        }
-    }
-}
+    "4XX" => [error(description("Authentication failures"))];
+});
 
 /// Patch the authenticated user's metadata.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
@@ -480,11 +357,11 @@ impl IntoResponses for PatchUserR {
     ),
     responses(PatchUserR),
     security(
-        ("ApiKey" = ["user:update"])
+        ("ApiKey" = ["user:patch"])
     )
 )]
 pub async fn patch(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
     Json(PatchUserPayload {
         prefers_gravatar,
@@ -496,12 +373,10 @@ pub async fn patch(
         name,
     }): Json<PatchUserPayload>,
 ) -> api::Result<()> {
-    let mut model = UserEntity::find_by_id(user.id)
-        .one(&cx.pool)
-        .await
-        .map_err(api::system_failure)?
-        .map(Into::<user::ActiveModel>::into)
-        .unwrap();
+    let mut model = db::user::get_as_model(&env.db, NameOrUlid::Ulid(user.id))
+        .await?
+        .unwrap()
+        .into_active_model();
 
     let mut errors = Vec::new();
 
@@ -519,12 +394,8 @@ pub async fn patch(
                     "email": email
                 })),
             });
-        } else if UserEntity::find()
-            .filter(user::Column::Email.eq(email.to_owned()))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<User>::into)
+        } else if db::user::find(&env.db, |query| query.filter(user::Column::Email.eq(email.to_owned())))
+            .await?
             .is_some()
         {
             errors.push(api::Error {
@@ -541,12 +412,8 @@ pub async fn patch(
     }
 
     if let Some(username) = username {
-        if UserEntity::find()
-            .filter(user::Column::Username.eq(username.to_owned()))
-            .one(&cx.pool)
-            .await
-            .map_err(api::system_failure)?
-            .map(Into::<User>::into)
+        if db::user::get_as_model(&env.db, NameOrUlid::Name(username.clone()))
+            .await?
             .is_some()
         {
             errors.push(api::Error {
@@ -563,7 +430,7 @@ pub async fn patch(
     }
 
     if let Some(password) = password.as_deref() {
-        if !cx.authz.is::<charted_authz_local::Backend>() {
+        if !env.authz.is::<charted_authz_local::Backend>() {
             return Err(api::err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
@@ -585,7 +452,7 @@ pub async fn patch(
                 })),
             });
         } else {
-            model.password = crate::hash_password(password)
+            model.password = ops::hash_password(password)
                 .map_err(api::system_failure_from_report)
                 .map(|s| ActiveValue::set(Some(s)))?;
         }
@@ -604,7 +471,7 @@ pub async fn patch(
     }
 
     model
-        .update(&cx.pool)
+        .update(&env.db)
         .await
         .inspect_err(|e| {
             error!(error = %e, %user.username, "failed to commit changes for patch");
@@ -615,7 +482,7 @@ pub async fn patch(
 }
 
 /// Delete yourself.
-#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[axum::debug_handler]
 #[utoipa::path(
     delete,
 
@@ -632,11 +499,11 @@ pub async fn patch(
     )
 )]
 pub async fn delete(
-    State(cx): State<Context>,
+    State(env): State<Env>,
     Extension(Session { user, .. }): Extension<Session>,
 ) -> api::Result<()> {
     UserEntity::delete_by_id(user.id)
-        .exec(&cx.pool)
+        .exec(&env.db)
         .await
         .inspect_err(|e| {
             error!(error = %e, %user.id, %user.username, "failed to delete user");
