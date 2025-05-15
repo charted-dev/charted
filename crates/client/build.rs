@@ -13,23 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::Deserialize;
-use std::fs::File;
-use utoipa::openapi::{Info, Paths};
-
 const OPENAPI_DOCUMENT: &str = "../../assets/openapi.json";
-
-#[derive(Debug, Deserialize)]
-struct PartialOpenApi {
-    openapi: String,
-    info: Info,
-    paths: Paths,
-}
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
     println!("cargo::rerun-if-changed={}", OPENAPI_DOCUMENT);
-
-    let file = File::open(OPENAPI_DOCUMENT).expect("`assets/openapi.json` to be present in src tree");
-    serde_json::from_reader::<_, PartialOpenApi>(file).unwrap();
 }
