@@ -13,12 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::mk_route_handler;
+#[axum::debug_handler]
+#[utoipa::path(
+    get,
 
-mk_route_handler! {
-    /// Healthcheck endpoint to determine if services are OK.
-    #[path("/v1/healthz", get, { tag = "Main" })]
-    fn healthz() -> &'static str {
-        "Ok."
-    }
+    path = "/v1/healthz",
+    tag = "Main",
+    responses(
+        (
+            status = 200,
+            description = "Ok.",
+            body = String
+        )
+    )
+)]
+pub async fn healthz() -> &'static str {
+    "Ok."
 }

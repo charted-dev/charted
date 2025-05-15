@@ -119,28 +119,6 @@ macro_rules! mk_into_responses {
     };
 }
 
-/// Declarative macro to implement a REST endpoint.
-#[macro_export]
-macro_rules! mk_route_handler {
-    (
-        $(#[doc = $doc:literal])*
-        #[path($route:literal, $method:ident$(, { $($path:tt)* })?)]
-        $(#[app_state = $State:ty])?
-        fn $name:ident($(
-            {$arg:pat}: $ty:ty
-        ),*) -> $ret:ty $code:block
-    ) => {
-        #[::axum::debug_handler$((state = $State))?]
-        #[$crate::__macro_support::utoipa::path(
-            $method,
-
-            path = $route,
-            $($($path)*,)?
-        )]
-        pub async fn $name($($arg: $ty),*) -> $ret $code
-    };
-}
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __internal_mk_into_responses {

@@ -20,7 +20,7 @@ mod prometheus;
 mod systemd;
 
 use crate::{feature, routing};
-use axum::{Extension, extract::FromRef};
+use axum::Extension;
 use axum_server::Handle;
 use charted_authz::Authenticator;
 use charted_config::{
@@ -34,7 +34,7 @@ use sea_orm::DatabaseConnection;
 use std::{sync::Arc, time::Instant};
 
 /// Global environment that holds all dependencies.
-#[derive(Clone, FromRef)]
+#[derive(Clone)]
 pub struct Env {
     pub features: feature::Collection,
     pub config: Config,
