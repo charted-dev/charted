@@ -40,6 +40,7 @@ pub struct Env {
     pub config: Config,
     pub authz: Arc<dyn Authenticator>,
     pub ulid: ulid::Generator,
+    pub http: reqwest::Client,
     pub db: DatabaseConnection,
     pub ds: DataStore,
 
@@ -94,13 +95,22 @@ impl Env {
         #[allow(unused_mut)]
         let mut features = feature::Collection::new();
 
-        debug!("built environment in {}", Duration::from(original.elapsed()));
+        let http = reqwest::Client::builder()
+            .use_rustls_tls()
+            .user_agent(format!(
+                "Noelware/charted-server (+{}; {})",
+                env!("CARGO_PKG_REPOSITORY"),
+                charted_core::version()
+            ))
+            .build()?;
 
+        debug!("built environment in {}", Duration::from(original.elapsed()));
         Ok(Self {
             prometheus,
             features,
             config,
             authz,
+            http,
             ulid: ulid::Generator::new(),
             db: pool,
             ds,

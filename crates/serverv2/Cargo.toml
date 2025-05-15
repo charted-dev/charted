@@ -52,14 +52,18 @@ charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-metrics.workspace = true
 charted-types = { workspace = true, features = ["openapi"] }
+chrono.workspace = true
 derive_more = { workspace = true, features = ["deref", "deref_mut"] }
 eyre.workspace = true
 futures-util = "0.3.31"
+hex = "0.4.3"
 jsonwebtoken = "9.3.1"
+md5 = "0.7.0"
 metrics-exporter-prometheus.workspace = true
 mime = "0.3.17"
 multer.workspace = true
 paste = "1.0.15"
+reqwest.workspace = true
 sea-orm.workspace = true
 sea-orm-migration.workspace = true
 sentry.workspace = true
@@ -78,6 +82,7 @@ tower-http = { version = "0.6.2", features = [
 tracing.workspace = true
 url = { workspace = true, features = ["serde"] }
 utoipa = { workspace = true, features = ["debug", "url"] }
+validator = "0.20.0"
 
 [target.'cfg(tokio_unstable)'.dependencies]
 tokio-metrics = { version = "0.4.2", features = [

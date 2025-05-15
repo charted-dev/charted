@@ -19,7 +19,8 @@ mod types;
 use addons::{IncludeDefaultVersionWithoutPrefix, IncludeErrorProneSchemas};
 pub use types::{
     ApiErrorResponse, ApiKeyResponse, EmptyApiResponse, ListApiKeyResponse, ListOrganizationResponse,
-    ListRepositoryResponse, OrganizationResponse, RepositoryResponse, Url, UrlResponse, UserResponse,
+    ListRepositoryResponse, OrganizationResponse, RepositoryResponse, SessionResponse, Url, UrlResponse,
+    UserResponse,
 };
 use utoipa::{
     Modify, OpenApi,
@@ -102,7 +103,11 @@ use utoipa::{
 
             charted_feature::Metadata,
             charted_feature::Deprecation,
+
             crate::routing::v1::main::Main,
+            crate::routing::v1::Entrypoint,
+            crate::pagination::Ordering,
+            crate::pagination::PaginationRequest
         ),
         responses(
             ApiErrorResponse,
@@ -115,12 +120,42 @@ use utoipa::{
             ListOrganizationResponse,
             ListRepositoryResponse,
             UrlResponse,
+            SessionResponse,
 
             crate::routing::v1::main::MainResponse,
             crate::routing::v1::indexes::ChartIndexResponse,
+            crate::routing::v1::EntrypointResponse,
         )
     ),
     paths(
+        crate::routing::v1::user::sessions::login,
+        crate::routing::v1::user::sessions::logout,
+        crate::routing::v1::user::sessions::fetch,
+        crate::routing::v1::user::sessions::refresh_session,
+
+        crate::routing::v1::user::avatars::get_self_user_avatar_by_hash,
+        crate::routing::v1::user::avatars::get_user_avatar_by_hash,
+        crate::routing::v1::user::avatars::get_self_user_avatar,
+        crate::routing::v1::user::avatars::upload_user_avatar,
+        crate::routing::v1::user::avatars::get_user_avatar,
+
+        crate::routing::v1::user::apikeys::delete,
+        crate::routing::v1::user::apikeys::create,
+        crate::routing::v1::user::apikeys::patch,
+        crate::routing::v1::user::apikeys::fetch,
+        crate::routing::v1::user::apikeys::list,
+
+        crate::routing::v1::user::repositories::list_self_user_repositories,
+        crate::routing::v1::user::repositories::list_user_repositories,
+        crate::routing::v1::user::repositories::create_user_repository,
+
+        crate::routing::v1::user::get_self,
+        crate::routing::v1::user::create,
+        crate::routing::v1::user::delete,
+        crate::routing::v1::user::patch,
+        crate::routing::v1::user::fetch,
+        crate::routing::v1::user::main,
+
         crate::routing::v1::healthz::healthz,
         crate::routing::v1::indexes::fetch,
         crate::routing::v1::main::main,

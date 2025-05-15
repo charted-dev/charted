@@ -60,14 +60,15 @@ mk_into_responses!(for Entrypoint {
     "200" => [ref(EntrypointResponse)];
 });
 
-pub fn create_router(Env { config, .. }: &Env) -> Router<Env> {
+pub fn create_router(env: &Env) -> Router<Env> {
     let mut router = Router::new()
+        .nest("/users", user::create_router(env))
         .route("/indexes/{idOrName}", routing::get(indexes::fetch))
         .route("/openapi.json", routing::get(openapi::openapi))
         .route("/healthz", routing::get(healthz::healthz))
         .route("/", routing::get(main::main));
 
-    if let Some(metrics) = config.metrics.as_prometheus() &&
+    if let Some(metrics) = env.config.metrics.as_prometheus() &&
         metrics.standalone.is_none()
     {
         router = router.route(&metrics.endpoint, routing::get(super::prometheus_scrape));

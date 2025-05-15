@@ -122,6 +122,10 @@ macro_rules! mk_into_responses {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __internal_mk_into_responses {
+    (@internal custom($res:expr)) => {
+        $res
+    };
+
     (@internal ref(with $content:literal => $T:ty$(; $($field:ident($value:expr);)*)?)) => {
         $crate::__macro_support::utoipa::openapi::Response::builder()
             .content(

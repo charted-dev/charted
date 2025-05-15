@@ -16,6 +16,7 @@
 use crate::Env;
 use charted_core::{BoxedFuture, api};
 use charted_database::entities::{OrganizationEntity, UserEntity, organization, user};
+use charted_datastore::{DataStore, Namespace};
 use charted_types::{NameOrUlid, Organization, Owner, Ulid, User, name::Name};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
@@ -106,5 +107,15 @@ where
             sentry::capture_error(e);
         })
         .map_err(api::system_failure)
+    }
+}
+
+pub trait DataStoreExt: Sized {
+    fn repositories(&self, id: Ulid) -> Namespace<'_>;
+}
+
+impl DataStoreExt for DataStore {
+    fn repositories(&self, id: Ulid) -> Namespace<'_> {
+        self.namespace(format!("repositories/{id}"))
     }
 }

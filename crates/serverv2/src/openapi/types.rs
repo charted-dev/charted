@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_types::{ApiKey, Organization, Repository, User};
+use charted_types::{ApiKey, Organization, Repository, Session, User};
 use serde_json::Value;
 use utoipa::{
     PartialSchema, ToResponse, ToSchema,
@@ -288,6 +288,7 @@ macro_rules! mk_list_based_api_response_types {
 mk_api_response_types! {
     Organization
     Repository
+    Session
     ApiKey
     User
     Url

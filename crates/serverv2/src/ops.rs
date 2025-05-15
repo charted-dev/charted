@@ -13,4 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod avatars;
+pub mod db;
 pub mod jwt;
+
+use argon2::{
+    PasswordHasher,
+    password_hash::{SaltString, rand_core::OsRng},
+};
+use charted_core::ARGON2;
+
+pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
+    let salt = SaltString::generate(&mut OsRng);
+    let password = password.as_ref();
+
+    ARGON2
+        .hash_password(password, &salt)
+        .map(|hash| hash.to_string())
+        .inspect_err(|e| {
+            error!(error = %e, "failed to compute argon2 password");
+        })
+        // since `argon2::Error` doesn't implement `std::error::Error`,
+        // we implicitlly pass it into the `eyre!` macro, which will create
+        // an adhoc error.
+        .map_err(|e| eyre::eyre!(e))
+}

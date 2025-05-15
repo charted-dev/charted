@@ -204,7 +204,7 @@ mk_payload_structs! {
 }
 
 /// Login representation, fields are mutually exclusive.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, derive_more::Display)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Login {

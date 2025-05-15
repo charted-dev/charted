@@ -15,8 +15,8 @@
 
 use crate::Env;
 use charted_types::Ulid;
-use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation, decode};
-use serde::Deserialize;
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation, decode};
+use serde::{Deserialize, Serialize};
 
 /// The `iss` field value.
 ///
@@ -55,7 +55,7 @@ pub const UID: &str = "uid";
 pub const SID: &str = "sid";
 
 /// JWT claims that should be present.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub iss: String,
     pub aud: String,
@@ -73,6 +73,20 @@ pub fn decode_jwt(env: &Env, token: &str) -> jsonwebtoken::errors::Result<TokenD
 
     decode(token, &key, &validation).inspect_err(|e| {
         error!(error = %e, "failed to decode JWT token");
+        sentry::capture_error(e);
+    })
+}
+
+pub fn encode_jwt(env: &Env, claims: Claims) -> jsonwebtoken::errors::Result<String> {
+    jsonwebtoken::encode(
+        &Header {
+            alg: ALGORITHM,
+            ..Default::default()
+        },
+        &claims,
+        &EncodingKey::from_secret(env.config.jwt_secret_key.as_ref()),
+    )
+    .inspect_err(|e| {
         sentry::capture_error(e);
     })
 }
