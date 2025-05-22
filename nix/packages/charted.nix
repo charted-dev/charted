@@ -43,13 +43,7 @@ in
     RUSTFLAGS = "--cfg tokio_unstable -Csymbol-mangling-version=v0";
 
     nativeBuildInputs = [pkg-config installShellFiles];
-    buildInputs =
-      [openssl]
-      ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-        CoreFoundation
-        Security
-        SystemConfiguration
-      ]));
+    buildInputs = [openssl];
 
     env = {
       CHARTED_DISTRIBUTION_KIND = "nix";

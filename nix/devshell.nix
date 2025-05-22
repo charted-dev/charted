@@ -18,12 +18,6 @@
   common = import ./common.nix;
   rustflags = common.rustflags stdenv;
 
-  darwinNativeBuildInputs = with darwin.apple_sdk.frameworks; [
-    SystemConfiguration
-    CoreFoundation
-    Security
-  ];
-
   linuxNativeBuildInputs = with pkgs; [mold];
 
   rpathInputs = with pkgs; [
@@ -32,8 +26,7 @@
 
   nativeBuildInputs = with pkgs;
     [pkg-config]
-    ++ (lib.optional stdenv.isLinux linuxNativeBuildInputs)
-    ++ (lib.optional stdenv.isDarwin darwinNativeBuildInputs);
+    ++ (lib.optional stdenv.isLinux linuxNativeBuildInputs);
 
   buildInputs = with pkgs;
     [
