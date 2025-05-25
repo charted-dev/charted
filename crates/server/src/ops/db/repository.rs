@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod release;
+
 use crate::ext::ResultExt;
 use charted_core::api;
 use charted_database::entities::{RepositoryEntity, repository};

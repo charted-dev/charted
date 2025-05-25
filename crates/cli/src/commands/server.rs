@@ -21,7 +21,7 @@ use azalia::{
 };
 use charted_config::Config;
 use charted_core::{Distribution, ResultExt};
-use charted_serverv2::Env;
+use charted_server::Env;
 use eyre::bail;
 use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
 use opentelemetry_otlp::SpanExporter;

@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod member;
 pub mod release;
 
 use super::{create_table, id};

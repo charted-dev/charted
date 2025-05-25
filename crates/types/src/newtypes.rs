@@ -17,12 +17,14 @@ mod datetime;
 mod nameorulid;
 mod owner;
 mod semver;
+mod versionorulid;
 
 #[path = "newtypes/ulid.rs"]
 mod ulid_;
 
-pub use datetime::*;
-pub use nameorulid::*;
-pub use owner::*;
-pub use semver::*;
+pub use datetime::DateTime;
+pub use nameorulid::NameOrUlid;
+pub use owner::Owner;
+pub use semver::{QueryableVersion, Version, VersionReq};
 pub use ulid_::{Ulid, ulid};
+pub use versionorulid::VersionOrUlid;

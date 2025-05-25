@@ -47,7 +47,7 @@ pub struct BuildLinkHeaderOpts {
 ///
 /// ## Example
 /// ```
-/// # use charted_serverv2::util::{self, BuildLinkHeaderOpts};
+/// # use charted_server::util::{self, BuildLinkHeaderOpts};
 /// # use url::Url;
 /// #
 /// // build a buffer since `build_link_header` uses the `write!` macro.

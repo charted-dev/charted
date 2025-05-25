@@ -18,4 +18,4 @@
 set -euo pipefail
 
 cargo internals openapi ./assets/openapi.json
-prettier --write ./assets/*.json
+bunx prettier --write ./assets/*.json

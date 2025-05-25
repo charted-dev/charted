@@ -38,7 +38,6 @@ members = [
 
     "features",
     "features/garbage-collection",
-    "features/members",
     "features/totp",
 ]
 
@@ -74,7 +73,6 @@ charted-database.path = "./crates/database"
 charted-datastore.path = "./crates/datastore"
 charted-feature.path = "./features"
 charted-feature-gc.path = "./features/garbage-collection"
-charted-feature-members.path = "./features/members"
 charted-feature-totp.path = "./features/totp"
 charted-helm-charts.path = "./crates/helm/charts"
 charted-helm-types = { path = "./crates/helm/types", version = "0.1.0" }

@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+#
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 #

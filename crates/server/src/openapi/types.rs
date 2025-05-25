@@ -171,10 +171,7 @@ macro_rules! mk_api_response_types {
                         Response::builder()
                             .description(concat!(
                                 "Response datatype for object `",
-                                concat!(
-                                    stringify!($Ty),
-                                    "Response"
-                                ),
+                                stringify!($Ty),
                                 "`."
                             ))
                             .content(
@@ -250,10 +247,7 @@ macro_rules! mk_list_based_api_response_types {
                         Response::builder()
                             .description(concat!(
                                 "Response datatype for a list of objects that are of type `",
-                                concat!(
-                                    stringify!($Ty),
-                                    "Response"
-                                ),
+                                stringify!($Ty),
                                 "`."
                             ))
                             .content(

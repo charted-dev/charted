@@ -40,14 +40,17 @@ use utoipa::{
 };
 
 pub fn create_router(env: &Env) -> Router<Env> {
-    Router::new().route("/", routing::get(main)).route(
-        "/{owner}/{repo}",
-        routing::get(fetch.layer(env.authn(Options {
-            allow_unauthorized: true,
-            scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
-            require_refresh_token: false,
-        }))),
-    )
+    Router::new()
+        .route("/", routing::get(main))
+        .route(
+            "/{owner}/{repo}",
+            routing::get(fetch.layer(env.authn(Options {
+                allow_unauthorized: true,
+                scopes: ApiKeyScopes::new(ApiKeyScope::RepoAccess.into()),
+                require_refresh_token: false,
+            }))),
+        )
+        .nest("/releases/{owner}/{repo}", releases::create_router(env))
 }
 
 /// Entrypoint handler to the Repositories API.

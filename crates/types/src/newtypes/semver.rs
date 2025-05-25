@@ -15,6 +15,7 @@
 
 use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
+use std::hint;
 
 /// Newtype wrapper for [`semver::Version`].
 ///
@@ -340,3 +341,76 @@ const _: () = {
         }
     }
 };
+
+/// A SemVer version that can be queried.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, derive_more::Display)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(untagged, rename_all = "lowercase")]
+pub enum QueryableVersion {
+    /// Queries the latest version of a chart.
+    #[display("latest")]
+    Latest,
+
+    /// Queries a specific version of a chart.
+    Version(Version),
+}
+
+impl QueryableVersion {
+    /// Returns `true` if we are the [`Latest`](QueryableVersion::Latest) enum discriminant.
+    pub const fn is_latest(&self) -> bool {
+        matches!(*self, QueryableVersion::Latest)
+    }
+
+    /// Returns `true` if we are the [`Version`](QueryableVersion::Version) enum discriminant.
+    pub const fn is_version(&self) -> bool {
+        matches!(*self, QueryableVersion::Version(_))
+    }
+
+    /// Returns <code>[`Some`]\(&[`Version`]\)</code> if we are in the
+    /// [`Version`](QueryableVersion::Version) enum discriminant. Otherwise,
+    /// `None` is returned.
+    pub const fn as_version(&self) -> Option<&Version> {
+        if self.is_version() {
+            // Safety: we are `QueryableVersion::Version`
+            return Some(unsafe { self.as_version_unchecked() });
+        }
+
+        None
+    }
+
+    /// Returns a reference from [`QueryableVersion::Version`].
+    ///
+    /// ## Safety
+    /// This will be undefined behaviour if we are [`QueryableVersion::Latest`].
+    pub const unsafe fn as_version_unchecked(&self) -> &Version {
+        match *self {
+            QueryableVersion::Version(ref version) => version,
+            QueryableVersion::Latest => unsafe { hint::unreachable_unchecked() },
+        }
+    }
+}
+
+cfg_openapi! {
+    use utoipa::{
+        IntoParams,
+        openapi::{
+            RefOr,
+            Ref,
+            Required,
+            path::{ParameterIn, Parameter}
+        }
+    };
+
+    impl IntoParams for QueryableVersion {
+        fn into_params(in_provider: impl Fn() -> Option<ParameterIn>) -> Vec<Parameter> {
+            vec![
+                utoipa::openapi::path::Parameter::builder()
+                    .name("version")
+                    .required(Required::True)
+                    .parameter_in(in_provider().unwrap_or_default())
+                    .schema(Some(RefOr::Ref(Ref::from_schema_name("QueryableVersion"))))
+                    .build(),
+            ]
+        }
+    }
+}

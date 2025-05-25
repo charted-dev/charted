@@ -100,6 +100,7 @@ use utoipa::{
             charted_types::Version,
 
             charted_types::payloads::UserLoginPayload,
+            charted_types::QueryableVersion,
 
             charted_feature::Metadata,
             charted_feature::Deprecation,
@@ -128,6 +129,13 @@ use utoipa::{
         )
     ),
     paths(
+        crate::routing::v1::repository::releases::get_single_release_provenance,
+        crate::routing::v1::repository::releases::get_single_release_tarball,
+        crate::routing::v1::repository::releases::get_single_release,
+        crate::routing::v1::repository::releases::fetch_releases,
+        crate::routing::v1::repository::fetch,
+        crate::routing::v1::repository::main,
+
         crate::routing::v1::user::sessions::login,
         crate::routing::v1::user::sessions::logout,
         crate::routing::v1::user::sessions::fetch,

@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod member;
-
 use super::{create_table, id};
 use charted_types::{Organization, Ulid, name::Name};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};

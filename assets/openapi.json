@@ -135,6 +135,299 @@
                 }
             }
         },
+        "/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Entrypoint handler to the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            }
+        },
+        "/repositories/{owner}/{repo}": {
+            "get": {
+                "tags": ["Users"],
+                "operationId": "getRepositoryByIdOrName",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "400": {
+                        "description": "invalid id or name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "repository not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/repositories/{owner}/{repo}/releases": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Lists all the avaliable releases for this repository.",
+                "operationId": "listRepositoryReleases",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{id}/{version}/provenance": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a repository release's provenance file, if one was provided\nwith `helm charted upload --sign`.",
+                "operationId": "getRepositoryReleaseProvenance",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "path parameter that takes a `Ulid`",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ulid"
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/QueryableVersion"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{id}/{version}/tarball": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Returns a tarball of the release if the server has ever received it.",
+                "operationId": "getRepositoryReleaseChartTarball",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "path parameter that takes a `Ulid`",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ulid"
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/QueryableVersion"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/repositories/{owner}/{repo}/releases/{versionOrId}": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a single repository release.",
+                "operationId": "getRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/users": {
             "get": {
                 "tags": ["Users"],
@@ -1330,6 +1623,299 @@
                         }
                     }
                 }
+            }
+        },
+        "/v1/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Entrypoint handler to the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/EntrypointResponse"
+                    }
+                }
+            }
+        },
+        "/v1/repositories/{owner}/{repo}": {
+            "get": {
+                "tags": ["Users"],
+                "operationId": "getRepositoryByIdOrName",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/RepositoryResponse"
+                    },
+                    "400": {
+                        "description": "invalid id or name",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "repository not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "List of errors that happened. This can be represented as a stacktrace"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Whether if this request was a success or not (always false)",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Lists all the avaliable releases for this repository.",
+                "operationId": "listRepositoryReleases",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Amount of entries per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "in": "query",
+                        "description": "Ordering of the data.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ordering"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page to go towards, default is `1`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{id}/{version}/provenance": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a repository release's provenance file, if one was provided\nwith `helm charted upload --sign`.",
+                "operationId": "getRepositoryReleaseProvenance",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "path parameter that takes a `Ulid`",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ulid"
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/QueryableVersion"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{id}/{version}/tarball": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Returns a tarball of the release if the server has ever received it.",
+                "operationId": "getRepositoryReleaseChartTarball",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "path parameter that takes a `Ulid`",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Ulid"
+                        }
+                    },
+                    {
+                        "name": "version",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/QueryableVersion"
+                        }
+                    },
+                    {
+                        "name": "prereleases",
+                        "in": "query",
+                        "description": "whether if querying for pre-releases is useful.",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{owner}/{repo}/releases/{versionOrId}": {
+            "get": {
+                "tags": ["Repositories", "Repository/Releases"],
+                "summary": "Retrieve a single repository release.",
+                "operationId": "getRepositoryRelease",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "Queries the resource owned by this repository",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "Queries this resource by the entity's ID or name.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrUlid"
+                        }
+                    },
+                    {
+                        "name": "versionOrId",
+                        "in": "path",
+                        "description": "A path parameter that can take either a **Version** representing the release tag or a **Ulid** which can represent a specific release by its unique identifier",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/VersionOrUlid"
+                        }
+                    }
+                ],
+                "responses": {}
             }
         },
         "/v1/users": {
@@ -3437,6 +4023,20 @@
                     }
                 }
             },
+            "QueryableVersion": {
+                "oneOf": [
+                    {
+                        "type": "null",
+                        "description": "Queries the latest version of a chart.",
+                        "default": null
+                    },
+                    {
+                        "$ref": "#/components/schemas/Version",
+                        "description": "Queries a specific version of a chart."
+                    }
+                ],
+                "description": "A SemVer version that can be queried."
+            },
             "Repository": {
                 "type": "object",
                 "description": "A **Helm** chart that can be associated by a [`User`] or [`Organization`].",
@@ -3805,7 +4405,7 @@
                 }
             },
             "ApiKeyResponse": {
-                "description": "Response datatype for object `ApiKeyResponse`.",
+                "description": "Response datatype for object `ApiKey`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3832,7 +4432,7 @@
                 }
             },
             "ChartIndexResponse": {
-                "description": "Response datatype for object `ChartIndexResponse`.",
+                "description": "Response datatype for object `ChartIndex`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3875,7 +4475,7 @@
                 }
             },
             "EntrypointResponse": {
-                "description": "Response datatype for object `EntrypointResponse`.",
+                "description": "Response datatype for object `Entrypoint`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3902,7 +4502,7 @@
                 }
             },
             "ListApiKeyResponse": {
-                "description": "Response datatype for a list of objects that are of type `ApiKeyResponse`.",
+                "description": "Response datatype for a list of objects that are of type `ApiKey`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3932,7 +4532,7 @@
                 }
             },
             "ListOrganizationResponse": {
-                "description": "Response datatype for a list of objects that are of type `OrganizationResponse`.",
+                "description": "Response datatype for a list of objects that are of type `Organization`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3962,7 +4562,7 @@
                 }
             },
             "ListRepositoryResponse": {
-                "description": "Response datatype for a list of objects that are of type `RepositoryResponse`.",
+                "description": "Response datatype for a list of objects that are of type `Repository`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -3992,7 +4592,7 @@
                 }
             },
             "MainResponse": {
-                "description": "Response datatype for object `MainResponse`.",
+                "description": "Response datatype for object `Main`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -4019,7 +4619,7 @@
                 }
             },
             "OrganizationResponse": {
-                "description": "Response datatype for object `OrganizationResponse`.",
+                "description": "Response datatype for object `Organization`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -4046,7 +4646,7 @@
                 }
             },
             "RepositoryResponse": {
-                "description": "Response datatype for object `RepositoryResponse`.",
+                "description": "Response datatype for object `Repository`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -4073,7 +4673,7 @@
                 }
             },
             "SessionResponse": {
-                "description": "Response datatype for object `SessionResponse`.",
+                "description": "Response datatype for object `Session`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -4100,7 +4700,7 @@
                 }
             },
             "UrlResponse": {
-                "description": "Response datatype for object `UrlResponse`.",
+                "description": "Response datatype for object `Url`.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -4127,7 +4727,7 @@
                 }
             },
             "UserResponse": {
-                "description": "Response datatype for object `UserResponse`.",
+                "description": "Response datatype for object `User`.",
                 "content": {
                     "application/json": {
                         "schema": {

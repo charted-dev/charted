@@ -28,17 +28,15 @@ use charted_datastore::{
     remi::{Blob, File, StorageService, UploadRequest},
 };
 use charted_helm_types::ChartIndex;
-use charted_types::{Ulid, Version};
+use charted_types::{QueryableVersion, Ulid, Version};
 pub use ext::*;
 use eyre::{Context, bail};
 use flate2::bufread::MultiGzDecoder;
 use futures_util::future::FutureExt;
 use itertools::Itertools;
 use multer::Multipart;
-use std::hint;
 use tar::Archive;
 use tracing::{error, info, instrument, trace, warn};
-use utoipa::ToSchema;
 
 /// Accepted content types that are allowed to be sent as a tarball
 pub(crate) const ACCEPTABLE_CONTENT_TYPES: &[&str] = &["application/gzip", "application/tar+gzip"];
@@ -46,30 +44,6 @@ pub(crate) const ACCEPTABLE_CONTENT_TYPES: &[&str] = &["application/gzip", "appl
 /// Exempted files that aren't usually in a Helm chart, but they are allowed to be in one.
 pub(crate) const EXEMPTED_FILES: &[&str] = &["values.schema.json", "README.md", "LICENSE"];
 pub(crate) const ALLOWED_FILES: &[&str] = &["README.md", "LICENSE", "values.yaml", "Chart.yaml", "Chart.lock"];
-
-/// A SemVer version that can be queried.
-#[derive(Debug, Clone, PartialEq, Eq, derive_more::Display, ToSchema)]
-pub enum QueryableVersion {
-    /// Queries the latest version of a chart.
-    #[display("latest")]
-    Latest,
-
-    /// Queries a specific version of a chart.
-    Version(Version),
-}
-
-impl QueryableVersion {
-    /// Returns a reference from [`QueryableVersion::Version`].
-    ///
-    /// ## Safety
-    /// This will be undefined behaviour if we are [`QueryableVersion::Latest`].
-    pub const unsafe fn as_version_unchecked(&self) -> &Version {
-        match *self {
-            QueryableVersion::Version(ref version) => version,
-            QueryableVersion::Latest => unsafe { hint::unreachable_unchecked() },
-        }
-    }
-}
 
 /// Newtype wrapper for the `metadata` namespace.
 #[derive(Clone, derive_more::Display, derive_more::Deref)]
@@ -241,7 +215,7 @@ impl<'storage> OwnerRepoNamespace<'storage> {
         prereleases: bool,
     ) -> BoxedFuture<'asyncfn, eyre::Result<Option<File>>> {
         Box::pin(async move {
-            if version == QueryableVersion::Latest {
+            if version.is_latest() {
                 let sorted = self.sort_versions(prereleases).await?;
                 if sorted.is_empty() {
                     return Ok(None);
@@ -289,7 +263,7 @@ impl<'storage> OwnerRepoNamespace<'storage> {
         prereleases: bool,
     ) -> BoxedFuture<'asyncfn, eyre::Result<Option<File>>> {
         Box::pin(async {
-            if version == QueryableVersion::Latest {
+            if version.is_latest() {
                 let sorted = self.sort_versions(prereleases).await?;
                 if sorted.is_empty() {
                     return Ok(None);

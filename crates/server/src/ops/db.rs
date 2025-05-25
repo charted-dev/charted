@@ -14,6 +14,7 @@
 // limitations under the License.
 
 pub mod apikey;
+pub mod organization;
 pub mod repository;
 pub mod session;
 pub mod user;

@@ -71,8 +71,8 @@ pub mod ulid {
 
 cfg_openapi! {
     use utoipa::{
-        openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type},
-        PartialSchema, ToSchema,
+        openapi::{schema::SchemaType, Required, ObjectBuilder, RefOr, Ref, Schema, Type, path::{ParameterIn, Parameter}},
+        PartialSchema, ToSchema, IntoParams,
     };
 
     impl PartialSchema for Ulid {
@@ -89,6 +89,22 @@ cfg_openapi! {
     }
 
     impl ToSchema for Ulid {}
+
+    impl IntoParams for Ulid {
+        fn into_params(
+            in_provider: impl Fn() -> Option<ParameterIn>
+        ) -> Vec<Parameter> {
+            vec![
+                Parameter::builder()
+                    .name("id")
+                    .required(Required::True)
+                    .parameter_in(in_provider().unwrap_or_default())
+                    .description(Some("path parameter that takes a `Ulid`"))
+                    .schema(Some(RefOr::Ref(Ref::from_schema_name("Ulid"))))
+                    .build()
+            ]
+        }
+    }
 }
 
 cfg_jsonschema! {

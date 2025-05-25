@@ -115,7 +115,7 @@ const GRAVATAR_URI: &str = "https://secure.gravatar.com/avatar";
 pub trait DataStoreExt<'ds>: Sized {
     fn user_avatars(&'ds self, id: Ulid) -> UserAvatarNamespace<'ds>;
     fn repository_icons(&'ds self, id: Ulid) -> RepositoryIconNamespace<'ds>;
-    fn organization_avatars(&'ds self, id: Ulid) -> OrganizationIconNamespace<'ds>;
+    fn org_icons(&'ds self, id: Ulid) -> OrganizationIconNamespace<'ds>;
 }
 
 impl<'ds> DataStoreExt<'ds> for DataStore {
@@ -133,7 +133,7 @@ impl<'ds> DataStoreExt<'ds> for DataStore {
         }
     }
 
-    fn organization_avatars(&'ds self, id: Ulid) -> OrganizationIconNamespace<'ds> {
+    fn org_icons(&'ds self, id: Ulid) -> OrganizationIconNamespace<'ds> {
         OrganizationIconNamespace {
             ns: self.namespace(format!("avatars/orgs/{id}")),
             id,

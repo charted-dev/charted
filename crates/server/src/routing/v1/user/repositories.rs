@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod releases;
+
 use crate::{
     Env, commit_patch,
     ext::{DataStoreExt, ResultExt},

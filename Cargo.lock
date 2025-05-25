@@ -1392,13 +1392,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "charted-feature-members"
-version = "0.1.0"
-dependencies = [
- "charted-feature",
-]
-
-[[package]]
 name = "charted-feature-totp"
 version = "0.1.0"
 
@@ -1486,9 +1479,6 @@ dependencies = [
  "charted-database",
  "charted-datastore",
  "charted-feature",
- "charted-feature-gc",
- "charted-feature-members",
- "charted-feature-totp",
  "charted-helm-charts",
  "charted-helm-types",
  "charted-metrics",
