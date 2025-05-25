@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {pkgs}: let
-  inherit (pkgs) mkShell lib darwin stdenv;
+  inherit (pkgs) mkShell lib;
 
   common = import ./common.nix;
   rustflags = common.rustflags stdenv;
@@ -30,7 +30,6 @@
 
   buildInputs = with pkgs;
     [
-      cargo-upgrades
       cargo-machete
       cargo-nextest
       cargo-expand
