@@ -42,7 +42,6 @@ serde_yaml_ng.workspace = true
 tar = "0.4.41"
 tokio = { workspace = true, features = ["io-std", "io-util"] }
 tracing.workspace = true
-utoipa.workspace = true
 
 [dev-dependencies]
 azalia = { workspace = true, features = [

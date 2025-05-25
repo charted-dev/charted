@@ -64,7 +64,6 @@ multer.workspace = true
 paste = "1.0.15"
 reqwest.workspace = true
 sea-orm.workspace = true
-sea-orm-migration.workspace = true
 sentry.workspace = true
 sentry-tower = { version = "0.37.0", features = ["axum", "http"] }
 serde.workspace = true

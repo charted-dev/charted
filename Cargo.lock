@@ -1422,7 +1422,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "utoipa",
 ]
 
 [[package]]
@@ -1497,7 +1496,6 @@ dependencies = [
  "paste",
  "reqwest",
  "sea-orm",
- "sea-orm-migration",
  "sentry",
  "sentry-tower",
  "serde",
