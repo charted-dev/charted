@@ -453,13 +453,7 @@ async fn dicebear(env: &Env, id: Ulid) -> Result<ReturnType, api::Response> {
 
     let res = env.http.get(url).send().await.map_err(api::system_failure)?;
     if res.status() == StatusCode::NOT_FOUND {
-        return Err(api::Response {
-            success: false,
-            data: None,
-            errors: Vec::new(),
-            headers: HeaderMap::new(),
-            status: StatusCode::NOT_FOUND,
-        });
+        return Err(api::empty(false, StatusCode::NOT_FOUND));
     }
 
     let ct = res.headers().get(header::CONTENT_TYPE).unwrap();
@@ -483,13 +477,7 @@ async fn gravatar(env: &Env, email: &str) -> Result<ReturnType, api::Response> {
 
     let res = env.http.get(url).send().await.map_err(api::system_failure)?;
     if res.status() == StatusCode::NOT_FOUND {
-        return Err(api::Response {
-            success: false,
-            data: None,
-            errors: Vec::new(),
-            headers: HeaderMap::new(),
-            status: StatusCode::NOT_FOUND,
-        });
+        return Err(api::empty(false, StatusCode::NOT_FOUND));
     }
 
     let ct = res.headers().get(header::CONTENT_TYPE).unwrap();

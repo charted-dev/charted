@@ -300,13 +300,7 @@ pub async fn patch(
     }
 
     if !errors.is_empty() {
-        return Err(api::Response {
-            headers: axum::http::HeaderMap::new(),
-            success: false,
-            status: StatusCode::CONFLICT,
-            errors,
-            data: None::<()>,
-        });
+        return Err(api::empty(false, StatusCode::CONFLICT));
     }
 
     model

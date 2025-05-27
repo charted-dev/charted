@@ -122,15 +122,10 @@ pub type Result<T> = std::result::Result<Response<T>, Response>;
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(deny_unknown_fields)]
 pub struct Response<T = ()> {
-    /// List of HTTP headers to append to this response.
+    /// Underlying HTTP response that'll be sent.
     #[cfg(feature = "axum")]
     #[serde(skip)]
-    pub headers: ::axum::http::HeaderMap<::axum::http::HeaderValue>,
-
-    /// The status of the response.
-    #[cfg(feature = "axum")]
-    #[serde(skip)]
-    pub status: ::axum::http::StatusCode,
+    pub response: ::axum::response::Response,
 
     /// Was the request that was processed a success?
     pub success: bool,
@@ -156,15 +151,25 @@ pub struct Response<T = ()> {
 }
 
 impl<T> Response<T> {
+    /// Directly modify the [`axum::http::Response`] that is attached to this API response.
+    #[cfg(feature = "axum")]
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+    pub fn modify_response(mut self, f: impl FnOnce(&mut axum::response::Response)) -> Self {
+        f(&mut self.response);
+        self
+    }
+
+    /// Append a single header into this response.
     #[cfg(feature = "axum")]
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
     pub fn with_header<K: Into<axum::http::HeaderName>, V: Into<axum::http::HeaderValue>>(
-        mut self,
+        self,
         key: K,
         value: V,
     ) -> Self {
-        self.headers.insert(key.into(), value.into());
-        self
+        self.modify_response(|res| {
+            res.headers_mut().insert(key.into(), value.into());
+        })
     }
 }
 
@@ -179,16 +184,16 @@ impl<T: Eq> Eq for Response<T> {}
 #[cfg(feature = "axum")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 impl<T: Serialize> ::axum::response::IntoResponse for Response<T> {
-    fn into_response(mut self) -> axum::response::Response {
+    fn into_response(self) -> axum::response::Response {
         let data = serde_json::to_string(&self).unwrap();
-        let _ = self.headers.insert(
-            axum::http::header::CONTENT_TYPE,
-            "application/json; charset=utf-8".try_into().unwrap(),
-        );
+        let Response { mut response, .. } = self.modify_response(|res| {
+            res.headers_mut().insert(axum::http::header::CONTENT_TYPE, unsafe {
+                "application/json; charset=utf-8".try_into().unwrap_unchecked()
+            });
+        });
 
-        let mut res = axum::http::Response::builder().status(self.status);
-        res.headers_mut().replace(&mut self.headers);
-        res.body(axum::body::Body::from(data)).unwrap()
+        *response.body_mut() = axum::body::Body::from(data);
+        response
     }
 }
 
@@ -483,15 +488,36 @@ impl From<(ErrorCode, Cow<'static, str>, Option<Value>)> for Error {
     }
 }
 
+/// Creates a empty API response.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn empty(success: bool, status: axum::http::StatusCode) -> Response<()> {
+    Response {
+        response: unsafe {
+            axum::response::Response::builder()
+                .status(status)
+                .body(axum::body::Body::empty())
+        },
+
+        success,
+        errors: Vec::new(),
+        data: None,
+    }
+}
+
 /// Return a successful API response.
 #[cfg(feature = "axum")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 pub fn ok<T>(status: axum::http::StatusCode, data: T) -> Response<T> {
     Response {
-        headers: ::axum::http::HeaderMap::new(),
+        response: unsafe {
+            axum::response::Response::builder()
+                .status(status)
+                .body(axum::body::Body::empty())
+        },
+
         success: true,
         errors: Vec::new(),
-        status,
         data: Some(data),
     }
 }
@@ -516,10 +542,15 @@ pub fn from_default<T: Default>(status: axum::http::StatusCode) -> Response<T> {
 pub fn err<E: Into<Error>>(status: axum::http::StatusCode, error: E) -> Response {
     let error = error.into();
     Response {
-        headers: ::axum::http::HeaderMap::new(),
+        response: {
+            let mut res = axum::response::Response::new(axum::body::Body::empty());
+            *res.status_mut() = status;
+
+            res
+        },
+
         success: false,
         errors: vec![error],
-        status,
         data: None,
     }
 }

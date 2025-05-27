@@ -461,13 +461,7 @@ pub async fn patch(
     commit_patch!(model of string?: old.name => name; validate that len < 64 [errors]);
 
     if !errors.is_empty() {
-        return Err(api::Response {
-            headers: axum::http::HeaderMap::new(),
-            success: false,
-            status: StatusCode::CONFLICT,
-            errors,
-            data: None::<()>,
-        });
+        return Err(api::empty(false, StatusCode::CONFLICT));
     }
 
     model
