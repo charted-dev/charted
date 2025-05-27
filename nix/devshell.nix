@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {pkgs}: let
-  inherit (pkgs) mkShell lib;
+  inherit (pkgs) mkShell lib stdenv;
 
   common = import ./common.nix;
   rustflags = common.rustflags pkgs.stdenv;
