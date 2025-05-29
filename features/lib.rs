@@ -12,6 +12,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//! # 🐻‍❄️📦 `charted-features`
+//! This crate allows to build [server features], which extend charted to provide
+//! more capabilities than ever.
+//!
+//! [server features]: https://charts.noelware.org/docs/server/latest/features
 
 use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
@@ -19,6 +25,7 @@ use sea_orm_migration::{MigrationTrait, MigratorTrait};
 use serde::Serialize;
 use utoipa::{ToSchema, openapi::OpenApi};
 
+/// A [`MigratorTrait`] that is meant to be used as a dummy type for [`Feature::migrator`].
 #[derive(Debug, Clone, Copy)]
 struct NoMigratorAvaliable;
 impl MigratorTrait for NoMigratorAvaliable {

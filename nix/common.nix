@@ -16,8 +16,8 @@
   outputHashes = {};
 
   cargoTOML = builtins.fromTOML (builtins.readFile ../Cargo.toml);
-  rustflags = stdenv:
-    if stdenv.isLinux
+  rustflags = {isLinux}:
+    if isLinux
     then ''-C linker=clang -C link-arg=-fuse-ld=mold -C target-cpu=native --cfg tokio_unstable $RUSTFLAGS''
     else ''$RUSTFLAGS'';
 

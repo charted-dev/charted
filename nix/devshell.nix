@@ -16,7 +16,7 @@
   inherit (pkgs) mkShell lib stdenv;
 
   common = import ./common.nix;
-  rustflags = common.rustflags pkgs.stdenv;
+  rustflags = common.rustflags {inherit (stdenv) isLinux;};
 
   linuxNativeBuildInputs = with pkgs; [mold];
 
@@ -41,7 +41,7 @@
 
       (common.mkRustPlatform pkgs.rust-bin)
       openssl
-      bun
+      taplo
       git
     ]
     ++ (lib.optional stdenv.isLinux [glibc]);
