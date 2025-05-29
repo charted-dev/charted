@@ -44,7 +44,8 @@ async fn filesystem() {
 #[cfg(target_os = "linux")]
 #[tokio::test]
 async fn s3() {
-    use charted_datastore::s3;
+    use charted_datastore::s3::{self, aws};
+
     // Always succeed the test if Docker tests are disabled.
     if super::docker_tests_disabled() {
         return;
@@ -75,6 +76,7 @@ async fn s3() {
 #[tokio::test]
 async fn azure() {
     use charted_datastore::azure;
+
     // Always succeed the test if Docker tests are disabled.
     if super::docker_tests_disabled() {
         return;
@@ -90,6 +92,7 @@ async fn azure() {
             address: "0.0.0.0".into(),
             port,
         },
+
         credentials: azure::Credential::AccessKey {
             account: String::from("devstoreaccount1"),
             access_key: String::from(
