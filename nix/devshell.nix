@@ -16,7 +16,7 @@
   inherit (pkgs) mkShell lib;
 
   common = import ./common.nix;
-  rustflags = common.rustflags stdenv;
+  rustflags = common.rustflags pkgs.stdenv;
 
   linuxNativeBuildInputs = with pkgs; [mold];
 
