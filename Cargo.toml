@@ -90,7 +90,7 @@ color-eyre = { version = "0.6.4", features = ["issue-url"] }
 derive_more = "2.0.1"
 dotenvy = "0.15.7"
 eyre = "0.6.12"
-metrics-exporter-prometheus = { version = "0.16.2", default-features = false, features = [
+metrics-exporter-prometheus = { version = "0.17.0", default-features = false, features = [
     "tracing",
 ] }
 mimalloc = "0.1.46"
