@@ -770,9 +770,9 @@ dependencies = [
 
 [[package]]
 name = "azalia"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7aec3a5dd7a1b39659c18d3a635377b9ef196c6d39b82df35ae730d059a1585"
+checksum = "16c4560a917e56192434fa8a237fb00b55447e0b3c116106e0887c83f9c3a066"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -784,21 +784,21 @@ dependencies = [
 
 [[package]]
 name = "azalia-config"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b808cb1a9bfc2643ac6fbc5671671214361b0eac48190eaa01b11f004077150"
+checksum = "34bfb8ed640a2fd6347d510b2bf613ae64d708864d011aee72c761689657e564"
 dependencies = [
  "azalia-config-macros",
- "sentry-types",
+ "sentry-types 0.38.1",
  "tracing",
  "url",
 ]
 
 [[package]]
 name = "azalia-config-macros"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e09dc1a0e782a0a2574acfce6fb816dc37022068f1c237ccd81a90276d7a787"
+checksum = "2ee7a52274479024a4315778a7e73611c9c81b8a33cd2e221fa05cc26bb82ee3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -807,13 +807,13 @@ dependencies = [
 
 [[package]]
 name = "azalia-log"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b5bad16ec41a742a82e6982c299dd455400538d456e59359822fc2a43a01482"
+checksum = "6d123c88038c16cf829bf813d35213184641d82f80886c9a79bfdba81768f5da"
 dependencies = [
  "cfg-if",
  "chrono",
- "owo-colors 4.2.0",
+ "owo-colors",
  "serde_json",
  "tracing",
  "tracing-log",
@@ -822,9 +822,9 @@ dependencies = [
 
 [[package]]
 name = "azalia-remi"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf342bd754988198a96101c49d2c7c7948893bae41647d201f1452e81ba11315"
+checksum = "61460b47c64287dab732bbc523f72fd98d79641227f8be50f05f588213d1856d"
 dependencies = [
  "remi",
  "remi-azure",
@@ -836,9 +836,9 @@ dependencies = [
 
 [[package]]
 name = "azalia-serde"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "741e0b1fa81e9d5afe68c5067a266dac954b04d31a6fbe310de11b036bc59156"
+checksum = "77e92672ba8b3ad92990398448003c4b4cc838964d4c98b9461a1ddfcd4dd48a"
 dependencies = [
  "serde",
  "tracing",
@@ -1268,7 +1268,7 @@ dependencies = [
  "opentelemetry",
  "opentelemetry-otlp",
  "opentelemetry_sdk",
- "owo-colors 4.2.0",
+ "owo-colors",
  "rayon",
  "reqwest",
  "sea-orm-migration",
@@ -1312,7 +1312,7 @@ dependencies = [
  "charted-core",
  "derive_more 2.0.1",
  "eyre",
- "sentry-types",
+ "sentry-types 0.37.0",
  "serde",
  "toml",
  "tracing",
@@ -1642,16 +1642,16 @@ dependencies = [
 
 [[package]]
 name = "color-eyre"
-version = "0.6.3"
+version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55146f5e46f237f7423d74111267d4597b59b0dad0ffaf7303bce9945d843ad5"
+checksum = "e6e1761c0e16f8883bbbb8ce5990867f4f06bf11a0253da6495a04ce4b6ef0ec"
 dependencies = [
  "backtrace",
  "color-spantrace",
  "eyre",
  "indenter",
  "once_cell",
- "owo-colors 3.5.0",
+ "owo-colors",
  "tracing-error",
  "url",
 ]
@@ -1663,7 +1663,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ddd8d5bfda1e11a501d0a7303f3bfed9aa632ebdb859be40d0fd70478ed70d5"
 dependencies = [
  "once_cell",
- "owo-colors 4.2.0",
+ "owo-colors",
  "tracing-core",
  "tracing-error",
 ]
@@ -4101,12 +4101,6 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "owo-colors"
-version = "3.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1b04fb49957986fdce4d6ee7a65027d55d4b6d2265e5848bbb507b58ccfdb6f"
-
-[[package]]
-name = "owo-colors"
 version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1036865bb9422d3300cf723f657c2851d0e9ab12567854b1f4eba3d77decf564"
@@ -5371,7 +5365,7 @@ checksum = "1a6409d845707d82415c800290a5d63be5e3df3c2e417b0997c60531dfbd35ef"
 dependencies = [
  "once_cell",
  "rand 0.8.5",
- "sentry-types",
+ "sentry-types 0.37.0",
  "serde",
  "serde_json",
 ]
@@ -5436,6 +5430,23 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+ "time",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "sentry-types"
+version = "0.38.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04b6c9287202294685cb1f749b944dbbce8160b81a1061ecddc073025fed129f"
+dependencies = [
+ "debugid",
+ "hex",
+ "rand 0.9.0",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
  "time",
  "url",
  "uuid",
