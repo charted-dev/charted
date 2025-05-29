@@ -16,9 +16,8 @@
 use crate::{tests::fixture, testutil};
 use charted_config::storage::Config;
 use charted_datastore::{
-    DataStore, azure,
+    DataStore,
     remi::{StorageService, UploadRequest},
-    s3::{self, aws},
 };
 use charted_types::Ulid;
 use tempfile::TempDir;

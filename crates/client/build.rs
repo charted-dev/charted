@@ -17,5 +17,5 @@ const OPENAPI_DOCUMENT: &str = "../../assets/openapi.json";
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
-    println!("cargo::rerun-if-changed={}", OPENAPI_DOCUMENT);
+    println!("cargo::rerun-if-changed={OPENAPI_DOCUMENT}");
 }

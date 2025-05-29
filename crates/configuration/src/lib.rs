@@ -203,13 +203,11 @@ fn update_config(config: &mut Config) -> eyre::Result<()> {
     if config.jwt_secret_key.is_empty() {
         let key = charted_core::rand_string(16);
         eprintln!(
-            r#"[charted :: WARN] You are missing a JWT secret key either from the `${env}` environment variable or from the `jwt_secret_key` configuration property in your `config.toml`
+            r#"[charted :: WARN] You are missing a JWT secret key either from the `${JWT_SECRET_KEY}` environment variable or from the `jwt_secret_key` configuration property in your `config.toml`
 
-I generated one for you here: `{secret}`
+I generated one for you here: `{key}`
 
-!! DO NOT LOSE IT !!"#,
-            env = JWT_SECRET_KEY,
-            secret = key
+!! DO NOT LOSE IT !!"#
         );
 
         config.jwt_secret_key = key;

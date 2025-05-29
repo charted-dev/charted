@@ -35,14 +35,12 @@ pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
             // if we are a `Path`, then try to create the parent
             // directories if we can so that we don't have to manually
             // create it.
-            if let StringOrPath::Path(ref p) = cfg.path {
-                if let Some(parent) = p.parent() {
-                    if parent != Path::new("") && !parent.try_exists()? {
+            if let StringOrPath::Path(ref p) = cfg.path
+                && let Some(parent) = p.parent()
+                    && parent != Path::new("") && !parent.try_exists()? {
                         warn!(path = %p.display(), "creating parent directories since it doesn't exist");
                         fs::create_dir_all(parent)?;
                     }
-                }
-            }
 
             SqlxSqliteConnector::connect(connect_options_with(config)).await?
         }
