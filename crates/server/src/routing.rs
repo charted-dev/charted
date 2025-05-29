@@ -113,7 +113,7 @@ pub fn create_router(env: &Env) -> Router<Env> {
         .layer(
             ServiceBuilder::new()
                 .layer(sentry_tower::NewSentryLayer::new_from_top())
-                .layer(sentry_tower::SentryHttpLayer::with_transaction())
+                .layer(sentry_tower::SentryHttpLayer::new().enable_transaction())
                 .layer(tower_http::catch_panic::CatchPanicLayer::custom(panic_handler))
                 .layer(CompressionLayer::new().gzip(true))
                 .layer(DefaultBodyLimit::max(MAX_BODY_LIMIT))
