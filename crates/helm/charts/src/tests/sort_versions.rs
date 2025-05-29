@@ -24,21 +24,23 @@ use tempfile::TempDir;
 use tokio::fs;
 
 #[tokio::test]
-#[cfg_attr(
-    windows,
-    ignore = "fails to run, probably an issue within either us or `tempdir`: Filesystem(Os { code: 123, kind: InvalidFilename, message: \"The filename, directory name, or volume label syntax is incorrect.\" })"
-)]
 async fn filesystem() {
     let _log_guard = testutil::setup_tracing();
     let tmpdir = TempDir::new().unwrap();
 
+    // Since we need to get the path that it is located, we need to disable
+    // cleanup. We can do that ourselves though. :>
+    let path = tmpdir.keep();
     let ds = DataStore::new(&Config::Filesystem(charted_datastore::fs::StorageConfig::new(
-        tmpdir.into_path(),
+        path.clone(),
     )))
     .await
     .unwrap();
 
     do_test(ds).await;
+    if let Err(e) = std::fs::remove_dir_all(&path) {
+        eprintln!("warn: failed to delete all contents in '{}': {e}", path.display());
+    }
 }
 
 #[cfg(target_os = "linux")]

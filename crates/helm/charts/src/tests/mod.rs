@@ -14,7 +14,6 @@
 // limitations under the License.
 
 mod sort_versions;
-mod upload;
 
 macro_rules! fixture {
     ($path:literal) => {

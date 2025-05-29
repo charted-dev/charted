@@ -16,7 +16,7 @@
 use crate::{Env, ext::ResultExt, mk_into_responses, openapi::UrlResponse};
 use axum::{
     body::Bytes,
-    http::{HeaderMap, HeaderValue, StatusCode, header},
+    http::{HeaderValue, StatusCode, header},
 };
 use charted_core::api;
 use charted_datastore::{

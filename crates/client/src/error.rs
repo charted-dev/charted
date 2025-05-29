@@ -22,8 +22,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug, derive_more::From, derive_more::Display, derive_more::Error)]
 #[non_exhaustive]
 pub enum Error {
-    #[display("api server had failed with status code {}: {:#?}", _0.status, _0.errors)]
-    Api(#[error(not(source))] Box<api::Response>),
+    #[display("api server had failed with status code {}: {:#?}", _0.response.status(), _0.errors)]
+    Api(#[error(not(source))] api::Response),
 
     /// URL given failed to parse.
     ParseUrl(url::ParseError),

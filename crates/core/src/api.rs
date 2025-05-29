@@ -187,9 +187,10 @@ impl<T: Serialize> ::axum::response::IntoResponse for Response<T> {
     fn into_response(self) -> axum::response::Response {
         let data = serde_json::to_string(&self).unwrap();
         let Response { mut response, .. } = self.modify_response(|res| {
-            res.headers_mut().insert(axum::http::header::CONTENT_TYPE, unsafe {
-                "application/json; charset=utf-8".try_into().unwrap_unchecked()
-            });
+            res.headers_mut().insert(
+                axum::http::header::CONTENT_TYPE,
+                axum::http::HeaderValue::from_static("application/json; charset=utf-8"),
+            );
         });
 
         *response.body_mut() = axum::body::Body::from(data);
@@ -497,6 +498,7 @@ pub fn empty(success: bool, status: axum::http::StatusCode) -> Response<()> {
             axum::response::Response::builder()
                 .status(status)
                 .body(axum::body::Body::empty())
+                .unwrap_unchecked()
         },
 
         success,
@@ -514,6 +516,7 @@ pub fn ok<T>(status: axum::http::StatusCode, data: T) -> Response<T> {
             axum::response::Response::builder()
                 .status(status)
                 .body(axum::body::Body::empty())
+                .unwrap_unchecked()
         },
 
         success: true,
