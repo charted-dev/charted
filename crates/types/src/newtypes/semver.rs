@@ -146,16 +146,16 @@ cfg_jsonschema! {
     use schemars::JsonSchema;
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "jsonschema")))]
-    impl JsonSchema for Version {
-        fn schema_id() -> ::std::borrow::Cow<'static, str> {
-            <semver::Version as JsonSchema>::schema_id()
-        }
-
-        fn schema_name() -> String {
+    impl schemars::JsonSchema for Version {
+        fn schema_name() -> std::borrow::Cow<'static, str> {
             <semver::Version as JsonSchema>::schema_name()
         }
 
-        fn json_schema(g: &mut schemars::r#gen::SchemaGenerator) -> schemars::schema::Schema {
+        fn schema_id() -> std::borrow::Cow<'static, str> {
+            <semver::Version as JsonSchema>::schema_id()
+        }
+
+        fn json_schema(g: &mut schemars::SchemaGenerator) -> schemars::Schema {
             <semver::Version as JsonSchema>::json_schema(g)
         }
     }
@@ -277,24 +277,22 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::JsonSchema;
+    use std::borrow::Cow;
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "jsonschema")))]
-    impl JsonSchema for VersionReq {
-        fn schema_id() -> ::std::borrow::Cow<'static, str> {
-            ::std::borrow::Cow::Borrowed("semver::VersionReq")
+    impl schemars::JsonSchema for VersionReq {
+        fn schema_name() -> Cow<'static, str> {
+            Cow::Borrowed("VersionReq")
         }
 
-        fn schema_name() -> String {
-            String::from("VersionReq")
+        fn schema_id() -> Cow<'static, str> {
+            Cow::Borrowed("semver::VersionReq")
         }
 
-        fn json_schema(_: &mut schemars::r#gen::SchemaGenerator) -> schemars::schema::Schema {
-            ::schemars::schema::SchemaObject {
-                instance_type: Some(::schemars::schema::InstanceType::String.into()),
-                ..Default::default()
-            }
-            .into()
+        fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+            schemars::json_schema!({
+                "type": "string",
+            })
         }
     }
 }

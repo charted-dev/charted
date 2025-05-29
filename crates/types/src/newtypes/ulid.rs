@@ -108,29 +108,25 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::{JsonSchema, schema::*, r#gen::SchemaGenerator};
     use std::borrow::Cow;
 
-    impl JsonSchema for Ulid {
-        fn is_referenceable() -> bool {
-            false
-        }
-
-        fn schema_name() -> String {
-            "Ulid".to_string()
+    impl schemars::JsonSchema for Ulid {
+        fn schema_name() -> Cow<'static, str> {
+            Cow::Borrowed("Ulid")
         }
 
         fn schema_id() -> Cow<'static, str> {
             Cow::Borrowed("ulid::Ulid")
         }
 
-        fn json_schema(_: &mut SchemaGenerator) -> Schema {
-            SchemaObject {
-                instance_type: Some(InstanceType::String.into()),
-                //format: Some("ulid".to_string()),
-                ..Default::default()
-            }
-            .into()
+        fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+            schemars::json_schema!({
+                "type": "string",
+            })
+        }
+
+        fn inline_schema() -> bool {
+            false
         }
     }
 }

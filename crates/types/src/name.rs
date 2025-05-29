@@ -242,36 +242,27 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::{r#gen::*, schema::*, JsonSchema};
-
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
-    impl JsonSchema for Name {
-        fn is_referenceable() -> bool {
-            false
+    impl schemars::JsonSchema for Name {
+        fn schema_name() -> Cow<'static, str> {
+            Cow::Borrowed("Name")
         }
 
         fn schema_id() -> Cow<'static, str> {
             Cow::Borrowed("charted::types::Name")
         }
 
-        fn schema_name() -> String {
-            String::from("Name")
+        fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+            schemars::json_schema!({
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 32,
+                "pattern": "^([A-z]{2,}|[0-9]|_|-)*$",
+            })
         }
 
-        fn json_schema(_: &mut SchemaGenerator) -> schemars::schema::Schema {
-            schemars::schema::Schema::Object(SchemaObject {
-                instance_type: Some(SingleOrVec::Single(InstanceType::String.into())),
-                string: Some(
-                    StringValidation {
-                        min_length: Some(2),
-                        max_length: Some(32),
-                        pattern: Some("^([A-z]{2,}|[0-9]|_|-)*$".into()),
-                    }
-                    .into(),
-                ),
-
-                ..Default::default()
-            })
+        fn inline_schema() -> bool {
+            false
         }
     }
 }

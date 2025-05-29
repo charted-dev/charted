@@ -94,29 +94,24 @@ impl From<Version> for serde_json::Number {
 
 #[cfg(feature = "schemars")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "schemars")))]
-impl ::schemars::JsonSchema for Version {
-    fn is_referenceable() -> bool {
-        false
+impl schemars::JsonSchema for Version {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "Version".into()
     }
 
-    fn schema_id() -> ::std::borrow::Cow<'static, str> {
-        ::std::borrow::Cow::Borrowed("charted_core::api::Version")
+    fn schema_id() -> std::borrow::Cow<'static, str> {
+        "charted_core::api::Version".into()
     }
 
-    fn schema_name() -> String {
-        String::from("Version")
-    }
-
-    fn json_schema(_: &mut ::schemars::r#gen::SchemaGenerator) -> ::schemars::schema::Schema {
-        ::schemars::schema::Schema::Object(::schemars::schema::SchemaObject {
-            instance_type: Some(::schemars::schema::SingleOrVec::Single(
-                ::schemars::schema::InstanceType::Number.into(),
-            )),
-
-            enum_values: Some(vec![::serde_json::Value::Number(1.into())]),
-
-            ..Default::default()
+    fn json_schema(_: &mut ::schemars::SchemaGenerator) -> ::schemars::Schema {
+        ::schemars::json_schema!({
+            "type": "number",
+            "enum": [1],
         })
+    }
+
+    fn inline_schema() -> bool {
+        false
     }
 }
 

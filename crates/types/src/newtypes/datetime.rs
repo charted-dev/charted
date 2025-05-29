@@ -83,34 +83,23 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::{
-        JsonSchema,
-        r#gen::SchemaGenerator,
-        schema::{
-            Schema,
-            InstanceType,
-            SchemaObject
-        }
-    };
     use std::borrow::Cow;
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "jsonschema")))]
-    impl JsonSchema for DateTime {
+    impl schemars::JsonSchema for DateTime {
+        fn schema_name() -> Cow<'static, str> {
+            Cow::Borrowed("DateTime")
+        }
+
         fn schema_id() -> Cow<'static, str> {
             Cow::Borrowed("chrono::DateTime<chrono::Utc>")
         }
 
-        fn schema_name() -> String {
-            String::from("DateTime")
-        }
-
-        fn json_schema(_: &mut SchemaGenerator) -> Schema {
-            SchemaObject {
-                instance_type: Some(InstanceType::String.into()),
-                format: Some("date-time".into()),
-                ..Default::default()
-            }
-            .into()
+        fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+            schemars::json_schema!({
+                "type": "string",
+                "format": "date-time",
+            })
         }
     }
 }
