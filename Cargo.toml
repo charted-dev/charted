@@ -86,7 +86,7 @@ base64 = "0.22.1"
 chrono = { version = "0.4.40", features = ["serde"] }
 clap = { version = "4.5.36", features = ["derive", "env"] }
 clap_complete = "4.5.47"
-color-eyre = { version = "0.6.3", features = ["issue-url"] }
+color-eyre = { version = "0.6.4", features = ["issue-url"] }
 derive_more = "2.0.1"
 dotenvy = "0.15.7"
 eyre = "0.6.12"
