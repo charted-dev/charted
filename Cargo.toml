@@ -120,7 +120,7 @@ sea-orm-migration = { version = "1.1.8", default-features = false, features = [
     "with-chrono",
 ] }
 semver = { version = "1.0.26", features = ["serde"] }
-sentry = { version = "0.37.0", default-features = false, features = [
+sentry = { version = "0.38.0", default-features = false, features = [
     "backtrace",
     "contexts",
     "debug-images",
@@ -153,7 +153,7 @@ utoipa = { version = "5.3.1", features = [
 url = "2.5.4"
 
 [workspace.dependencies.azalia]
-version = "0.1.6"
+version = "0.1.7"
 features = ["remi+tracing"]
 
 [profile.release]

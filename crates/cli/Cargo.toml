@@ -60,7 +60,7 @@ rayon = "1.10.0"
 reqwest.workspace = true
 sea-orm-migration.workspace = true
 sentry.workspace = true
-sentry-tracing = { version = "0.37.0", features = ["backtrace"] }
+sentry-tracing = { version = "0.38.0", features = ["backtrace"] }
 serde_yaml_ng.workspace = true
 tokio.workspace = true
 tracing.workspace = true
