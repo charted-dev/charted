@@ -49,7 +49,6 @@ azalia = { workspace = true, features = [
     "log+tracing-log",
     "log+writers",
 ] }
-bollard = "0.18.1"
 charted-config.workspace = true
 semver.workspace = true
 tempfile.workspace = true
