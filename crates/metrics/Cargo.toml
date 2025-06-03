@@ -31,8 +31,8 @@ eyre.workspace = true
 metrics = "0.24.1"
 metrics-exporter-opentelemetry = "0.1.1"
 metrics-exporter-prometheus.workspace = true
-opentelemetry = "0.29.0"
-opentelemetry-otlp = { version = "0.29.0", default-features = false, features = [
+opentelemetry = "0.30.0"
+opentelemetry-otlp = { version = "0.30.0", default-features = false, features = [
     "grpc-tonic",
     "http-proto",
     "metrics",
