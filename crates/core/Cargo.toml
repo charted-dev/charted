@@ -59,7 +59,7 @@ serde_yaml_ng = { workspace = true, optional = true }
 [build-dependencies]
 chrono.workspace = true
 rustc_version.workspace = true
-which = "7.0.1"
+which = "8.0.0"
 
 [package.metadata.docs.rs]
 all-features = true
