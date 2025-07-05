@@ -906,9 +906,9 @@ dependencies = [
 
 [[package]]
 name = "azalia"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da9ecbe94b9a89033546753f3b78e0cafcd759c1b035715341d59dc3353a53aa"
+checksum = "327f14c2672cf7f0b16060b82fae18808fcaca08c18bbb45fdf79f4be4388b64"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -920,21 +920,21 @@ dependencies = [
 
 [[package]]
 name = "azalia-config"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "450f0bdd668d3b58a9aaaf523ed8982ea0089e461a15939796cc3bfaed5ee533"
+checksum = "7b9847f9dc5af65e3052b956733733229286184fe4f80de1560cc3138c70d650"
 dependencies = [
  "azalia-config-macros",
- "sentry-types",
+ "sentry-types 0.41.0",
  "tracing",
  "url",
 ]
 
 [[package]]
 name = "azalia-config-macros"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f26abbcf81e02a181649ac51fa01750895adadf92d8a3b5220c7ac98ae05bf3"
+checksum = "6fafbea022d16f2bef4a61c0dca1440df69a45c15c110514d913544e0b580527"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -943,9 +943,9 @@ dependencies = [
 
 [[package]]
 name = "azalia-log"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11605aebb04ec98ef7860e63907170780af29e09ccfeb776fed4e9dff8f1df4d"
+checksum = "471a4d441c3a9a1be7f8bcab4f6d8f03049aea0d22a0d44816e7ec7301032b21"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -958,9 +958,9 @@ dependencies = [
 
 [[package]]
 name = "azalia-remi"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "951bc10edbfdcda35dcb9d6381d6f6e0d164f7943d0d0fa530bf0847d5a66de0"
+checksum = "9fa15c7bef82add3eb58b50c0c162462121b21a5b0590eb2d0f023d27acd4608"
 dependencies = [
  "remi",
  "remi-azure",
@@ -972,9 +972,9 @@ dependencies = [
 
 [[package]]
 name = "azalia-serde"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a186b15082ce3e4976af7955325499aad966389d070fe91dfe51785cc31fd15e"
+checksum = "a1c4803689ba296109ee1cd256450446dfb6289fdf1e636d80d5f9758d57a63e"
 dependencies = [
  "serde",
  "tracing",
@@ -1457,7 +1457,7 @@ dependencies = [
  "charted-core",
  "derive_more 2.0.1",
  "eyre",
- "sentry-types",
+ "sentry-types 0.39.0",
  "serde",
  "toml",
  "tracing",
@@ -5598,7 +5598,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e73bfcabac5a7f9e2e38f898ba0afc6bed36fb96108b246213b698e00f12268c"
 dependencies = [
  "rand 0.9.1",
- "sentry-types",
+ "sentry-types 0.39.0",
  "serde",
  "serde_json",
 ]
@@ -5655,6 +5655,23 @@ name = "sentry-types"
 version = "0.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7205055c5bde8131c62e4f5367f4291956c331a64e1a32e737e8d81b26b3bcb"
+dependencies = [
+ "debugid",
+ "hex",
+ "rand 0.9.1",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "time",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "sentry-types"
+version = "0.41.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a08e7154abe2cd557f26fd70038452810748aefdf39bc973f674421224b147c1"
 dependencies = [
  "debugid",
  "hex",
