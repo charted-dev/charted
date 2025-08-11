@@ -49,7 +49,7 @@ jobs:
         env:
             CARGOFLAGS: -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic_immediate_abort,backtrace
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - uses: Swatinem/rust-cache@v2
             - uses: auguwu/git-tag-action@master
               id: tag
@@ -109,7 +109,7 @@ jobs:
         runs-on: ubuntu-latest
         needs: [binaries]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - uses: oven-sh/setup-bun@v2
             - run: src/ci/other/buildVersionsJson.js
               env:
@@ -135,7 +135,7 @@ jobs:
                     - runner: linux-aarch64
                       arch: arm64
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - uses: auguwu/git-tag-action@master
               id: tag
             - name: Get commit hash
