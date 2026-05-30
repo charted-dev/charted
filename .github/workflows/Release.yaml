@@ -80,7 +80,7 @@ jobs:
                   CARGOFLAGS: ${{env.CARGOFLAGS}}
 
             - name: Upload (/charted/server/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.3.1
+              uses: Noelware/s3-action@2.3.2
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -93,7 +93,7 @@ jobs:
                   bucket: august
 
             - name: Upload (/charted/server/latest)
-              uses: Noelware/s3-action@2.3.1
+              uses: Noelware/s3-action@2.3.2
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
