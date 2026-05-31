@@ -18,7 +18,7 @@
 //!
 //! [charted REST Specification]: https://charts.noelware.org/docs/server/latest/api
 
-#![feature(let_chains, impl_trait_in_bindings)]
+#![feature(impl_trait_in_bindings)]
 
 #[macro_use]
 extern crate tracing;
