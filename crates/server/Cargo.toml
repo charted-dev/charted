@@ -83,7 +83,7 @@ utoipa = { workspace = true, features = ["debug", "url"] }
 validator = "0.20.0"
 
 [target.'cfg(tokio_unstable)'.dependencies]
-tokio-metrics = { version = "0.4.2", features = [
+tokio-metrics = { version = "0.5.0", features = [
     "metrics-rs-integration",
     "rt",
     "tokio",
