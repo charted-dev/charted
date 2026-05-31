@@ -5851,6 +5851,7 @@ dependencies = [
  "regex",
  "sea-schema",
  "sqlx 0.8.6",
+ "tokio",
  "tracing",
  "tracing-subscriber",
  "url",
@@ -6532,6 +6533,8 @@ dependencies = [
  "sha2 0.10.9",
  "smallvec",
  "thiserror 2.0.18",
+ "tokio",
+ "tokio-stream",
  "tracing",
  "url",
 ]
@@ -6619,6 +6622,7 @@ dependencies = [
  "sqlx-postgres 0.8.6",
  "sqlx-sqlite 0.8.6",
  "syn",
+ "tokio",
  "url",
 ]
 
