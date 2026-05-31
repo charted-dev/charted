@@ -134,8 +134,8 @@ serde_yaml_ng = "0.10.0"
 sqlx = { version = "0.9.0", features = [
     "postgres",
     "runtime-tokio",
-    "runtime-tokio-rustls",
     "sqlite",
+    "tls-rustls",
 ] }
 tempfile = "3.20.0"
 tracing = "0.1.41"
