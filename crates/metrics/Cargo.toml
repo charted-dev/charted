@@ -29,13 +29,12 @@ charted-config.workspace = true
 charted-core.workspace = true
 eyre.workspace = true
 metrics = "0.24.1"
-metrics-exporter-opentelemetry = "0.1.1"
+metrics-exporter-opentelemetry = "0.2.0"
 metrics-exporter-prometheus.workspace = true
-opentelemetry = "0.30.0"
-opentelemetry-otlp = { version = "0.30.0", default-features = false, features = [
+opentelemetry = "0.31.0"
+opentelemetry-otlp = { version = "0.31.0", default-features = false, features = [
     "grpc-tonic",
     "http-proto",
     "metrics",
-    "tracing",
 ] }
 tokio = { workspace = true, features = ["rt", "time"] }
