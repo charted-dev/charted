@@ -48,7 +48,7 @@ jobs:
                   cargo internals openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/*.json
 
-            - uses: EndBug/add-and-commit@v9
+            - uses: EndBug/add-and-commit@v10
               with:
                   author_name: Noel[bot]
                   default_author: user_info
