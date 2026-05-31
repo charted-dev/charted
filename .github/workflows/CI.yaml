@@ -159,7 +159,7 @@ jobs:
                   components: clippy
 
             - uses: Swatinem/rust-cache@v2
-            - uses: auguwu/clippy-action@1.4.0
+            - uses: auguwu/clippy-action@1.5.0
               with:
                   all-features: true
                   check-args: --workspace --locked
