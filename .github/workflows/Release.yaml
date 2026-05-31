@@ -169,7 +169,7 @@ jobs:
                       org.opencontainers.image.licenses=Apache-2.0
                       org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
                       org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}
-            - uses: docker/bake-action@v6
+            - uses: docker/bake-action@v7
               with:
                   targets: ${{matrix.kind}}-${{matrix.arch == 'amd64' && 'x86_64' || 'aarch64'}}
                   files: |
