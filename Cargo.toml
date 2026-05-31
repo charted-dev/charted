@@ -103,8 +103,7 @@ reqwest = { version = "0.13.0", default-features = false, features = [
     "gzip",
     "http2",
     "json",
-    "macos-system-configuration",
-    "rustls-tls-webpki-roots-no-provider",
+    "rustls-no-provider",
 ] }
 rustc_version = "0.4.1"
 schemars = { version = "1.0.0", features = ["chrono04", "semver1", "url2"] }
