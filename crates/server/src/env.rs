@@ -31,7 +31,7 @@ use charted_core::{ResultExt, serde::Duration, ulid};
 use charted_datastore::DataStore;
 use metrics_exporter_prometheus::PrometheusHandle;
 use sea_orm::DatabaseConnection;
-use std::{sync::Arc, time::Instant};
+use std::{net::SocketAddr, sync::Arc, time::Instant};
 
 /// Global environment that holds all dependencies.
 #[derive(Clone)]
@@ -150,7 +150,7 @@ fn build_authz_backend(config: &sessions::Config) -> Arc<dyn Authenticator> {
     }
 }
 
-pub(in crate::env) async fn shutdown_signal(handle: Option<Handle>) {
+pub(in crate::env) async fn shutdown_signal(handle: Option<Handle<SocketAddr>>) {
     // Install the CTRL+C handler
     let ctrl_c = async { tokio::signal::ctrl_c().await.expect("failed to install CTRL+C handler") };
 
