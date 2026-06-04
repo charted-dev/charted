@@ -44,7 +44,6 @@ members = [
 [workspace.package]
 version = "0.1.0"
 authors = [
-    "John Burke <winter@winterfox.tech>",
     "Noel Towa <cutie@floofy.dev>",
     "Spotlight <spotlight@joscomputing.space>",
 ]
