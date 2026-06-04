@@ -1,0 +1,9 @@
+// This is the Renovate configuration for charted-server.
+//
+// Visit https://github.com/Noelware/.github/blob/master/default.json for the Renovate configuration
+// for all repositories.
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>Noelware/.github:default.jsonc"],
+    "automerge": true
+}
