@@ -39,4 +39,4 @@ version = "0.1.5"
 features = ["azure", "fs", "s3", "serde", "tracing"]
 
 [dev-dependencies]
-tokio-test = "0.4.4"
+tokio-test = "=0.4.5"

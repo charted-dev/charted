@@ -14,7 +14,7 @@
 # limitations under the License.
 
 ###### BINARY BUILD
-FROM rustlang/rust:nightly-alpine3.21 AS build
+FROM rustlang/rust:nightly-alpine3.21@sha256:58e3bec5e2353e0c679c038d6fa5f018063de167ab3b5e38afdc87754b354aed AS build
 
 RUN apk upgrade && apk add --no-cache \
     git                               \
@@ -49,7 +49,7 @@ RUN cargo build                                                               \
     --bin charted
 
 ##### FINAL STAGE
-FROM alpine:3.23
+FROM alpine:3.23@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
 
 RUN apk upgrade && apk add --no-cache \
     bash                              \
