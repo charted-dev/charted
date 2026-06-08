@@ -36,19 +36,19 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ github.repository == 'charted-dev/charted' }}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
               with:
                   submodules: recursive
-            - uses: dtolnay/rust-toolchain@nightly
-            - uses: Swatinem/rust-cache@v2
-            - uses: oven-sh/setup-bun@v2
+            - uses: dtolnay/rust-toolchain@5b842231ba77f5c045dba54ac5560fed2db780e2 # nightly
+            - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+            - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
             - name: Generate OpenAPI document
               run: |
                   cargo internals openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/*.json
 
-            - uses: EndBug/add-and-commit@v10
+            - uses: EndBug/add-and-commit@290ea2c423ad77ca9c62ae0f5b224379612c0321 # v10
               with:
                   author_name: Noel[bot]
                   default_author: user_info
