@@ -14,7 +14,7 @@
 # limitations under the License.
 
 ###### BINARY BUILD
-FROM rustlang/rust:nightly-alpine3.21@sha256:58e3bec5e2353e0c679c038d6fa5f018063de167ab3b5e38afdc87754b354aed AS build
+FROM rustlang/rust:nightly-alpine3.21@sha256:e9b2f3be655385897fe8140d8abad98d2db8304fefcb43339dc2389e9597f1d8 AS build
 
 RUN apk upgrade && apk add --no-cache \
     git                               \
