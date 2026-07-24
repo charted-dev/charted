@@ -14,7 +14,7 @@
 # limitations under the License.
 
 ###### BINARY BUILD
-FROM rustlang/rust:nightly-bookworm-slim@sha256:ab9a054a393b1c321d0fe4e0cfcbbf1e46f32d71366f4d890eaee3cc905356f1 AS build
+FROM rustlang/rust:nightly-bookworm-slim@sha256:7d579af7118ed208430673edbee2064d8bc73b04cbde8dc40372e58be3c4d7af AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update &&                          \
