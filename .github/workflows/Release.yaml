@@ -51,7 +51,7 @@ jobs:
         steps:
             - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
             - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-            - uses: auguwu/git-tag-action@ca7f51e079cd89008b80c3eaaf400f32bd806a10 # master
+            - uses: auguwu/git-tag-action@94e2bc997afd37c11c2d43a098006ef5ce92bb79 # master
               id: tag
 
             - name: 'Windows: Setup vcpkg'
@@ -136,7 +136,7 @@ jobs:
                       arch: arm64
         steps:
             - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-            - uses: auguwu/git-tag-action@ca7f51e079cd89008b80c3eaaf400f32bd806a10 # master
+            - uses: auguwu/git-tag-action@94e2bc997afd37c11c2d43a098006ef5ce92bb79 # master
               id: tag
             - name: Get commit hash
               id: commit-hash
@@ -258,7 +258,7 @@ jobs:
         runs-on: ubuntu-24.04
         if: ${{github.repository == 'charted-dev/charted'}}
         steps:
-            - uses: auguwu/git-tag-action@ca7f51e079cd89008b80c3eaaf400f32bd806a10 # master
+            - uses: auguwu/git-tag-action@94e2bc997afd37c11c2d43a098006ef5ce92bb79 # master
               id: tag
 
             - uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3
