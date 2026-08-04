@@ -37,6 +37,12 @@ ignore = [
     # We rely on `paste` in `charted-types` and there isn't a safe
     # replacement for it yet.
     "RUSTSEC-2024-0436",
+    # quick-xml's denial-of-service should only occur
+    # with untrusted XML, and we assume that Azure is safe.
+    "RUSTSEC-2026-0194",
+    "RUSTSEC-2026-0195",
+    # This issue (via Azure) does not affect us.
+    "RUSTSEC-2026-0174",
 ]
 
 [bans]
