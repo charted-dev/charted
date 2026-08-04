@@ -25,7 +25,7 @@
   ];
 
   nativeBuildInputs = with pkgs;
-    [pkg-config]
+    [pkg-config clang]
     ++ (lib.optional stdenv.isLinux linuxNativeBuildInputs);
 
   buildInputs = with pkgs;
