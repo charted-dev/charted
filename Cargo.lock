@@ -1580,7 +1580,7 @@ dependencies = [
  "derive_more",
  "eyre",
  "jiff",
- "rand 0.9.5",
+ "rand 0.10.2",
  "rustc_version",
  "schemars 1.2.2",
  "sentry-backtrace",
