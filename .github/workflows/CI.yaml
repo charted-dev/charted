@@ -68,7 +68,7 @@ jobs:
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
               shell: bash
 
-            - uses: dtolnay/rust-toolchain@5b842231ba77f5c045dba54ac5560fed2db780e2 # nightly
+            - uses: dtolnay/rust-toolchain@be39649afda95dbf70f87cce95f68b8d5797b296 # nightly
             - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
             - name: 'Windows: Setup vcpkg'
@@ -154,7 +154,7 @@ jobs:
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
               shell: bash
 
-            - uses: dtolnay/rust-toolchain@5b842231ba77f5c045dba54ac5560fed2db780e2 # nightly
+            - uses: dtolnay/rust-toolchain@be39649afda95dbf70f87cce95f68b8d5797b296 # nightly
               with:
                   components: clippy
 
