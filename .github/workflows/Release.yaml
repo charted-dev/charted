@@ -142,7 +142,7 @@ jobs:
               id: commit-hash
               run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
 
-            - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+            - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
             - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
               with:
                   registry: docker.noelware.org
@@ -181,7 +181,7 @@ jobs:
         needs: [docker]
         if: ${{github.repository == 'charted-dev/charted'}}
         steps:
-            - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+            - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
             - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
               with:
                   registry: docker.noelware.org
