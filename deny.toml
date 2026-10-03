@@ -43,6 +43,7 @@ ignore = [
     "RUSTSEC-2026-0195",
     # This issue (via Azure) does not affect us.
     "RUSTSEC-2026-0174",
+    "RUSTSEC-2026-0275",
 ]
 
 [bans]
