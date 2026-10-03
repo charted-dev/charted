@@ -91,7 +91,7 @@ jobs:
               if: ${{matrix.runner == 'windows-latest'}}
               uses: ilammy/setup-nasm@72793074d3c8cdda771dba85f6deafe00623038b # v1
 
-            - uses: taiki-e/cache-cargo-install-action@417450f3c33ee20393705369577571770643d4c7 # v3
+            - uses: taiki-e/cache-cargo-install-action@9ee83daaa7b96a6fab930949ecf1122bba04a389 # v3
               with:
                   tool: cargo-nextest
 
@@ -103,7 +103,7 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-            - uses: taiki-e/cache-cargo-install-action@417450f3c33ee20393705369577571770643d4c7 # v3
+            - uses: taiki-e/cache-cargo-install-action@9ee83daaa7b96a6fab930949ecf1122bba04a389 # v3
               with:
                   tool: cargo-deny
 
@@ -114,7 +114,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-            - uses: taiki-e/cache-cargo-install-action@417450f3c33ee20393705369577571770643d4c7 # v3
+            - uses: taiki-e/cache-cargo-install-action@9ee83daaa7b96a6fab930949ecf1122bba04a389 # v3
               with:
                   tool: cargo-machete
             - run: cargo machete
