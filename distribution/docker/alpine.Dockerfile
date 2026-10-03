@@ -49,7 +49,7 @@ RUN cargo build                                                               \
     --bin charted
 
 ##### FINAL STAGE
-FROM alpine:3.23@sha256:fd791d74b68913cbb027c6546007b3f0d3bc45125f797758156952bc2d6daf40
+FROM alpine:3.23@sha256:85fe1e81d6758c208f3e1eed4338a1997e19d4be002d4dd32d3100c9a8c010a0
 
 RUN apk upgrade && apk add --no-cache \
     bash                              \
