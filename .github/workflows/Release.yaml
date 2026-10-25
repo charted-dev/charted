@@ -261,7 +261,7 @@ jobs:
             - uses: auguwu/git-tag-action@e0770f37140562e31c900b653f3a48a92ebff3ca # master
               id: tag
 
-            - uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3
+            - uses: getsentry/action-release@e6703d0b00208e0b3687ba660d18ab5af7892821 # v3
               env:
                   SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
                   SENTRY_PROJECT: charted-server
